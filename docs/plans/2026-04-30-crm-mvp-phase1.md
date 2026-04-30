@@ -391,7 +391,9 @@ networks:
 
 ```sql
 -- crm/docker/postgres-init/01-extensions.sql
-CREATE EXTENSION IF NOT EXISTS pgvector;
+-- Note: the pgvector image registers the extension under the name `vector`
+-- (NOT `pgvector` as some references suggest). Confirmed empirically.
+CREATE EXTENSION IF NOT EXISTS vector;
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE EXTENSION IF NOT EXISTS unaccent;
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
@@ -950,16 +952,18 @@ export class AppModule {}
 
 - [ ] **Step 12: Implement `src/main.ts`**
 
+> **Note**: `nestjs-pino`'s `Logger` is instance-only (no static `log()` method). We import it as `PinoLogger` for `app.useLogger()` and use `Logger` from `@nestjs/common` for the static bootstrap log line.
+
 ```ts
 import { NestFactory } from '@nestjs/core';
-import { Logger } from 'nestjs-pino';
-import { ValidationPipe } from '@nestjs/common';
+import { Logger as PinoLogger } from 'nestjs-pino';
+import { Logger, ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
-  app.useLogger(app.get(Logger));
+  app.useLogger(app.get(PinoLogger));
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new ValidationPipe({ whitelist: true, transform: true, forbidNonWhitelisted: true })
