@@ -13,6 +13,7 @@ import { CustomFieldModule } from './core/custom-fields/custom-field.module';
 import { MetadataModule } from './core/metadata/metadata.module';
 import { WorkspaceModule } from './core/workspaces/workspace.module';
 import { UserModule } from './core/users/user.module';
+import { PeopleModule } from './crm/people/people.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -38,6 +39,7 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     MetadataModule,
     WorkspaceModule,
     UserModule,
+    PeopleModule,
     HealthModule,
   ],
   providers: [

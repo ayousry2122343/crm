@@ -32,6 +32,7 @@ model Workspace {
   auditLogs               AuditLog[]
   customFieldDefs         CustomFieldDef[]
   userInvites             UserInvite[]
+  people                  Person[]
 
   @@index([slug])
 }
@@ -63,6 +64,7 @@ model User {
   passwordResetTokens     PasswordResetToken[]
   userRoles               UserRole[]
   userProfiles            UserProfile[]
+  ownedPeople             Person[]                 @relation("OwnedPeople")
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -274,4 +276,60 @@ model UserInvite {
 
   @@unique([workspaceId, emailNormalized])
   @@index([workspaceId])
+}
+
+model Person {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  isCompany Boolean  @default(false)
+  parentId  String?
+  parent    Person?  @relation("PersonHierarchy", fields: [parentId], references: [id])
+  children  Person[] @relation("PersonHierarchy")
+
+  firstName       String?
+  lastName        String?
+  fullName        String
+  companyName     String?
+  email           String?
+  emailNormalized String?
+  phone           String?
+  phoneNormalized String?
+  title           String?
+  industry        String?
+  website         String?
+  address         Json?
+
+  lifecycleStage LifecycleStage @default(LEAD)
+  source         String?
+  ownerId        String?
+  owner          User?          @relation("OwnedPeople", fields: [ownerId], references: [id])
+
+  customFields Json @default("{}")
+
+  doNotContact Boolean @default(false)
+  consent      Json?
+
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  updatedById String?
+
+  @@index([workspaceId, emailNormalized])
+  @@index([workspaceId, phoneNormalized])
+  @@index([workspaceId, ownerId])
+  @@index([workspaceId, lifecycleStage])
+  @@index([workspaceId, isCompany])
+  @@index([workspaceId, archivedAt])
+}
+
+enum LifecycleStage {
+  LEAD
+  MQL
+  SQL
+  OPP
+  CUSTOMER
+  EVANGELIST
 }
