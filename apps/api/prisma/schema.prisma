@@ -33,6 +33,8 @@ model Workspace {
   customFieldDefs         CustomFieldDef[]
   userInvites             UserInvite[]
   people                  Person[]
+  tags                    Tag[]
+  entityTags              EntityTag[]
 
   @@index([slug])
 }
@@ -332,4 +334,32 @@ enum LifecycleStage {
   OPP
   CUSTOMER
   EVANGELIST
+}
+
+model Tag {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  color       String    @default("#6366f1")
+  createdAt   DateTime  @default(now())
+
+  entityTags EntityTag[]
+
+  @@unique([workspaceId, name])
+}
+
+model EntityTag {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  tagId       String
+  tag         Tag       @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  entityType  String
+  entityId    String
+  createdAt   DateTime  @default(now())
+
+  @@unique([tagId, entityType, entityId])
+  @@index([workspaceId, entityType, entityId])
+  @@index([workspaceId, tagId])
 }

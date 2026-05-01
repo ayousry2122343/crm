@@ -16,6 +16,8 @@ const TENANT_SCOPED_MODELS = new Set([
   'CustomFieldDef',
   'UserInvite',
   'Person',
+  'Tag',
+  'EntityTag',
 ]);
 
 @Injectable()

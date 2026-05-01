@@ -14,6 +14,7 @@ import { MetadataModule } from './core/metadata/metadata.module';
 import { WorkspaceModule } from './core/workspaces/workspace.module';
 import { UserModule } from './core/users/user.module';
 import { PeopleModule } from './crm/people/people.module';
+import { TagsModule } from './crm/tags/tags.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -40,6 +41,7 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     WorkspaceModule,
     UserModule,
     PeopleModule,
+    TagsModule,
     HealthModule,
   ],
   providers: [

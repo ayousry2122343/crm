@@ -10,6 +10,11 @@ function makePrisma() {
       findUnique: jest.fn(),
       update: jest.fn(),
     },
+    entityTag: {
+      findMany: jest.fn().mockResolvedValue([]),
+      createMany: jest.fn().mockResolvedValue({ count: 0 }),
+      deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
+    },
     $transaction: jest.fn(async (fn: any) => {
       // Run with a fake tx that proxies onto prisma itself.
       return fn(prismaSingleton);
@@ -302,5 +307,32 @@ describe('PersonService.merge', () => {
         await svc.merge({ primaryId: 'primary', mergedIds: ['primary'] });
       }),
     ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('moves entityTags from merged → primary (skipDuplicates) and deletes orig tags', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findUnique.mockImplementation(async ({ where }: any) => {
+      if (where.id === 'primary') return { id: 'primary', workspaceId: 'ws_1' };
+      if (where.id === 'm1') return { id: 'm1', workspaceId: 'ws_1' };
+      return null;
+    });
+    prisma.entityTag.findMany.mockResolvedValue([
+      { id: 'et1', tagId: 'tag1', workspaceId: 'ws_1', entityType: 'Person', entityId: 'm1' },
+      { id: 'et2', tagId: 'tag2', workspaceId: 'ws_1', entityType: 'Person', entityId: 'm1' },
+    ]);
+    prisma.person.update.mockResolvedValue({ id: 'm1' });
+    await tenant.run(ctx(), async () => {
+      await svc.merge({ primaryId: 'primary', mergedIds: ['m1'] });
+    });
+    expect(prisma.entityTag.createMany).toHaveBeenCalledWith({
+      data: [
+        { workspaceId: 'ws_1', tagId: 'tag1', entityType: 'Person', entityId: 'primary' },
+        { workspaceId: 'ws_1', tagId: 'tag2', entityType: 'Person', entityId: 'primary' },
+      ],
+      skipDuplicates: true,
+    });
+    expect(prisma.entityTag.deleteMany).toHaveBeenCalledWith({
+      where: { entityType: 'Person', entityId: 'm1' },
+    });
   });
 });

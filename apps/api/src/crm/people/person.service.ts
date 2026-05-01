@@ -259,6 +259,27 @@ export class PersonService {
         const m = await tx.person.findUnique({ where: { id: mergedId } });
         if (!m || m.workspaceId !== workspaceId) continue;
 
+        // Reattach entity tags from merged → primary, then drop the originals.
+        // skipDuplicates avoids unique-key conflicts when primary already has
+        // the same tag.
+        const tags = await tx.entityTag.findMany({
+          where: { entityType: 'Person', entityId: mergedId },
+        });
+        if (tags.length > 0) {
+          await tx.entityTag.createMany({
+            data: tags.map((t: any) => ({
+              workspaceId: t.workspaceId,
+              tagId: t.tagId,
+              entityType: 'Person',
+              entityId: dto.primaryId,
+            })),
+            skipDuplicates: true,
+          });
+          await tx.entityTag.deleteMany({
+            where: { entityType: 'Person', entityId: mergedId },
+          });
+        }
+
         await tx.person.update({
           where: { id: mergedId },
           data: { archivedAt: new Date() },
