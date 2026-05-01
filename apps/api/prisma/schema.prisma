@@ -31,6 +31,7 @@ model Workspace {
   userProfiles            UserProfile[]
   auditLogs               AuditLog[]
   customFieldDefs         CustomFieldDef[]
+  userInvites             UserInvite[]
 
   @@index([slug])
 }
@@ -256,4 +257,21 @@ enum CustomFieldType {
   FILE
   FORMULA
   ROLLUP
+}
+
+model UserInvite {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id])
+  email           String
+  emailNormalized String
+  fullName        String
+  invitedById     String?
+  tokenHash       String    @unique
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  createdAt       DateTime  @default(now())
+
+  @@unique([workspaceId, emailNormalized])
+  @@index([workspaceId])
 }

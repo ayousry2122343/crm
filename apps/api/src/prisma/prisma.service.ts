@@ -14,6 +14,7 @@ const TENANT_SCOPED_MODELS = new Set([
   'UserProfile',
   'AuditLog',
   'CustomFieldDef',
+  'UserInvite',
 ]);
 
 @Injectable()

@@ -1,0 +1,6 @@
+import { IsEmail, IsString, MinLength } from 'class-validator';
+
+export class InviteUserDto {
+  @IsEmail() email!: string;
+  @IsString() @MinLength(2) fullName!: string;
+}

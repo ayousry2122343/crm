@@ -11,6 +11,8 @@ import { RbacModule } from './core/rbac/rbac.module';
 import { AuditModule } from './core/audit/audit.module';
 import { CustomFieldModule } from './core/custom-fields/custom-field.module';
 import { MetadataModule } from './core/metadata/metadata.module';
+import { WorkspaceModule } from './core/workspaces/workspace.module';
+import { UserModule } from './core/users/user.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -34,6 +36,8 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     AuditModule,
     CustomFieldModule,
     MetadataModule,
+    WorkspaceModule,
+    UserModule,
     HealthModule,
   ],
   providers: [
