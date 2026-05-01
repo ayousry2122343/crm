@@ -63,38 +63,45 @@ export class CustomFieldService {
     });
     if (dup) throw new ConflictException(`field ${dto.entityType}.${dto.key} already exists`);
 
-    const row = await this.prisma.customFieldDef.create({
-      data: {
-        workspaceId,
-        entityType: dto.entityType,
-        key: dto.key,
-        label: dto.label as any,
-        type: dto.type,
-        options: dto.options == null ? undefined : (dto.options as any),
-        required: dto.required ?? false,
-        unique: dto.unique ?? false,
-        indexed: dto.indexed ?? false,
-        default: dto.default == null ? undefined : (dto.default as any),
-        validation: dto.validation == null ? undefined : (dto.validation as any),
-        helpText: dto.helpText == null ? undefined : (dto.helpText as any),
-        visibleToProfileIds: dto.visibleToProfileIds ?? [],
-        editableByProfileIds: dto.editableByProfileIds ?? [],
-        formulaExpr: dto.formulaExpr,
-        rollupConfig: dto.rollupConfig == null ? undefined : (dto.rollupConfig as any),
-      },
-    });
+    // Wrap CustomFieldDef row + DDL in a single transaction so a failed DDL
+    // (e.g. table doesn't exist yet) rolls back the row, preventing the
+    // "row persisted but indexed column missing" inconsistency.
+    const row = await this.prisma.$transaction(async (tx) => {
+      const created = await tx.customFieldDef.create({
+        data: {
+          workspaceId,
+          entityType: dto.entityType,
+          key: dto.key,
+          label: dto.label as any,
+          type: dto.type,
+          options: dto.options == null ? undefined : (dto.options as any),
+          required: dto.required ?? false,
+          unique: dto.unique ?? false,
+          indexed: dto.indexed ?? false,
+          default: dto.default == null ? undefined : (dto.default as any),
+          validation: dto.validation == null ? undefined : (dto.validation as any),
+          helpText: dto.helpText == null ? undefined : (dto.helpText as any),
+          visibleToProfileIds: dto.visibleToProfileIds ?? [],
+          editableByProfileIds: dto.editableByProfileIds ?? [],
+          formulaExpr: dto.formulaExpr,
+          rollupConfig: dto.rollupConfig == null ? undefined : (dto.rollupConfig as any),
+        },
+      });
 
-    if (dto.indexed) {
-      const sql = buildGeneratedColumnSql(
-        dto.entityType as IndexableTable,
-        dto.key,
-        dto.type as IndexableType,
-      );
-      const stmts = sql.split('\n').filter((s) => s.trim());
-      for (const stmt of stmts) {
-        await this.prisma.$executeRawUnsafe(stmt);
+      if (dto.indexed) {
+        const sql = buildGeneratedColumnSql(
+          dto.entityType as IndexableTable,
+          dto.key,
+          dto.type as IndexableType,
+        );
+        const stmts = sql.split('\n').filter((s) => s.trim());
+        for (const stmt of stmts) {
+          await tx.$executeRawUnsafe(stmt);
+        }
       }
-    }
+
+      return created;
+    });
 
     await this.audit.log({
       entityType: 'CustomFieldDef',

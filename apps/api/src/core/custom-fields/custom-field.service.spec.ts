@@ -24,6 +24,8 @@ describe('CustomFieldService', () => {
       },
       $executeRawUnsafe: jest.fn().mockResolvedValue(0),
     };
+    // The transactional client tx mirrors the same shape; create runs inside $transaction(cb)
+    prisma.$transaction = jest.fn(async (cb: any) => cb(prisma));
     audit = { log: jest.fn(), logUpdate: jest.fn() };
     tenant = new TenantContextService();
     const moduleRef = await Test.createTestingModule({
