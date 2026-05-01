@@ -3,6 +3,7 @@ import * as jwt from 'jsonwebtoken';
 import slugify from 'slugify';
 import { randomBytes, createHash } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service';
+import { EmailService } from '../email/email.service';
 import { hashPassword, verifyPassword } from './password.util';
 import type { SignUpDto } from './dto/sign-up.dto';
 
@@ -20,7 +21,10 @@ export interface AuthResult extends AuthTokens {
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly email: EmailService,
+  ) {}
 
   async signUp(dto: SignUpDto): Promise<AuthResult> {
     const emailNormalized = dto.email.trim().toLowerCase();
@@ -125,6 +129,95 @@ export class AuthService {
       where: { tokenHash, revokedAt: null },
       data: { revokedAt: new Date() },
     });
+    return { ok: true };
+  }
+
+  async requestEmailVerification(userId: string, workspaceId: string): Promise<void> {
+    const raw = randomBytes(32).toString('base64url');
+    const tokenHash = createHash('sha256').update(raw).digest('hex');
+    const expiresAt = new Date(Date.now() + 24 * 3600 * 1000); // 24h
+    await this.prisma.emailVerificationToken.create({
+      data: { userId, workspaceId, tokenHash, expiresAt },
+    });
+    const user = await this.prisma.user.findUnique({ where: { id: userId } });
+    if (!user) return;
+    const link = `${process.env.APP_BASE_URL ?? 'http://localhost:5174'}/verify-email?token=${raw}`;
+    await this.email.send({
+      to: user.email,
+      subject: 'تأكيد البريد الإلكتروني | Confirm your email',
+      html: `<p>اضغط الرابط لتأكيد بريدك:</p><p><a href="{{link}}">{{link}}</a></p><hr/><p>Click the link to confirm your email:</p><p><a href="{{link}}">{{link}}</a></p>`,
+      text: `اضغط الرابط لتأكيد بريدك / Click to confirm: {{link}}`,
+      vars: { link },
+    });
+  }
+
+  async confirmEmailVerification(rawToken: string): Promise<{ ok: true }> {
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
+    const stored = await this.prisma.emailVerificationToken.findUnique({ where: { tokenHash } });
+    if (!stored || stored.consumedAt || stored.expiresAt < new Date()) {
+      throw new UnauthorizedException('invalid or expired token');
+    }
+    await this.prisma.$transaction([
+      this.prisma.emailVerificationToken.update({
+        where: { id: stored.id },
+        data: { consumedAt: new Date() },
+      }),
+      this.prisma.user.update({
+        where: { id: stored.userId },
+        data: { emailVerifiedAt: new Date() },
+      }),
+    ]);
+    return { ok: true };
+  }
+
+  async requestPasswordReset(workspaceSlug: string, email: string): Promise<{ ok: true }> {
+    // Always return ok to avoid email enumeration.
+    const ws = await this.prisma.workspace.findUnique({ where: { slug: workspaceSlug } });
+    if (!ws) return { ok: true };
+    const user = await this.prisma.user.findFirst({
+      where: { workspaceId: ws.id, emailNormalized: email.trim().toLowerCase() },
+    });
+    if (!user) return { ok: true };
+
+    const raw = randomBytes(32).toString('base64url');
+    const tokenHash = createHash('sha256').update(raw).digest('hex');
+    const expiresAt = new Date(Date.now() + 60 * 60 * 1000); // 1h
+    await this.prisma.passwordResetToken.create({
+      data: { userId: user.id, workspaceId: ws.id, tokenHash, expiresAt },
+    });
+    const link = `${process.env.APP_BASE_URL ?? 'http://localhost:5174'}/reset-password?token=${raw}`;
+    await this.email.send({
+      to: user.email,
+      subject: 'إعادة ضبط كلمة المرور | Password Reset',
+      html: `<p>اضغط الرابط لإعادة ضبط كلمة المرور (صالح لساعة):</p><p><a href="{{link}}">{{link}}</a></p>`,
+      text: `إعادة ضبط كلمة المرور: {{link}}`,
+      vars: { link },
+    });
+    return { ok: true };
+  }
+
+  async confirmPasswordReset(rawToken: string, newPassword: string): Promise<{ ok: true }> {
+    const tokenHash = createHash('sha256').update(rawToken).digest('hex');
+    const stored = await this.prisma.passwordResetToken.findUnique({ where: { tokenHash } });
+    if (!stored || stored.consumedAt || stored.expiresAt < new Date()) {
+      throw new UnauthorizedException('invalid or expired token');
+    }
+    const passwordHash = await hashPassword(newPassword);
+    await this.prisma.$transaction([
+      this.prisma.passwordResetToken.update({
+        where: { id: stored.id },
+        data: { consumedAt: new Date() },
+      }),
+      this.prisma.user.update({
+        where: { id: stored.userId },
+        data: { passwordHash },
+      }),
+      // Revoke all refresh tokens for this user — force re-login.
+      this.prisma.refreshToken.updateMany({
+        where: { userId: stored.userId, revokedAt: null },
+        data: { revokedAt: new Date() },
+      }),
+    ]);
     return { ok: true };
   }
 }

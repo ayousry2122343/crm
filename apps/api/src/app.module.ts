@@ -6,6 +6,7 @@ import { HealthModule } from './health/health.module';
 import { TenantModule } from './core/tenant/tenant.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './core/auth/auth.module';
+import { EmailModule } from './core/email/email.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 
 @Module({
@@ -22,6 +23,7 @@ import { JwtAuthGuard } from './core/auth/jwt.guard';
     }),
     TenantModule,
     PrismaModule,
+    EmailModule,
     AuthModule,
     HealthModule,
   ],

@@ -1,12 +1,16 @@
 import { Test } from '@nestjs/testing';
-import { ConflictException } from '@nestjs/common';
+import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TenantContextService } from '../tenant/tenant-context.service';
+import { EmailService } from '../email/email.service';
+
+const emailMock = () => ({ send: jest.fn().mockResolvedValue({ messageId: 'm' }) });
 
 describe('AuthService.signUp', () => {
   let service: AuthService;
   let prisma: any;
+  let email: any;
 
   beforeEach(async () => {
     process.env.JWT_ACCESS_SECRET = 'test_access';
@@ -26,18 +30,26 @@ describe('AuthService.signUp', () => {
               .fn()
               .mockResolvedValue({ id: 'u_1', email: 'a@b.com', emailNormalized: 'a@b.com', fullName: 'A', workspaceId: 'ws_1' }),
           },
+          profile: {
+            create: jest.fn().mockResolvedValue({ id: 'p_admin' }),
+          },
+          userProfile: {
+            create: jest.fn().mockResolvedValue({ id: 'up_1' }),
+          },
         })
       ),
       refreshToken: {
         create: jest.fn().mockResolvedValue({ id: 'rt_1' }),
       },
     };
+    email = emailMock();
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         AuthService,
         TenantContextService,
         { provide: PrismaService, useValue: prisma },
+        { provide: EmailService, useValue: email },
       ],
     }).compile();
     service = moduleRef.get(AuthService);
@@ -79,6 +91,12 @@ describe('AuthService.signUp', () => {
             return { id: 'u_2', email: data.email, emailNormalized: data.emailNormalized, fullName: 'X', workspaceId: 'ws_2' };
           }),
         },
+        profile: {
+          create: jest.fn().mockResolvedValue({ id: 'p_admin' }),
+        },
+        userProfile: {
+          create: jest.fn().mockResolvedValue({ id: 'up_1' }),
+        },
       })
     );
     await service.signUp({
@@ -94,6 +112,7 @@ describe('AuthService.signUp', () => {
 describe('AuthService.login + refresh + logout', () => {
   let service: AuthService;
   let prisma: any;
+  let email: any;
 
   beforeEach(async () => {
     process.env.JWT_ACCESS_SECRET = 'test_access';
@@ -111,12 +130,14 @@ describe('AuthService.login + refresh + logout', () => {
         updateMany: jest.fn().mockResolvedValue({ count: 1 }),
       },
     };
+    email = emailMock();
 
     const moduleRef = await Test.createTestingModule({
       providers: [
         AuthService,
         TenantContextService,
         { provide: PrismaService, useValue: prisma },
+        { provide: EmailService, useValue: email },
       ],
     }).compile();
     service = moduleRef.get(AuthService);
@@ -207,5 +228,176 @@ describe('AuthService.login + refresh + logout', () => {
     const result = await service.logout('sometoken');
     expect(result.ok).toBe(true);
     expect(prisma.refreshToken.updateMany).toHaveBeenCalled();
+  });
+});
+
+describe('AuthService.requestEmailVerification + confirmEmailVerification', () => {
+  let service: AuthService;
+  let prisma: any;
+  let email: any;
+
+  beforeEach(async () => {
+    process.env.JWT_ACCESS_SECRET = 'test_access';
+    process.env.APP_BASE_URL = 'http://localhost:5174';
+
+    prisma = {
+      emailVerificationToken: {
+        create: jest.fn().mockResolvedValue({ id: 'evt_1' }),
+        findUnique: jest.fn(),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      user: {
+        findUnique: jest.fn(),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      $transaction: jest.fn(async (ops: any[]) => {
+        // emulate $transaction([...]) — return the array of resolved promises
+        return Promise.all(ops);
+      }),
+    };
+    email = emailMock();
+
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        TenantContextService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: EmailService, useValue: email },
+      ],
+    }).compile();
+    service = moduleRef.get(AuthService);
+  });
+
+  it('requestEmailVerification creates a token and sends an email', async () => {
+    prisma.user.findUnique.mockResolvedValue({ id: 'u_1', email: 'a@b.com' });
+    await service.requestEmailVerification('u_1', 'ws_1');
+    expect(prisma.emailVerificationToken.create).toHaveBeenCalled();
+    const createArgs = prisma.emailVerificationToken.create.mock.calls[0][0];
+    expect(createArgs.data.userId).toBe('u_1');
+    expect(createArgs.data.workspaceId).toBe('ws_1');
+    expect(typeof createArgs.data.tokenHash).toBe('string');
+    expect(email.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'a@b.com',
+        subject: expect.stringContaining('Confirm'),
+      })
+    );
+  });
+
+  it('confirmEmailVerification throws on invalid token', async () => {
+    prisma.emailVerificationToken.findUnique.mockResolvedValue(null);
+    await expect(service.confirmEmailVerification('bad')).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('confirmEmailVerification throws on expired token', async () => {
+    prisma.emailVerificationToken.findUnique.mockResolvedValue({
+      id: 'evt_1',
+      userId: 'u_1',
+      consumedAt: null,
+      expiresAt: new Date(Date.now() - 1000),
+    });
+    await expect(service.confirmEmailVerification('expired')).rejects.toThrow(/invalid or expired/);
+  });
+
+  it('confirmEmailVerification consumes token and sets emailVerifiedAt', async () => {
+    prisma.emailVerificationToken.findUnique.mockResolvedValue({
+      id: 'evt_1',
+      userId: 'u_1',
+      consumedAt: null,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    const result = await service.confirmEmailVerification('valid');
+    expect(result.ok).toBe(true);
+    expect(prisma.$transaction).toHaveBeenCalled();
+  });
+});
+
+describe('AuthService.requestPasswordReset + confirmPasswordReset', () => {
+  let service: AuthService;
+  let prisma: any;
+  let email: any;
+
+  beforeEach(async () => {
+    process.env.JWT_ACCESS_SECRET = 'test_access';
+    process.env.APP_BASE_URL = 'http://localhost:5174';
+
+    prisma = {
+      workspace: { findUnique: jest.fn() },
+      user: {
+        findFirst: jest.fn(),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      passwordResetToken: {
+        create: jest.fn().mockResolvedValue({ id: 'prt_1' }),
+        findUnique: jest.fn(),
+        update: jest.fn().mockResolvedValue({}),
+      },
+      refreshToken: {
+        updateMany: jest.fn().mockResolvedValue({ count: 0 }),
+      },
+      $transaction: jest.fn(async (ops: any[]) => Promise.all(ops)),
+    };
+    email = emailMock();
+
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        TenantContextService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: EmailService, useValue: email },
+      ],
+    }).compile();
+    service = moduleRef.get(AuthService);
+  });
+
+  it('requestPasswordReset returns ok even if workspace not found (no enumeration)', async () => {
+    prisma.workspace.findUnique.mockResolvedValue(null);
+    const result = await service.requestPasswordReset('nope', 'a@b.com');
+    expect(result.ok).toBe(true);
+    expect(email.send).not.toHaveBeenCalled();
+  });
+
+  it('requestPasswordReset returns ok even if user not found (no enumeration)', async () => {
+    prisma.workspace.findUnique.mockResolvedValue({ id: 'ws_1', slug: 'acme', name: 'Acme' });
+    prisma.user.findFirst.mockResolvedValue(null);
+    const result = await service.requestPasswordReset('acme', 'missing@x.com');
+    expect(result.ok).toBe(true);
+    expect(email.send).not.toHaveBeenCalled();
+  });
+
+  it('requestPasswordReset creates token + sends email when user found', async () => {
+    prisma.workspace.findUnique.mockResolvedValue({ id: 'ws_1', slug: 'acme', name: 'Acme' });
+    prisma.user.findFirst.mockResolvedValue({
+      id: 'u_1',
+      email: 'a@b.com',
+      emailNormalized: 'a@b.com',
+      workspaceId: 'ws_1',
+    });
+    const result = await service.requestPasswordReset('acme', 'a@b.com');
+    expect(result.ok).toBe(true);
+    expect(prisma.passwordResetToken.create).toHaveBeenCalled();
+    expect(email.send).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'a@b.com',
+        subject: expect.stringContaining('Password Reset'),
+      })
+    );
+  });
+
+  it('confirmPasswordReset throws on invalid token', async () => {
+    prisma.passwordResetToken.findUnique.mockResolvedValue(null);
+    await expect(service.confirmPasswordReset('bad', 'newpass!!')).rejects.toThrow(UnauthorizedException);
+  });
+
+  it('confirmPasswordReset rotates password and revokes refresh tokens', async () => {
+    prisma.passwordResetToken.findUnique.mockResolvedValue({
+      id: 'prt_1',
+      userId: 'u_1',
+      consumedAt: null,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    const result = await service.confirmPasswordReset('valid', 'newpass!!');
+    expect(result.ok).toBe(true);
+    expect(prisma.$transaction).toHaveBeenCalled();
   });
 });

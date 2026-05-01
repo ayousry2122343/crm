@@ -2,7 +2,13 @@ import { Injectable, OnModuleInit, OnModuleDestroy, Logger } from '@nestjs/commo
 import { PrismaClient } from '@prisma/client';
 import { TenantContextService } from '../core/tenant/tenant-context.service';
 
-const TENANT_SCOPED_MODELS = new Set(['User', 'Team', 'RefreshToken']);
+const TENANT_SCOPED_MODELS = new Set([
+  'User',
+  'Team',
+  'RefreshToken',
+  'EmailVerificationToken',
+  'PasswordResetToken',
+]);
 
 @Injectable()
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
