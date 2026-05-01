@@ -6,7 +6,9 @@ export type UserSummary = {
   email: string;
   fullName: string;
   status: string;
+  emailVerifiedAt?: string | null;
   lastLoginAt?: string | null;
+  createdAt?: string;
 };
 
 export type PendingInvite = {
@@ -16,13 +18,13 @@ export type PendingInvite = {
   expiresAt: string;
 };
 
+// API returns `{ members, invites }` (see UserService.list).
+export type UserListResponse = { members: UserSummary[]; invites: PendingInvite[] };
+
 export const usersApi = {
   acceptInvite: (body: { token: string; password: string }) =>
     api.post<AuthResult>('/users/accept-invite', body).then((r) => r.data),
-  list: () =>
-    api
-      .get<{ users: UserSummary[]; pendingInvites: PendingInvite[] }>('/users')
-      .then((r) => r.data),
+  list: () => api.get<UserListResponse>('/users').then((r) => r.data),
   invite: (body: { email: string; fullName: string }) =>
     api.post('/users/invite', body).then((r) => r.data),
 };
