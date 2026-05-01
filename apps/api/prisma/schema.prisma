@@ -10,9 +10,84 @@ datasource db {
 }
 
 model Workspace {
-  id              String   @id @default(cuid())
-  slug            String   @unique
+  id              String        @id @default(cuid())
+  slug            String        @unique
   name            String
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  plan            WorkspacePlan @default(FREE)
+  branding        Json          @default("{}")
+  primaryLocale   String        @default("ar")
+  primaryCurrency String        @default("EGP") @db.Char(3)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  users         User[]
+  teams         Team[]
+  refreshTokens RefreshToken[]
+
+  @@index([slug])
+}
+
+enum WorkspacePlan {
+  FREE
+  STARTER
+  GROWTH
+  ENTERPRISE
+}
+
+model User {
+  id              String     @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace  @relation(fields: [workspaceId], references: [id])
+  email           String
+  emailNormalized String
+  passwordHash    String
+  fullName        String
+  locale          String     @default("ar")
+  status          UserStatus @default(ACTIVE)
+  emailVerifiedAt DateTime?
+  lastLoginAt     DateTime?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  refreshTokens RefreshToken[]
+
+  @@unique([workspaceId, emailNormalized])
+  @@index([emailNormalized])
+}
+
+enum UserStatus {
+  ACTIVE
+  INVITED
+  DISABLED
+}
+
+model Team {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  parentId    String?
+  parent      Team?     @relation("TeamHierarchy", fields: [parentId], references: [id])
+  children    Team[]    @relation("TeamHierarchy")
+  createdAt   DateTime  @default(now())
+
+  @@unique([workspaceId, name])
+}
+
+model RefreshToken {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  userId       String
+  user         User      @relation(fields: [userId], references: [id])
+  tokenHash    String    @unique
+  expiresAt    DateTime
+  revokedAt    DateTime?
+  replacedById String?
+  createdAt    DateTime  @default(now())
+  ipAddress    String?
+  userAgent    String?
+
+  @@index([workspaceId, userId])
+  @@index([tokenHash])
 }
