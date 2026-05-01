@@ -1,0 +1,28 @@
+{
+  "entityType": "Person",
+  "labelSingular": { "ar": "جهة اتصال", "en": "Person" },
+  "labelPlural": { "ar": "جهات الاتصال", "en": "People" },
+  "icon": "pi pi-user",
+  "color": "#3b82f6",
+  "fields": [
+    { "key": "fullName", "label": { "ar": "الاسم الكامل", "en": "Full Name" }, "type": "TEXT", "required": true },
+    { "key": "email", "label": { "ar": "البريد الإلكتروني", "en": "Email" }, "type": "EMAIL" },
+    { "key": "phone", "label": { "ar": "الهاتف", "en": "Phone" }, "type": "PHONE" },
+    { "key": "title", "label": { "ar": "المسمى الوظيفي", "en": "Title" }, "type": "TEXT" },
+    {
+      "key": "lifecycleStage",
+      "label": { "ar": "مرحلة دورة الحياة", "en": "Lifecycle Stage" },
+      "type": "PICKLIST",
+      "options": [
+        { "value": "LEAD", "label": { "ar": "محتمل", "en": "Lead" } },
+        { "value": "MQL", "label": { "ar": "مؤهل تسويقياً", "en": "MQL" } },
+        { "value": "SQL", "label": { "ar": "مؤهل بيعياً", "en": "SQL" } },
+        { "value": "OPP", "label": { "ar": "فرصة", "en": "Opportunity" } },
+        { "value": "CUSTOMER", "label": { "ar": "عميل", "en": "Customer" } },
+        { "value": "EVANGELIST", "label": { "ar": "مروّج", "en": "Evangelist" } }
+      ]
+    },
+    { "key": "isCompany", "label": { "ar": "شركة", "en": "Is Company" }, "type": "BOOLEAN" },
+    { "key": "ownerId", "label": { "ar": "المسؤول", "en": "Owner" }, "type": "LOOKUP", "options": { "entityType": "User" } }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "entityType": "Activity",
+  "labelSingular": { "ar": "نشاط", "en": "Activity" },
+  "labelPlural": { "ar": "الأنشطة", "en": "Activities" },
+  "icon": "pi pi-list",
+  "color": "#f59e0b",
+  "fields": [
+    { "key": "subject", "label": { "ar": "الموضوع", "en": "Subject" }, "type": "TEXT", "required": true },
+    {
+      "key": "type",
+      "label": { "ar": "النوع", "en": "Type" },
+      "type": "PICKLIST",
+      "options": [
+        { "value": "CALL", "label": { "ar": "مكالمة", "en": "Call" } },
+        { "value": "MEETING", "label": { "ar": "اجتماع", "en": "Meeting" } },
+        { "value": "EMAIL", "label": { "ar": "بريد", "en": "Email" } },
+        { "value": "TASK", "label": { "ar": "مهمة", "en": "Task" } },
+        { "value": "NOTE", "label": { "ar": "ملاحظة", "en": "Note" } }
+      ]
+    },
+    { "key": "body", "label": { "ar": "التفاصيل", "en": "Details" }, "type": "LONG_TEXT" },
+    { "key": "dueAt", "label": { "ar": "ميعاد الاستحقاق", "en": "Due Date" }, "type": "DATETIME" },
+    { "key": "ownerId", "label": { "ar": "المسؤول", "en": "Owner" }, "type": "LOOKUP", "options": { "entityType": "User" } }
+  ]
+}

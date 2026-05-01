@@ -1,0 +1,25 @@
+{
+  "entityType": "Deal",
+  "labelSingular": { "ar": "صفقة", "en": "Deal" },
+  "labelPlural": { "ar": "الصفقات", "en": "Deals" },
+  "icon": "pi pi-money-bill",
+  "color": "#22c55e",
+  "fields": [
+    { "key": "name", "label": { "ar": "اسم الصفقة", "en": "Deal Name" }, "type": "TEXT", "required": true },
+    { "key": "amount", "label": { "ar": "القيمة", "en": "Amount" }, "type": "DECIMAL", "required": true },
+    {
+      "key": "currency",
+      "label": { "ar": "العملة", "en": "Currency" },
+      "type": "PICKLIST",
+      "options": [
+        { "value": "EGP", "label": { "ar": "جنيه مصري", "en": "EGP" } },
+        { "value": "SAR", "label": { "ar": "ريال سعودي", "en": "SAR" } },
+        { "value": "AED", "label": { "ar": "درهم إماراتي", "en": "AED" } },
+        { "value": "USD", "label": { "ar": "دولار", "en": "USD" } },
+        { "value": "EUR", "label": { "ar": "يورو", "en": "EUR" } }
+      ]
+    },
+    { "key": "expectedCloseDate", "label": { "ar": "تاريخ الإغلاق المتوقع", "en": "Expected Close" }, "type": "DATE" },
+    { "key": "ownerId", "label": { "ar": "المسؤول", "en": "Owner" }, "type": "LOOKUP", "options": { "entityType": "User" } }
+  ]
+}

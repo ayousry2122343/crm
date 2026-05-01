@@ -1,0 +1,14 @@
+{
+  "entityType": "Company",
+  "labelSingular": { "ar": "شركة", "en": "Company" },
+  "labelPlural": { "ar": "الشركات", "en": "Companies" },
+  "icon": "pi pi-building",
+  "color": "#6366f1",
+  "fields": [
+    { "key": "companyName", "label": { "ar": "اسم الشركة", "en": "Company Name" }, "type": "TEXT", "required": true },
+    { "key": "website", "label": { "ar": "الموقع", "en": "Website" }, "type": "URL" },
+    { "key": "industry", "label": { "ar": "المجال", "en": "Industry" }, "type": "TEXT" },
+    { "key": "phone", "label": { "ar": "الهاتف", "en": "Phone" }, "type": "PHONE" },
+    { "key": "ownerId", "label": { "ar": "المسؤول", "en": "Owner" }, "type": "LOOKUP", "options": { "entityType": "User" } }
+  ]
+}
