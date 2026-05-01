@@ -30,6 +30,7 @@ model Workspace {
   userRoles               UserRole[]
   userProfiles            UserProfile[]
   auditLogs               AuditLog[]
+  customFieldDefs         CustomFieldDef[]
 
   @@index([slug])
 }
@@ -210,4 +211,49 @@ enum AuditAction {
   UPDATE
   DELETE
   RESTORE
+}
+
+model CustomFieldDef {
+  id                   String          @id @default(cuid())
+  workspaceId          String
+  workspace            Workspace       @relation(fields: [workspaceId], references: [id])
+  entityType           String
+  key                  String
+  label                Json
+  type                 CustomFieldType
+  options              Json?
+  required             Boolean         @default(false)
+  unique               Boolean         @default(false)
+  indexed              Boolean         @default(false)
+  default              Json?
+  validation           Json?
+  helpText             Json?
+  visibleToProfileIds  String[]
+  editableByProfileIds String[]
+  formulaExpr          String?
+  rollupConfig         Json?
+  archivedAt           DateTime?
+  createdAt            DateTime        @default(now())
+
+  @@unique([workspaceId, entityType, key])
+  @@index([workspaceId, entityType])
+}
+
+enum CustomFieldType {
+  TEXT
+  LONG_TEXT
+  NUMBER
+  DECIMAL
+  BOOLEAN
+  DATE
+  DATETIME
+  PICKLIST
+  MULTI_PICKLIST
+  LOOKUP
+  URL
+  EMAIL
+  PHONE
+  FILE
+  FORMULA
+  ROLLUP
 }

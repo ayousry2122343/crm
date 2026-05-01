@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { APP_GUARD } from '@nestjs/core';
+import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
 import { LoggerModule } from 'nestjs-pino';
 import { HealthModule } from './health/health.module';
 import { TenantModule } from './core/tenant/tenant.module';
@@ -9,7 +9,9 @@ import { AuthModule } from './core/auth/auth.module';
 import { EmailModule } from './core/email/email.module';
 import { RbacModule } from './core/rbac/rbac.module';
 import { AuditModule } from './core/audit/audit.module';
+import { CustomFieldModule } from './core/custom-fields/custom-field.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
+import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
 @Module({
   imports: [
@@ -29,8 +31,12 @@ import { JwtAuthGuard } from './core/auth/jwt.guard';
     AuthModule,
     RbacModule,
     AuditModule,
+    CustomFieldModule,
     HealthModule,
   ],
-  providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],
+  providers: [
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    { provide: APP_INTERCEPTOR, useClass: TenantInterceptor },
+  ],
 })
 export class AppModule {}
