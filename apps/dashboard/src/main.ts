@@ -15,4 +15,9 @@ app.use(i18n);
 app.use(PrimeVue, {
   theme: { preset: Aura, options: { darkModeSelector: '.crm-dark' } },
 });
+
+window.addEventListener('crm:logout', () => {
+  router.push({ name: 'login' });
+});
+
 app.mount('#app');

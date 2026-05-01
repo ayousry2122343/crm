@@ -2,5 +2,90 @@
   "app": {
     "title": "نظام إدارة العملاء",
     "welcome": "أهلاً بك في الـ CRM"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "workspaceSettings": "إعدادات المساحة",
+    "users": "المستخدمون",
+    "customFields": "الحقول المخصصة",
+    "logout": "تسجيل الخروج"
+  },
+  "auth": {
+    "fields": {
+      "fullName": "الاسم الكامل",
+      "email": "البريد الإلكتروني",
+      "password": "كلمة المرور",
+      "newPassword": "كلمة المرور الجديدة",
+      "workspaceName": "اسم المساحة",
+      "workspaceSlug": "معرّف المساحة"
+    },
+    "signUp": {
+      "title": "إنشاء حساب جديد",
+      "submit": "تسجيل",
+      "haveAccount": "هل لديك حساب؟"
+    },
+    "login": {
+      "title": "تسجيل الدخول",
+      "submit": "دخول",
+      "forgotPassword": "نسيت كلمة المرور؟",
+      "noAccount": "لا تملك حساب؟"
+    },
+    "passwordReset": {
+      "requestTitle": "إعادة ضبط كلمة المرور",
+      "requestSubmit": "إرسال رابط الاستعادة",
+      "requestSent": "إذا كان البريد مسجلاً، تم إرسال رابط استعادة.",
+      "confirmTitle": "تعيين كلمة مرور جديدة",
+      "confirmSubmit": "حفظ",
+      "confirmDone": "تم تحديث كلمة المرور."
+    },
+    "acceptInvite": {
+      "title": "قبول الدعوة",
+      "submit": "إنشاء كلمة المرور والدخول"
+    },
+    "errors": {
+      "unknown": "حدث خطأ غير متوقع، حاول مجدداً."
+    }
+  },
+  "dashboard": {
+    "welcome": "أهلاً، {name}",
+    "workspace": "أنت في مساحة: {name}"
+  },
+  "settings": {
+    "workspace": {
+      "title": "إعدادات المساحة",
+      "save": "حفظ",
+      "saved": "تم الحفظ"
+    },
+    "users": {
+      "title": "المستخدمون",
+      "invite": "دعوة عضو جديد",
+      "pendingInvites": "دعوات معلقة",
+      "status": "الحالة",
+      "lastLogin": "آخر دخول",
+      "expiresAt": "تنتهي في"
+    },
+    "customFields": {
+      "title": "الحقول المخصصة",
+      "addNew": "إضافة حقل",
+      "entityType": "النوع",
+      "key": "المفتاح",
+      "labelAr": "الاسم بالعربية",
+      "labelEn": "الاسم بالإنجليزية",
+      "type": "النوع",
+      "required": "إلزامي",
+      "indexed": "مفهرس",
+      "indexHint": "يمكن فهرسة TEXT/NUMBER/DATE فقط على Person/Company/Deal/Activity",
+      "keyHint": "snake_case، يبدأ بحرف"
+    }
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "loading": "جاري التحميل...",
+    "locale": "اللغة",
+    "currency": "العملة",
+    "actions": "إجراءات"
   }
 }

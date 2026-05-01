@@ -2,5 +2,90 @@
   "app": {
     "title": "Customer Relationship Management",
     "welcome": "Welcome to CRM"
+  },
+  "nav": {
+    "home": "Home",
+    "workspaceSettings": "Workspace Settings",
+    "users": "Users",
+    "customFields": "Custom Fields",
+    "logout": "Log out"
+  },
+  "auth": {
+    "fields": {
+      "fullName": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "newPassword": "New password",
+      "workspaceName": "Workspace name",
+      "workspaceSlug": "Workspace slug"
+    },
+    "signUp": {
+      "title": "Sign Up",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?"
+    },
+    "login": {
+      "title": "Log In",
+      "submit": "Log in",
+      "forgotPassword": "Forgot password?",
+      "noAccount": "Don't have an account?"
+    },
+    "passwordReset": {
+      "requestTitle": "Reset password",
+      "requestSubmit": "Send reset link",
+      "requestSent": "If the email is registered, a reset link has been sent.",
+      "confirmTitle": "Set a new password",
+      "confirmSubmit": "Save",
+      "confirmDone": "Password has been updated."
+    },
+    "acceptInvite": {
+      "title": "Accept invite",
+      "submit": "Set password and continue"
+    },
+    "errors": {
+      "unknown": "Something went wrong, please try again."
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome, {name}",
+    "workspace": "You are in workspace: {name}"
+  },
+  "settings": {
+    "workspace": {
+      "title": "Workspace settings",
+      "save": "Save",
+      "saved": "Saved"
+    },
+    "users": {
+      "title": "Users",
+      "invite": "Invite member",
+      "pendingInvites": "Pending invites",
+      "status": "Status",
+      "lastLogin": "Last login",
+      "expiresAt": "Expires"
+    },
+    "customFields": {
+      "title": "Custom fields",
+      "addNew": "Add field",
+      "entityType": "Entity type",
+      "key": "Key",
+      "labelAr": "Arabic label",
+      "labelEn": "English label",
+      "type": "Type",
+      "required": "Required",
+      "indexed": "Indexed",
+      "indexHint": "Only TEXT/NUMBER/DATE can be indexed on Person/Company/Deal/Activity",
+      "keyHint": "snake_case, must start with a letter"
+    }
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "loading": "Loading...",
+    "locale": "Locale",
+    "currency": "Currency",
+    "actions": "Actions"
   }
 }
