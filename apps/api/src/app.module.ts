@@ -8,6 +8,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './core/auth/auth.module';
 import { EmailModule } from './core/email/email.module';
 import { RbacModule } from './core/rbac/rbac.module';
+import { AuditModule } from './core/audit/audit.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 
 @Module({
@@ -27,6 +28,7 @@ import { JwtAuthGuard } from './core/auth/jwt.guard';
     EmailModule,
     AuthModule,
     RbacModule,
+    AuditModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],

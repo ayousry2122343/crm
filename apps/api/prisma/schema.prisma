@@ -29,6 +29,7 @@ model Workspace {
   profiles                Profile[]
   userRoles               UserRole[]
   userProfiles            UserProfile[]
+  auditLogs               AuditLog[]
 
   @@index([slug])
 }
@@ -183,4 +184,30 @@ model UserProfile {
   createdAt   DateTime  @default(now())
 
   @@unique([userId, profileId])
+}
+
+model AuditLog {
+  id          String      @id @default(cuid())
+  workspaceId String
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  entityType  String
+  entityId    String
+  fieldKey    String?
+  oldValue    Json?
+  newValue    Json?
+  action      AuditAction
+  userId      String?
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime    @default(now())
+
+  @@index([workspaceId, entityType, entityId, createdAt])
+  @@index([workspaceId, userId, createdAt])
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  RESTORE
 }
