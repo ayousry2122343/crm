@@ -15,6 +15,7 @@ import { WorkspaceModule } from './core/workspaces/workspace.module';
 import { UserModule } from './core/users/user.module';
 import { PeopleModule } from './crm/people/people.module';
 import { TagsModule } from './crm/tags/tags.module';
+import { ListsModule } from './crm/lists/lists.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -42,6 +43,7 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     UserModule,
     PeopleModule,
     TagsModule,
+    ListsModule,
     HealthModule,
   ],
   providers: [

@@ -18,6 +18,7 @@ const TENANT_SCOPED_MODELS = new Set([
   'Person',
   'Tag',
   'EntityTag',
+  'List',
 ]);
 
 @Injectable()
