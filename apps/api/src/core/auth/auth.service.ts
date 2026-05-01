@@ -84,4 +84,47 @@ export class AuthService {
     });
     return raw;
   }
+
+  async login(dto: { email: string; password: string; workspaceSlug: string }): Promise<AuthResult> {
+    const ws = await this.prisma.workspace.findUnique({ where: { slug: dto.workspaceSlug } });
+    if (!ws) throw new UnauthorizedException('invalid credentials');
+    const user = await this.prisma.user.findFirst({
+      where: { workspaceId: ws.id, emailNormalized: dto.email.trim().toLowerCase() },
+    });
+    if (!user) throw new UnauthorizedException('invalid credentials');
+    const ok = await verifyPassword(user.passwordHash, dto.password);
+    if (!ok) throw new UnauthorizedException('invalid credentials');
+    if (user.status !== 'ACTIVE') throw new UnauthorizedException('user disabled');
+
+    const accessToken = this.signAccessToken(user.id, ws.id);
+    const refreshToken = await this.issueRefreshToken(user.id, ws.id);
+    await this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+    return {
+      user: { id: user.id, email: user.email, fullName: user.fullName, workspaceId: ws.id },
+      workspace: { id: ws.id, slug: ws.slug, name: ws.name },
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async refresh(dto: { refreshToken: string }): Promise<AuthTokens> {
+    const tokenHash = createHash('sha256').update(dto.refreshToken).digest('hex');
+    const stored = await this.prisma.refreshToken.findUnique({ where: { tokenHash } });
+    if (!stored || stored.revokedAt || stored.expiresAt < new Date()) {
+      throw new UnauthorizedException('invalid refresh token');
+    }
+    await this.prisma.refreshToken.update({ where: { id: stored.id }, data: { revokedAt: new Date() } });
+    const accessToken = this.signAccessToken(stored.userId, stored.workspaceId);
+    const refreshToken = await this.issueRefreshToken(stored.userId, stored.workspaceId);
+    return { accessToken, refreshToken };
+  }
+
+  async logout(refreshToken: string): Promise<{ ok: true }> {
+    const tokenHash = createHash('sha256').update(refreshToken).digest('hex');
+    await this.prisma.refreshToken.updateMany({
+      where: { tokenHash, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+    return { ok: true };
+  }
 }
