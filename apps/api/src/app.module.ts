@@ -7,6 +7,7 @@ import { TenantModule } from './core/tenant/tenant.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './core/auth/auth.module';
 import { EmailModule } from './core/email/email.module';
+import { RbacModule } from './core/rbac/rbac.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 
 @Module({
@@ -25,6 +26,7 @@ import { JwtAuthGuard } from './core/auth/jwt.guard';
     PrismaModule,
     EmailModule,
     AuthModule,
+    RbacModule,
     HealthModule,
   ],
   providers: [{ provide: APP_GUARD, useClass: JwtAuthGuard }],

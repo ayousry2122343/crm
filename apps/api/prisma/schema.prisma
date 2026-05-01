@@ -25,6 +25,10 @@ model Workspace {
   refreshTokens           RefreshToken[]
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens     PasswordResetToken[]
+  roles                   Role[]
+  profiles                Profile[]
+  userRoles               UserRole[]
+  userProfiles            UserProfile[]
 
   @@index([slug])
 }
@@ -54,6 +58,8 @@ model User {
   refreshTokens           RefreshToken[]
   emailVerificationTokens EmailVerificationToken[]
   passwordResetTokens     PasswordResetToken[]
+  userRoles               UserRole[]
+  userProfiles            UserProfile[]
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -122,4 +128,59 @@ model PasswordResetToken {
   createdAt   DateTime  @default(now())
 
   @@index([workspaceId, userId])
+}
+
+model Role {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  parentId    String?
+  parent      Role?     @relation("RoleHierarchy", fields: [parentId], references: [id])
+  children    Role[]    @relation("RoleHierarchy")
+  createdAt   DateTime  @default(now())
+
+  users UserRole[]
+
+  @@unique([workspaceId, name])
+}
+
+model Profile {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  isSystem    Boolean   @default(false)
+  permissions String[] // permission keys, e.g. ["person:read","deal:write"]
+  createdAt   DateTime  @default(now())
+
+  users UserProfile[]
+
+  @@unique([workspaceId, name])
+}
+
+model UserRole {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  roleId      String
+  role        Role      @relation(fields: [roleId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, roleId])
+}
+
+model UserProfile {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  userId      String
+  user        User      @relation(fields: [userId], references: [id])
+  profileId   String
+  profile     Profile   @relation(fields: [profileId], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@unique([userId, profileId])
 }

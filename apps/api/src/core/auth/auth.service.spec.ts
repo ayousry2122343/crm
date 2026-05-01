@@ -69,6 +69,55 @@ describe('AuthService.signUp', () => {
     expect(result.refreshToken.length).toBeGreaterThan(20);
   });
 
+  it('signUp seeds default profiles (Admin, Sales Manager, Sales Rep) + assigns Admin to creator', async () => {
+    const profileCreates: any[] = [];
+    const userProfileCreates: any[] = [];
+    prisma.$transaction.mockImplementationOnce(async (cb: any) =>
+      cb({
+        workspace: {
+          create: jest.fn().mockResolvedValue({ id: 'ws_seed', slug: 'seed-co', name: 'SeedCo' }),
+        },
+        user: {
+          create: jest.fn().mockResolvedValue({
+            id: 'u_seed',
+            email: 'a@b.com',
+            emailNormalized: 'a@b.com',
+            fullName: 'A',
+            workspaceId: 'ws_seed',
+          }),
+        },
+        profile: {
+          create: jest.fn().mockImplementation(async (args: any) => {
+            profileCreates.push(args.data);
+            return { id: `p_${profileCreates.length}`, ...args.data };
+          }),
+        },
+        userProfile: {
+          create: jest.fn().mockImplementation(async (args: any) => {
+            userProfileCreates.push(args.data);
+            return { id: 'up_1', ...args.data };
+          }),
+        },
+      })
+    );
+    await service.signUp({
+      email: 'a@b.com',
+      password: 'hunter2!',
+      fullName: 'A',
+      workspaceName: 'SeedCo',
+    });
+    const names = profileCreates.map((p) => p.name).sort();
+    expect(names).toEqual(['Admin', 'Sales Manager', 'Sales Rep']);
+    const adminProfile = profileCreates.find((p) => p.name === 'Admin');
+    expect(adminProfile.isSystem).toBe(true);
+    expect(adminProfile.permissions).toEqual(expect.arrayContaining(['workspace:admin', 'person:read']));
+    expect(userProfileCreates.length).toBe(1);
+    expect(userProfileCreates[0].userId).toBe('u_seed');
+    expect(userProfileCreates[0].workspaceId).toBe('ws_seed');
+    // The userProfile should reference the Admin profile id (first created → 'p_1')
+    expect(userProfileCreates[0].profileId).toBe('p_1');
+  });
+
   it('lowercases the email when normalising', async () => {
     await service.signUp({
       email: 'Mixed@Case.com',

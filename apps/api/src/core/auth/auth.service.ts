@@ -4,6 +4,7 @@ import slugify from 'slugify';
 import { randomBytes, createHash } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
+import { ALL_PERMISSIONS, PERMISSIONS } from '../rbac/permissions.constants';
 import { hashPassword, verifyPassword } from './password.util';
 import type { SignUpDto } from './dto/sign-up.dto';
 
@@ -47,6 +48,66 @@ export class AuthService {
           locale: 'ar',
         },
       });
+
+      // Seed default profiles for the new workspace.
+      const adminProfile = await tx.profile.create({
+        data: {
+          workspaceId: ws.id,
+          name: 'Admin',
+          isSystem: true,
+          permissions: ALL_PERMISSIONS,
+        },
+      });
+      await tx.profile.create({
+        data: {
+          workspaceId: ws.id,
+          name: 'Sales Manager',
+          isSystem: true,
+          permissions: [
+            PERMISSIONS.PERSON_READ,
+            PERMISSIONS.PERSON_WRITE,
+            PERMISSIONS.COMPANY_READ,
+            PERMISSIONS.COMPANY_WRITE,
+            PERMISSIONS.DEAL_READ,
+            PERMISSIONS.DEAL_WRITE,
+            PERMISSIONS.DEAL_DELETE,
+            PERMISSIONS.ACTIVITY_READ,
+            PERMISSIONS.ACTIVITY_WRITE,
+            PERMISSIONS.PIPELINE_WRITE,
+            PERMISSIONS.LIST_READ,
+            PERMISSIONS.LIST_WRITE,
+            PERMISSIONS.TAG_WRITE,
+            PERMISSIONS.REPORT_READ,
+            PERMISSIONS.DASHBOARD_WRITE,
+            PERMISSIONS.AI_USE,
+          ],
+        },
+      });
+      await tx.profile.create({
+        data: {
+          workspaceId: ws.id,
+          name: 'Sales Rep',
+          isSystem: true,
+          permissions: [
+            PERMISSIONS.PERSON_READ,
+            PERMISSIONS.PERSON_WRITE,
+            PERMISSIONS.COMPANY_READ,
+            PERMISSIONS.COMPANY_WRITE,
+            PERMISSIONS.DEAL_READ,
+            PERMISSIONS.DEAL_WRITE,
+            PERMISSIONS.ACTIVITY_READ,
+            PERMISSIONS.ACTIVITY_WRITE,
+            PERMISSIONS.LIST_READ,
+            PERMISSIONS.REPORT_READ,
+            PERMISSIONS.AI_USE,
+          ],
+        },
+      });
+      // Assign creator to Admin profile.
+      await tx.userProfile.create({
+        data: { workspaceId: ws.id, userId: user.id, profileId: adminProfile.id },
+      });
+
       return { ws, user };
     });
 

@@ -8,6 +8,10 @@ const TENANT_SCOPED_MODELS = new Set([
   'RefreshToken',
   'EmailVerificationToken',
   'PasswordResetToken',
+  'Role',
+  'Profile',
+  'UserRole',
+  'UserProfile',
 ]);
 
 @Injectable()

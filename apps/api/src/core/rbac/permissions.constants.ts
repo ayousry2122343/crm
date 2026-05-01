@@ -1,0 +1,36 @@
+export const PERMISSIONS = {
+  WORKSPACE_ADMIN: 'workspace:admin',
+  WORKSPACE_SETTINGS_WRITE: 'workspace:settings:write',
+  USER_INVITE: 'user:invite',
+  USER_DELETE: 'user:delete',
+  TEAM_WRITE: 'team:write',
+  ROLE_WRITE: 'role:write',
+  PROFILE_WRITE: 'profile:write',
+  CUSTOM_FIELD_WRITE: 'custom-field:write',
+  CUSTOM_MODULE_WRITE: 'custom-module:write',
+  WORKFLOW_WRITE: 'workflow:write',
+  WEBHOOK_WRITE: 'webhook:write',
+  AUDIT_READ: 'audit:read',
+
+  PERSON_READ: 'person:read',
+  PERSON_WRITE: 'person:write',
+  PERSON_DELETE: 'person:delete',
+  COMPANY_READ: 'company:read',
+  COMPANY_WRITE: 'company:write',
+  DEAL_READ: 'deal:read',
+  DEAL_WRITE: 'deal:write',
+  DEAL_DELETE: 'deal:delete',
+  ACTIVITY_READ: 'activity:read',
+  ACTIVITY_WRITE: 'activity:write',
+  PIPELINE_WRITE: 'pipeline:write',
+  LIST_READ: 'list:read',
+  LIST_WRITE: 'list:write',
+  TAG_WRITE: 'tag:write',
+  FORM_WRITE: 'form:write',
+  REPORT_READ: 'report:read',
+  DASHBOARD_WRITE: 'dashboard:write',
+  AI_USE: 'ai:use',
+} as const;
+
+export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+export const ALL_PERMISSIONS: PermissionKey[] = Object.values(PERMISSIONS);
