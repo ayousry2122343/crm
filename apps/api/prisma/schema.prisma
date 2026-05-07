@@ -40,6 +40,15 @@ model Workspace {
   deals                   Deal[]
   activities              Activity[]
   wonLostReasons          WonLostReason[]
+  emailTemplates          EmailTemplate[]
+  outboundEmails          OutboundEmail[]
+  forms                   Form[]
+  formSubmissions         FormSubmission[]
+  workflows               Workflow[]
+  workflowRuns            WorkflowRun[]
+  webhooks                Webhook[]
+  webhookDeliveries       WebhookDelivery[]
+  validationRules         ValidationRule[]
 
   @@index([slug])
 }
@@ -547,4 +556,190 @@ model WonLostReason {
 enum WonLostKind {
   WON
   LOST
+}
+
+// ─── Sprint 4: Email + Forms + Workflow + Webhooks + Validation ───
+
+model EmailTemplate {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  subject     String
+  body        String    @db.Text
+  mergeTagKeys String[]
+  category    String?
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+}
+
+model OutboundEmail {
+  id          String           @id @default(cuid())
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
+  toAddress   String
+  fromAddress String?
+  subject     String
+  body        String           @db.Text
+  templateId  String?
+  entityType  String?
+  entityId    String?
+  status      OutboundEmailStatus @default(QUEUED)
+  providerMessageId String?
+  error       String?
+  sentAt      DateTime?
+  createdAt   DateTime         @default(now())
+
+  @@index([workspaceId, entityType, entityId])
+  @@index([workspaceId, status])
+}
+
+enum OutboundEmailStatus {
+  QUEUED
+  SENDING
+  SENT
+  FAILED
+}
+
+model Form {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  name         String
+  slug         String
+  isPublic     Boolean   @default(true)
+  redirectUrl  String?
+  fields       Json
+  mappings     Json      @default("{}")
+  successMessage Json?
+  useHoneypot  Boolean   @default(true)
+  rateLimit    Int       @default(5)
+  archivedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  submissions  FormSubmission[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+}
+
+model FormSubmission {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  formId      String
+  form        Form      @relation(fields: [formId], references: [id], onDelete: Cascade)
+  data        Json
+  ipAddress   String?
+  userAgent   String?
+  personId    String?
+  dealId      String?
+  createdAt   DateTime  @default(now())
+
+  @@index([formId, createdAt])
+  @@index([workspaceId])
+}
+
+model Workflow {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  entityType  String
+  enabled     Boolean   @default(true)
+  trigger     Json
+  conditions  Json
+  actions     Json
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  runs        WorkflowRun[]
+
+  @@index([workspaceId, entityType, enabled])
+}
+
+model WorkflowRun {
+  id                String   @id @default(cuid())
+  workflowId        String
+  workflow          Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  workspaceId       String
+  workspace         Workspace @relation(fields: [workspaceId], references: [id])
+  triggeredByEntity String
+  triggeredById     String
+  status            WorkflowRunStatus @default(QUEUED)
+  log               Json?
+  error             String?
+  triggeredAt       DateTime @default(now())
+  completedAt       DateTime?
+
+  @@index([workflowId, triggeredAt])
+  @@index([workspaceId, status])
+}
+
+enum WorkflowRunStatus {
+  QUEUED
+  RUNNING
+  SUCCESS
+  FAILED
+}
+
+model Webhook {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  url         String
+  secret      String
+  events      String[]
+  enabled     Boolean   @default(true)
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  deliveries  WebhookDelivery[]
+
+  @@index([workspaceId, enabled])
+}
+
+model WebhookDelivery {
+  id          String    @id @default(cuid())
+  webhookId   String
+  webhook     Webhook   @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  eventName   String
+  payload     Json
+  status      WebhookDeliveryStatus @default(PENDING)
+  statusCode  Int?
+  responseBody String?  @db.Text
+  attemptCount Int      @default(0)
+  deliveredAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([webhookId, createdAt])
+  @@index([workspaceId, status])
+}
+
+enum WebhookDeliveryStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model ValidationRule {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  entityType   String
+  expression   Json
+  errorMessage Json
+  enabled      Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([workspaceId, entityType, enabled])
 }

@@ -11,6 +11,12 @@ export const PERMISSIONS = {
   WORKFLOW_WRITE: 'workflow:write',
   WEBHOOK_WRITE: 'webhook:write',
   AUDIT_READ: 'audit:read',
+  EMAIL_SEND: 'email:send',
+  EMAIL_TEMPLATE_READ: 'email-template:read',
+  EMAIL_TEMPLATE_WRITE: 'email-template:write',
+  FORM_READ: 'form:read',
+  VALIDATION_RULE_READ: 'validation-rule:read',
+  VALIDATION_RULE_WRITE: 'validation-rule:write',
 
   PERSON_READ: 'person:read',
   PERSON_WRITE: 'person:write',

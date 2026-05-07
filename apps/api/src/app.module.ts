@@ -21,6 +21,11 @@ import { PipelineModule } from './crm/pipelines/pipeline.module';
 import { DealModule } from './crm/deals/deal.module';
 import { ActivityModule } from './crm/activities/activity.module';
 import { WonLostReasonModule } from './crm/won-lost-reasons/won-lost-reason.module';
+import { OutboundEmailModule } from './integrations/email/outbound-email.module';
+import { FormModule } from './crm/forms/form.module';
+import { WorkflowModule } from './automation/workflow/workflow.module';
+import { WebhookModule } from './automation/webhooks/webhook.module';
+import { ValidationModule } from './automation/validation/validation.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -54,6 +59,11 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     DealModule,
     ActivityModule,
     WonLostReasonModule,
+    OutboundEmailModule,
+    FormModule,
+    WorkflowModule,
+    WebhookModule,
+    ValidationModule,
     HealthModule,
   ],
   providers: [
