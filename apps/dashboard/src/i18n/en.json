@@ -5,6 +5,10 @@
   },
   "nav": {
     "home": "Home",
+    "people": "People",
+    "companies": "Companies",
+    "lists": "Lists",
+    "settingsGroup": "Settings",
     "workspaceSettings": "Workspace Settings",
     "users": "Users",
     "customFields": "Custom Fields",
@@ -78,14 +82,67 @@
       "keyHint": "snake_case, must start with a letter"
     }
   },
+  "people": {
+    "people": "People",
+    "companies": "Companies",
+    "addPerson": "Add Person",
+    "addCompany": "Add Company",
+    "fullName": "Full Name",
+    "companyName": "Company Name",
+    "email": "Email",
+    "phone": "Phone",
+    "stage": "Stage",
+    "industry": "Industry",
+    "createdAt": "Created",
+    "search": "Search contacts...",
+    "bulkTag": "Tag Selected",
+    "bulkDelete": "Delete Selected",
+    "tagSelected": "Tag selected items",
+    "tagName": "Tag name",
+    "applyTag": "Apply Tag",
+    "overview": "Overview",
+    "activities": "Activities",
+    "deals": "Deals",
+    "files": "Files",
+    "employees": "Employees",
+    "editRecord": "Edit",
+    "noActivities": "No activities yet.",
+    "noDeals": "No deals yet.",
+    "noFiles": "No files yet.",
+    "noEmployees": "No employees."
+  },
+  "lists": {
+    "title": "Lists",
+    "addList": "Create List",
+    "name": "List name",
+    "entityType": "Entity type",
+    "members": "Members",
+    "active": "Dynamic",
+    "static": "Static",
+    "noLists": "No lists yet.",
+    "filters": "Filters",
+    "addFilter": "Add Filter",
+    "field": "Field",
+    "operator": "Operator",
+    "value": "Value"
+  },
+  "search": {
+    "placeholder": "Search... (Ctrl+K)",
+    "noResults": "No results found",
+    "title": "Search"
+  },
   "common": {
     "save": "Save",
     "cancel": "Cancel",
     "delete": "Delete",
     "edit": "Edit",
     "loading": "Loading...",
+    "loadMore": "Load More",
     "locale": "Locale",
     "currency": "Currency",
-    "actions": "Actions"
+    "actions": "Actions",
+    "back": "Back",
+    "confirm": "Confirm",
+    "noData": "No data"
   }
 }

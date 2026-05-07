@@ -5,6 +5,10 @@
   },
   "nav": {
     "home": "الرئيسية",
+    "people": "جهات الاتصال",
+    "companies": "الشركات",
+    "lists": "القوائم",
+    "settingsGroup": "الإعدادات",
     "workspaceSettings": "إعدادات المساحة",
     "users": "المستخدمون",
     "customFields": "الحقول المخصصة",
@@ -78,14 +82,67 @@
       "keyHint": "snake_case، يبدأ بحرف"
     }
   },
+  "people": {
+    "people": "جهات الاتصال",
+    "companies": "الشركات",
+    "addPerson": "إضافة جهة اتصال",
+    "addCompany": "إضافة شركة",
+    "fullName": "الاسم الكامل",
+    "companyName": "اسم الشركة",
+    "email": "البريد الإلكتروني",
+    "phone": "الهاتف",
+    "stage": "المرحلة",
+    "industry": "القطاع",
+    "createdAt": "تاريخ الإنشاء",
+    "search": "ابحث عن جهة اتصال...",
+    "bulkTag": "وسم المحدد",
+    "bulkDelete": "حذف المحدد",
+    "tagSelected": "وسم العناصر المحددة",
+    "tagName": "اسم الوسم",
+    "applyTag": "تطبيق الوسم",
+    "overview": "نظرة عامة",
+    "activities": "الأنشطة",
+    "deals": "الصفقات",
+    "files": "الملفات",
+    "employees": "الموظفون",
+    "editRecord": "تعديل",
+    "noActivities": "لا توجد أنشطة بعد.",
+    "noDeals": "لا توجد صفقات بعد.",
+    "noFiles": "لا توجد ملفات بعد.",
+    "noEmployees": "لا يوجد موظفون."
+  },
+  "lists": {
+    "title": "القوائم",
+    "addList": "إنشاء قائمة",
+    "name": "اسم القائمة",
+    "entityType": "نوع الكيان",
+    "members": "الأعضاء",
+    "active": "ديناميكية",
+    "static": "ثابتة",
+    "noLists": "لا توجد قوائم بعد.",
+    "filters": "الفلاتر",
+    "addFilter": "إضافة فلتر",
+    "field": "الحقل",
+    "operator": "المعامل",
+    "value": "القيمة"
+  },
+  "search": {
+    "placeholder": "ابحث... (Ctrl+K)",
+    "noResults": "لا توجد نتائج",
+    "title": "البحث"
+  },
   "common": {
     "save": "حفظ",
     "cancel": "إلغاء",
     "delete": "حذف",
     "edit": "تعديل",
     "loading": "جاري التحميل...",
+    "loadMore": "تحميل المزيد",
     "locale": "اللغة",
     "currency": "العملة",
-    "actions": "إجراءات"
+    "actions": "إجراءات",
+    "back": "رجوع",
+    "confirm": "تأكيد",
+    "noData": "لا توجد بيانات"
   }
 }

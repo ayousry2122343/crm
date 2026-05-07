@@ -7,6 +7,16 @@ export const i18n = createI18n({
   locale: 'ar',
   fallbackLocale: 'en',
   messages: { ar, en },
+  datetimeFormats: {
+    en: {
+      short: { year: 'numeric', month: 'short', day: 'numeric' },
+      long: { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' },
+    },
+    ar: {
+      short: { year: 'numeric', month: 'short', day: 'numeric' },
+      long: { year: 'numeric', month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric' },
+    },
+  },
 });
 
 export type AppLocale = 'ar' | 'en';
