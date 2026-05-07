@@ -22,6 +22,7 @@ export const PERMISSIONS = {
   DEAL_DELETE: 'deal:delete',
   ACTIVITY_READ: 'activity:read',
   ACTIVITY_WRITE: 'activity:write',
+  PIPELINE_READ: 'pipeline:read',
   PIPELINE_WRITE: 'pipeline:write',
   LIST_READ: 'list:read',
   LIST_WRITE: 'list:write',

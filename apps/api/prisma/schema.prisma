@@ -36,6 +36,10 @@ model Workspace {
   tags                    Tag[]
   entityTags              EntityTag[]
   lists                   List[]
+  pipelines               Pipeline[]
+  deals                   Deal[]
+  activities              Activity[]
+  wonLostReasons          WonLostReason[]
 
   @@index([slug])
 }
@@ -68,6 +72,8 @@ model User {
   userRoles               UserRole[]
   userProfiles            UserProfile[]
   ownedPeople             Person[]                 @relation("OwnedPeople")
+  ownedDeals              Deal[]                   @relation("OwnedDeals")
+  ownedActivities         Activity[]               @relation("OwnedActivities")
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -320,6 +326,9 @@ model Person {
   createdById String?
   updatedById String?
 
+  dealsAsPrimary  Deal[] @relation("DealPrimaryContact")
+  dealsAsCompany  Deal[] @relation("DealPrimaryCompany")
+
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
   @@index([workspaceId, ownerId])
@@ -383,4 +392,159 @@ model List {
 
   @@index([workspaceId, entityType])
   @@index([workspaceId, ownerId])
+}
+
+// ─── Sprint 3: Pipelines + Deals + Activities ───
+
+model Pipeline {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  entityType  String    @default("Deal")
+  isDefault   Boolean   @default(false)
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  stages Stage[]
+  deals  Deal[]
+
+  @@unique([workspaceId, entityType, name])
+  @@index([workspaceId, entityType])
+}
+
+model Stage {
+  id                String   @id @default(cuid())
+  pipelineId        String
+  pipeline          Pipeline @relation(fields: [pipelineId], references: [id], onDelete: Cascade)
+  name              String
+  order             Int
+  probability       Int      @default(0)
+  color             String   @default("#3b82f6")
+  isWon             Boolean  @default(false)
+  isLost            Boolean  @default(false)
+  requiredFieldKeys String[]
+  createdAt         DateTime @default(now())
+
+  deals Deal[]
+
+  @@unique([pipelineId, name])
+  @@index([pipelineId, order])
+}
+
+model Deal {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  name       String
+  pipelineId String
+  pipeline   Pipeline @relation(fields: [pipelineId], references: [id])
+  stageId    String
+  stage      Stage    @relation(fields: [stageId], references: [id])
+
+  amount            Decimal    @default(0) @db.Decimal(15, 2)
+  currency          String     @default("EGP") @db.Char(3)
+  expectedCloseDate DateTime?
+  probability       Int?
+
+  ownerId String?
+  owner   User?   @relation("OwnedDeals", fields: [ownerId], references: [id])
+
+  primaryContactId String?
+  primaryContact   Person? @relation("DealPrimaryContact", fields: [primaryContactId], references: [id])
+  primaryCompanyId String?
+  primaryCompany   Person? @relation("DealPrimaryCompany", fields: [primaryCompanyId], references: [id])
+
+  source     String?
+  status     DealStatus @default(OPEN)
+  wonAt      DateTime?
+  lostAt     DateTime?
+  lostReason String?
+  wonReason  String?
+
+  lastActivityAt DateTime?
+  customFields   Json      @default("{}")
+
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  updatedById String?
+
+  @@index([workspaceId, pipelineId, stageId, status])
+  @@index([workspaceId, ownerId, status])
+  @@index([workspaceId, lastActivityAt])
+  @@index([workspaceId, archivedAt])
+}
+
+enum DealStatus {
+  OPEN
+  WON
+  LOST
+}
+
+model Activity {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+
+  parentEntity String
+  parentId     String
+
+  type        ActivityType
+  subject     String
+  body        String?
+  status      ActivityStatus @default(OPEN)
+
+  ownerId     String?
+  owner       User?    @relation("OwnedActivities", fields: [ownerId], references: [id])
+  dueAt       DateTime?
+  completedAt DateTime?
+
+  metadata Json @default("{}")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  createdById String?
+
+  @@index([workspaceId, parentEntity, parentId, createdAt])
+  @@index([workspaceId, ownerId, status, dueAt])
+  @@index([workspaceId, type, createdAt])
+}
+
+enum ActivityType {
+  CALL
+  MEETING
+  EMAIL
+  TASK
+  NOTE
+  SYSTEM
+  FORM_SUBMISSION
+}
+
+enum ActivityStatus {
+  OPEN
+  DONE
+  CANCELED
+}
+
+model WonLostReason {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  kind        WonLostKind
+  label       String
+  order       Int       @default(0)
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@unique([workspaceId, kind, label])
+  @@index([workspaceId, kind])
+}
+
+enum WonLostKind {
+  WON
+  LOST
 }

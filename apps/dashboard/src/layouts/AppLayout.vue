@@ -35,8 +35,14 @@ async function handleLogout() {
         <router-link to="/companies" class="nav-link" data-test="nav-companies">
           <i class="pi pi-building mr-2" />{{ t('nav.companies') }}
         </router-link>
+        <router-link to="/deals" class="nav-link" data-test="nav-deals">
+          <i class="pi pi-dollar mr-2" />{{ t('nav.deals') }}
+        </router-link>
         <router-link to="/lists" class="nav-link" data-test="nav-lists">
           <i class="pi pi-list mr-2" />{{ t('nav.lists') }}
+        </router-link>
+        <router-link to="/calendar" class="nav-link" data-test="nav-calendar">
+          <i class="pi pi-calendar mr-2" />{{ t('nav.calendar') }}
         </router-link>
         <div class="mt-4 mb-2 text-xs text-slate-400 uppercase tracking-wider">
           {{ t('nav.settingsGroup') }}
@@ -53,6 +59,12 @@ async function handleLogout() {
           data-test="nav-custom-fields"
         >
           <i class="pi pi-sliders-h mr-2" />{{ t('nav.customFields') }}
+        </router-link>
+        <router-link to="/settings/pipelines" class="nav-link" data-test="nav-pipelines">
+          <i class="pi pi-sitemap mr-2" />{{ t('nav.pipelines') }}
+        </router-link>
+        <router-link to="/settings/won-lost-reasons" class="nav-link" data-test="nav-won-lost">
+          <i class="pi pi-check-circle mr-2" />{{ t('nav.wonLostReasons') }}
         </router-link>
       </nav>
     </aside>

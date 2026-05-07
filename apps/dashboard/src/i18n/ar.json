@@ -7,11 +7,15 @@
     "home": "الرئيسية",
     "people": "جهات الاتصال",
     "companies": "الشركات",
+    "deals": "الصفقات",
     "lists": "القوائم",
     "settingsGroup": "الإعدادات",
     "workspaceSettings": "إعدادات المساحة",
     "users": "المستخدمون",
     "customFields": "الحقول المخصصة",
+    "pipelines": "خطوط الأنابيب",
+    "calendar": "التقويم",
+    "wonLostReasons": "أسباب الكسب/الخسارة",
     "logout": "تسجيل الخروج"
   },
   "auth": {
@@ -125,6 +129,47 @@
     "field": "الحقل",
     "operator": "المعامل",
     "value": "القيمة"
+  },
+  "deals": {
+    "deals": "الصفقات",
+    "kanban": "كانبان",
+    "addDeal": "إضافة صفقة",
+    "name": "اسم الصفقة",
+    "amount": "المبلغ",
+    "status": "الحالة",
+    "expectedClose": "تاريخ الإغلاق المتوقع",
+    "probability": "الاحتمالية",
+    "wonReason": "سبب الكسب",
+    "lostReason": "سبب الخسارة",
+    "selectPipeline": "اختر خط الأنابيب",
+    "pipelinesAdmin": "خطوط الأنابيب",
+    "addPipeline": "إضافة خط أنابيب",
+    "pipelineName": "اسم خط الأنابيب",
+    "stages": "المراحل"
+  },
+  "activities": {
+    "addActivity": "إضافة نشاط",
+    "subject": "الموضوع",
+    "body": "التفاصيل",
+    "dueAt": "تاريخ الاستحقاق",
+    "note": "ملاحظة",
+    "call": "مكالمة",
+    "meeting": "اجتماع",
+    "task": "مهمة",
+    "email": "بريد إلكتروني",
+    "calendar": "التقويم",
+    "today": "اليوم",
+    "allTypes": "كل الأنواع"
+  },
+  "wonLostReasons": {
+    "title": "أسباب الكسب / الخسارة",
+    "addReason": "إضافة سبب",
+    "kind": "النوع",
+    "label": "التسمية",
+    "won": "كسب",
+    "lost": "خسارة",
+    "order": "الترتيب",
+    "noReasons": "لا توجد أسباب مضافة بعد."
   },
   "search": {
     "placeholder": "ابحث... (Ctrl+K)",

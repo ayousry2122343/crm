@@ -17,6 +17,10 @@ import { PeopleModule } from './crm/people/people.module';
 import { TagsModule } from './crm/tags/tags.module';
 import { ListsModule } from './crm/lists/lists.module';
 import { SearchModule } from './crm/search/search.module';
+import { PipelineModule } from './crm/pipelines/pipeline.module';
+import { DealModule } from './crm/deals/deal.module';
+import { ActivityModule } from './crm/activities/activity.module';
+import { WonLostReasonModule } from './crm/won-lost-reasons/won-lost-reason.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -46,6 +50,10 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     TagsModule,
     ListsModule,
     SearchModule,
+    PipelineModule,
+    DealModule,
+    ActivityModule,
+    WonLostReasonModule,
     HealthModule,
   ],
   providers: [

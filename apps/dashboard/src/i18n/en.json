@@ -7,11 +7,15 @@
     "home": "Home",
     "people": "People",
     "companies": "Companies",
+    "deals": "Deals",
     "lists": "Lists",
     "settingsGroup": "Settings",
     "workspaceSettings": "Workspace Settings",
     "users": "Users",
     "customFields": "Custom Fields",
+    "pipelines": "Pipelines",
+    "calendar": "Calendar",
+    "wonLostReasons": "Won/Lost Reasons",
     "logout": "Log out"
   },
   "auth": {
@@ -125,6 +129,47 @@
     "field": "Field",
     "operator": "Operator",
     "value": "Value"
+  },
+  "deals": {
+    "deals": "Deals",
+    "kanban": "Kanban",
+    "addDeal": "Add Deal",
+    "name": "Deal Name",
+    "amount": "Amount",
+    "status": "Status",
+    "expectedClose": "Expected Close",
+    "probability": "Probability",
+    "wonReason": "Won Reason",
+    "lostReason": "Lost Reason",
+    "selectPipeline": "Select Pipeline",
+    "pipelinesAdmin": "Pipelines",
+    "addPipeline": "Add Pipeline",
+    "pipelineName": "Pipeline Name",
+    "stages": "Stages"
+  },
+  "activities": {
+    "addActivity": "Add Activity",
+    "subject": "Subject",
+    "body": "Details",
+    "dueAt": "Due date",
+    "note": "Note",
+    "call": "Call",
+    "meeting": "Meeting",
+    "task": "Task",
+    "email": "Email",
+    "calendar": "Calendar",
+    "today": "Today",
+    "allTypes": "All Types"
+  },
+  "wonLostReasons": {
+    "title": "Won / Lost Reasons",
+    "addReason": "Add Reason",
+    "kind": "Kind",
+    "label": "Label",
+    "won": "Won",
+    "lost": "Lost",
+    "order": "Order",
+    "noReasons": "No reasons configured yet."
   },
   "search": {
     "placeholder": "Search... (Ctrl+K)",

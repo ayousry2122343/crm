@@ -104,6 +104,37 @@ export const router = createRouter({
           component: () => import('@/views/lists/ListEditor.vue'),
           props: true,
         },
+        {
+          path: 'deals',
+          name: 'deals-kanban',
+          component: () => import('@/views/deals/DealsKanban.vue'),
+        },
+        {
+          path: 'deals/list',
+          name: 'deals-list',
+          component: () => import('@/views/deals/DealsList.vue'),
+        },
+        {
+          path: 'deals/:id',
+          name: 'deal-detail',
+          component: () => import('@/views/deals/DealDetail.vue'),
+          props: true,
+        },
+        {
+          path: 'settings/pipelines',
+          name: 'settings-pipelines',
+          component: () => import('@/views/settings/Pipelines.vue'),
+        },
+        {
+          path: 'settings/won-lost-reasons',
+          name: 'settings-won-lost-reasons',
+          component: () => import('@/views/settings/WonLostReasons.vue'),
+        },
+        {
+          path: 'calendar',
+          name: 'calendar',
+          component: () => import('@/views/activities/ActivityCalendar.vue'),
+        },
       ],
     },
   ],
