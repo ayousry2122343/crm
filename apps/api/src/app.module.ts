@@ -30,6 +30,7 @@ import { ReportsModule } from './reports/report.module';
 import { AIModule } from './ai/ai.module';
 import { ProductModule } from './crm/products/product.module';
 import { PricebookModule } from './crm/pricebooks/pricebook.module';
+import { QuoteModule } from './crm/quotes/quote.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -72,6 +73,7 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     AIModule,
     ProductModule,
     PricebookModule,
+    QuoteModule,
     HealthModule,
   ],
   providers: [

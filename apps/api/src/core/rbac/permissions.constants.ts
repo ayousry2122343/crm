@@ -43,6 +43,9 @@ export const PERMISSIONS = {
   PRICEBOOK_READ: 'pricebook:read',
   PRICEBOOK_WRITE: 'pricebook:write',
   PRICEBOOK_DELETE: 'pricebook:delete',
+  QUOTE_READ: 'quote:read',
+  QUOTE_WRITE: 'quote:write',
+  QUOTE_DELETE: 'quote:delete',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

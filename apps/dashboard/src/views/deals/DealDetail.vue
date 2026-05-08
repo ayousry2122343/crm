@@ -55,8 +55,18 @@ onMounted(load);
             <span class="text-sm text-slate-500">{{ deal.pipeline?.name }} / {{ deal.stage?.name }}</span>
           </div>
         </div>
-        <div class="text-2xl font-bold text-blue-700" data-test="deal-amount">
-          {{ new Intl.NumberFormat('en', { style: 'currency', currency: deal.currency || 'EGP', minimumFractionDigits: 0 }).format(Number(deal.amount)) }}
+        <div class="flex items-center gap-3">
+          <div class="text-2xl font-bold text-blue-700" data-test="deal-amount">
+            {{ new Intl.NumberFormat('en', { style: 'currency', currency: deal.currency || 'EGP', minimumFractionDigits: 0 }).format(Number(deal.amount)) }}
+          </div>
+          <Button
+            :label="t('quotes.createFromDeal')"
+            icon="pi pi-file"
+            severity="secondary"
+            size="small"
+            data-test="create-quote-btn"
+            @click="router.push({ name: 'quote-builder', query: { dealId: deal.id } })"
+          />
         </div>
       </div>
 

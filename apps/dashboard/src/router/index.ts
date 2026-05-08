@@ -168,6 +168,22 @@ export const router = createRouter({
           component: () => import('@/views/automation/WebhooksAdmin.vue'),
         },
         {
+          path: 'quotes',
+          name: 'quotes',
+          component: () => import('@/views/quotes/QuotesList.vue'),
+        },
+        {
+          path: 'quotes/new',
+          name: 'quote-builder',
+          component: () => import('@/views/quotes/QuoteBuilder.vue'),
+        },
+        {
+          path: 'quotes/:id',
+          name: 'quote-detail',
+          component: () => import('@/views/quotes/QuoteDetail.vue'),
+          props: true,
+        },
+        {
           path: 'settings/products',
           name: 'settings-products',
           component: () => import('@/views/settings/Products.vue'),

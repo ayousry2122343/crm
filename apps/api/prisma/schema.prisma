@@ -56,6 +56,8 @@ model Workspace {
   products                Product[]
   pricebooks              Pricebook[]
   pricebookEntries        PricebookEntry[]
+  quotes                  Quote[]
+  quoteLineItems          QuoteLineItem[]
 
   @@index([slug])
 }
@@ -346,6 +348,7 @@ model Person {
 
   dealsAsPrimary  Deal[] @relation("DealPrimaryContact")
   dealsAsCompany  Deal[] @relation("DealPrimaryCompany")
+  quotesAsContact Quote[] @relation("QuoteContact")
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -490,6 +493,8 @@ model Deal {
   updatedAt   DateTime  @updatedAt
   createdById String?
   updatedById String?
+
+  quotes      Quote[]
 
   @@index([workspaceId, pipelineId, stageId, status])
   @@index([workspaceId, ownerId, status])
@@ -840,6 +845,7 @@ model Product {
   updatedById String?
 
   pricebookEntries PricebookEntry[]
+  quoteLineItems   QuoteLineItem[]
 
   @@unique([workspaceId, sku])
   @@index([workspaceId, isActive])
@@ -880,4 +886,70 @@ model PricebookEntry {
   @@unique([pricebookId, productId, minQty])
   @@index([workspaceId, pricebookId])
   @@index([workspaceId, productId])
+}
+
+// ─── Sprint 7: Quotes / Proposals ───
+
+enum QuoteStatus {
+  DRAFT
+  SENT
+  ACCEPTED
+  REJECTED
+  EXPIRED
+}
+
+model Quote {
+  id          String      @id @default(cuid())
+  workspaceId String
+  workspace   Workspace   @relation(fields: [workspaceId], references: [id])
+  number      String
+  dealId      String?
+  deal        Deal?       @relation(fields: [dealId], references: [id])
+  contactId   String?
+  contact     Person?     @relation("QuoteContact", fields: [contactId], references: [id])
+  status      QuoteStatus @default(DRAFT)
+  validUntil  DateTime?
+  subtotal    Decimal     @default(0) @db.Decimal(15, 2)
+  discountPct Decimal     @default(0) @db.Decimal(5, 2)
+  discountAmt Decimal     @default(0) @db.Decimal(15, 2)
+  taxPct      Decimal     @default(0) @db.Decimal(5, 2)
+  taxAmt      Decimal     @default(0) @db.Decimal(15, 2)
+  total       Decimal     @default(0) @db.Decimal(15, 2)
+  currency    String      @default("EGP") @db.Char(3)
+  notes       String?     @db.Text
+  sentAt      DateTime?
+  acceptedAt  DateTime?
+  rejectedAt  DateTime?
+  archivedAt  DateTime?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  createdById String?
+  updatedById String?
+
+  lineItems   QuoteLineItem[]
+
+  @@unique([workspaceId, number])
+  @@index([workspaceId, dealId])
+  @@index([workspaceId, status])
+  @@index([workspaceId, archivedAt])
+}
+
+model QuoteLineItem {
+  id          String  @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  quoteId     String
+  quote       Quote   @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  productId   String?
+  product     Product? @relation(fields: [productId], references: [id])
+  description String
+  quantity    Int     @default(1)
+  unitPrice   Decimal @db.Decimal(15, 2)
+  discountPct Decimal @default(0) @db.Decimal(5, 2)
+  total       Decimal @db.Decimal(15, 2)
+  sortOrder   Int     @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([quoteId, sortOrder])
+  @@index([workspaceId])
 }
