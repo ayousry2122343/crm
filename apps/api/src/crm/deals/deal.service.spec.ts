@@ -292,3 +292,79 @@ describe('DealService.kanban', () => {
     expect(result.stages[1].deals).toHaveLength(1);
   });
 });
+
+describe('DealService edge-cases', () => {
+  it('create throws when pipeline not found', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.pipeline.findUnique.mockResolvedValue(null);
+    await expect(
+      tenant.run(ctx(), async () =>
+        svc.create({ name: 'X', pipelineId: 'nope', stageId: 's_1' }),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('create throws when stage not found', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.pipeline.findUnique.mockResolvedValue({ id: 'pip_1', workspaceId: 'ws_1' });
+    prisma.stage.findUnique.mockResolvedValue(null);
+    await expect(
+      tenant.run(ctx(), async () =>
+        svc.create({ name: 'X', pipelineId: 'pip_1', stageId: 'nope' }),
+      ),
+    ).rejects.toBeInstanceOf(BadRequestException);
+  });
+
+  it('create defaults amount to 0 and currency to EGP', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.pipeline.findUnique.mockResolvedValue({ id: 'pip_1', workspaceId: 'ws_1' });
+    prisma.stage.findUnique.mockResolvedValue({ id: 's_1', pipelineId: 'pip_1', probability: 10 });
+    prisma.deal.create.mockResolvedValue({ id: 'd_1', stage: {} });
+    await tenant.run(ctx(), async () => {
+      await svc.create({ name: 'Minimal', pipelineId: 'pip_1', stageId: 's_1' });
+    });
+    const data = prisma.deal.create.mock.calls[0][0].data;
+    expect(data.amount).toBe(0);
+    expect(data.currency).toBe('EGP');
+  });
+
+  it('list caps limit at 200', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.deal.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => svc.list({ limit: 999 }));
+    const args = prisma.deal.findMany.mock.calls[0][0];
+    expect(args.take).toBe(201);
+  });
+
+  it('list returns empty with null nextCursor when no data', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.deal.findMany.mockResolvedValue([]);
+    const result = await tenant.run(ctx(), async () => svc.list({}));
+    expect(result.items).toEqual([]);
+    expect(result.nextCursor).toBeNull();
+  });
+
+  it('update throws NotFoundException for wrong workspace', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.deal.findUnique.mockResolvedValue({ id: 'd_1', workspaceId: 'OTHER' });
+    await expect(
+      tenant.run(ctx(), async () => svc.update('d_1', { name: 'Updated' })),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('kanban throws NotFoundException for wrong workspace pipeline', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.pipeline.findUnique.mockResolvedValue({ id: 'pip_1', workspaceId: 'OTHER' });
+    await expect(
+      tenant.run(ctx(), async () => svc.kanban('pip_1')),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('archive throws NotFoundException for wrong workspace', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.deal.findUnique.mockResolvedValue({ id: 'd_1', workspaceId: 'OTHER' });
+    await expect(
+      tenant.run(ctx(), async () => svc.archive('d_1')),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+});

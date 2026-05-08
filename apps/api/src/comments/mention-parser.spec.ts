@@ -36,4 +36,30 @@ describe('parseMentions', () => {
     const result = parseMentions('@[Name] and @(id) and @[Name](u_1)');
     expect(result).toEqual(['u_1']);
   });
+
+  it('handles Arabic text with mentions mixed in', () => {
+    const result = parseMentions('مرحبا @[أحمد يوسري](u_1) كيف حالك @[سارة](u_2)');
+    expect(result).toEqual(['u_1', 'u_2']);
+  });
+
+  it('handles mentions with special characters in name', () => {
+    const result = parseMentions('@[O\'Brien-Smith](u_1) and @[José García](u_2)');
+    expect(result).toEqual(['u_1', 'u_2']);
+  });
+
+  it('handles mention embedded in longer text without spaces', () => {
+    const result = parseMentions('cc:@[Admin](u_admin),@[Support](u_support)');
+    expect(result).toEqual(['u_admin', 'u_support']);
+  });
+
+  it('returns empty for null-like inputs when cast to string', () => {
+    expect(parseMentions('undefined')).toEqual([]);
+    expect(parseMentions('null')).toEqual([]);
+  });
+
+  it('handles very long body with mentions scattered throughout', () => {
+    const longText = 'A'.repeat(1000) + ' @[User](u_1) ' + 'B'.repeat(1000) + ' @[User2](u_2) ' + 'C'.repeat(1000);
+    const result = parseMentions(longText);
+    expect(result).toEqual(['u_1', 'u_2']);
+  });
 });

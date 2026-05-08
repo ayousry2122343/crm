@@ -249,3 +249,84 @@ describe('ImportExportService.exportDeals', () => {
     expect(content).toContain('5000');
   });
 });
+
+describe('ImportExportService edge-cases', () => {
+  it('parsePreview handles CSV with BOM', async () => {
+    const { svc } = buildSvc();
+    const bom = '﻿';
+    const csv = Buffer.from(`${bom}firstName,lastName,email\nAhmed,Yousry,a@b.com`);
+    const result = await svc.parsePreview(csv, 'text/csv');
+    expect(result.headers.length).toBe(3);
+    expect(result.rows).toHaveLength(1);
+    expect(result.rows[0].email).toBe('a@b.com');
+  });
+
+  it('parsePreview handles UTF-8 Arabic text', async () => {
+    const { svc } = buildSvc();
+    const csv = Buffer.from('الاسم,البريد\nأحمد,ahmed@test.com');
+    const result = await svc.parsePreview(csv, 'text/csv');
+    expect(result.headers).toContain('الاسم');
+    expect(result.rows[0]['الاسم']).toBe('أحمد');
+  });
+
+  it('parsePreview returns empty for empty CSV', async () => {
+    const { svc } = buildSvc();
+    const result = await svc.parsePreview(Buffer.from(''), 'text/csv');
+    expect(result.headers).toEqual([]);
+    expect(result.rows).toEqual([]);
+  });
+
+  it('parsePreview limits rows to maxRows', async () => {
+    const { svc } = buildSvc();
+    const rows = Array.from({ length: 20 }, (_, i) => `row${i},data${i}`).join('\n');
+    const csv = Buffer.from(`col1,col2\n${rows}`);
+    const result = await svc.parsePreview(csv, 'text/csv', 5);
+    expect(result.rows).toHaveLength(5);
+  });
+
+  it('importPeople maps columns correctly with custom mapping', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.importJob.create.mockResolvedValue({ id: 'ij_1' });
+    prisma.importJob.update.mockResolvedValue({ id: 'ij_1' });
+    prisma.person.create.mockResolvedValue({ id: 'p_1', fullName: 'أحمد يوسري' });
+
+    const rows = [{ name_first: 'أحمد', name_last: 'يوسري', contact_email: 'ahmed@test.com' }];
+    const mapping = { firstName: 'name_first', lastName: 'name_last', email: 'contact_email' };
+
+    const result = await tenant.run(ctx(), async () =>
+      svc.importPeople(rows, mapping, 'arabic.csv'),
+    );
+    expect(result.successCount).toBe(1);
+    const data = prisma.person.create.mock.calls[0][0].data;
+    expect(data.firstName).toBe('أحمد');
+    expect(data.email).toBe('ahmed@test.com');
+  });
+
+  it('exportPeople filters by lifecycleStage', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => svc.exportPeople({ lifecycleStage: 'MQL' }, 'csv'));
+    const args = prisma.person.findMany.mock.calls[0][0];
+    expect(args.where.lifecycleStage).toBe('MQL');
+  });
+
+  it('exportDeals filters by status', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.deal.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => svc.exportDeals({ status: 'WON' }, 'csv'));
+    const args = prisma.deal.findMany.mock.calls[0][0];
+    expect(args.where.status).toBe('WON');
+  });
+
+  it('exportPeople applies search filter', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => svc.exportPeople({ search: 'Ahmed' }, 'csv'));
+    const args = prisma.person.findMany.mock.calls[0][0];
+    expect(args.where.OR).toBeDefined();
+    expect(args.where.OR).toEqual([
+      { fullName: { contains: 'Ahmed', mode: 'insensitive' } },
+      { email: { contains: 'Ahmed', mode: 'insensitive' } },
+    ]);
+  });
+});

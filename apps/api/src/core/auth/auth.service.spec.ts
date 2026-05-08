@@ -449,4 +449,72 @@ describe('AuthService.requestPasswordReset + confirmPasswordReset', () => {
     expect(result.ok).toBe(true);
     expect(prisma.$transaction).toHaveBeenCalled();
   });
+
+  it('confirmPasswordReset throws on expired token', async () => {
+    prisma.passwordResetToken.findUnique.mockResolvedValue({
+      id: 'prt_1',
+      userId: 'u_1',
+      consumedAt: null,
+      expiresAt: new Date(Date.now() - 1000),
+    });
+    await expect(service.confirmPasswordReset('expired', 'newpass!!')).rejects.toThrow(/invalid or expired/);
+  });
+
+  it('confirmPasswordReset throws on already consumed token', async () => {
+    prisma.passwordResetToken.findUnique.mockResolvedValue({
+      id: 'prt_1',
+      userId: 'u_1',
+      consumedAt: new Date(Date.now() - 5000),
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+    await expect(service.confirmPasswordReset('consumed', 'newpass!!')).rejects.toThrow(/invalid or expired/);
+  });
+});
+
+describe('AuthService edge-cases', () => {
+  let service: AuthService;
+  let prisma: any;
+  let email: any;
+
+  beforeEach(async () => {
+    process.env.JWT_ACCESS_SECRET = 'test_access';
+    process.env.JWT_REFRESH_SECRET = 'test_refresh';
+    process.env.JWT_ACCESS_TTL = '900';
+    process.env.JWT_REFRESH_TTL = '2592000';
+
+    prisma = {
+      workspace: { findUnique: jest.fn() },
+      user: { findFirst: jest.fn(), update: jest.fn().mockResolvedValue({}) },
+      refreshToken: {
+        create: jest.fn().mockResolvedValue({ id: 'rt_new' }),
+        findUnique: jest.fn(),
+        update: jest.fn().mockResolvedValue({}),
+        updateMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+    };
+    email = emailMock();
+
+    const moduleRef = await Test.createTestingModule({
+      providers: [
+        AuthService,
+        TenantContextService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: EmailService, useValue: email },
+      ],
+    }).compile();
+    service = moduleRef.get(AuthService);
+  });
+
+  it('login throws when user not found', async () => {
+    prisma.workspace.findUnique.mockResolvedValue({ id: 'ws_1', slug: 'acme', name: 'Acme' });
+    prisma.user.findFirst.mockResolvedValue(null);
+    await expect(
+      service.login({ email: 'nobody@test.com', password: 'x', workspaceSlug: 'acme' }),
+    ).rejects.toThrow(/invalid credentials/);
+  });
+
+  it('refresh throws when token not found', async () => {
+    prisma.refreshToken.findUnique.mockResolvedValue(null);
+    await expect(service.refresh({ refreshToken: 'missing' })).rejects.toThrow(/invalid refresh token/);
+  });
 });

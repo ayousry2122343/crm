@@ -336,3 +336,76 @@ describe('PersonService.merge', () => {
     });
   });
 });
+
+describe('PersonService edge-cases', () => {
+  it('create propagates Prisma unique constraint error (P2002) for duplicate email', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    const uniqueError = new Error('Unique constraint failed');
+    (uniqueError as any).code = 'P2002';
+    (uniqueError as any).meta = { target: ['emailNormalized', 'workspaceId'] };
+    prisma.person.create.mockRejectedValue(uniqueError);
+    await expect(
+      tenant.run(ctx(), async () => {
+        await svc.create({ firstName: 'Dup', email: 'dup@test.com' });
+      }),
+    ).rejects.toThrow('Unique constraint failed');
+  });
+
+  it('get throws NotFoundException for archived person', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findUnique.mockResolvedValue({
+      id: 'p_arc', workspaceId: 'ws_1', archivedAt: new Date(),
+    });
+    await expect(
+      tenant.run(ctx(), async () => svc.get('p_arc')),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('list caps limit at 200', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => {
+      await svc.list({ limit: 999 });
+    });
+    const args = prisma.person.findMany.mock.calls[0][0];
+    expect(args.take).toBe(201);
+  });
+
+  it('list returns empty result with nextCursor null when no data', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findMany.mockResolvedValue([]);
+    const result = await tenant.run(ctx(), async () => svc.list({}));
+    expect(result.items).toEqual([]);
+    expect(result.nextCursor).toBeNull();
+  });
+
+  it('list applies search filter on fullName, emailNormalized, phoneNormalized', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => {
+      await svc.list({ search: 'Ahmed' });
+    });
+    const args = prisma.person.findMany.mock.calls[0][0];
+    expect(args.where.OR).toEqual([
+      { fullName: { contains: 'Ahmed', mode: 'insensitive' } },
+      { emailNormalized: { contains: 'ahmed' } },
+      { phoneNormalized: { contains: 'Ahmed' } },
+    ]);
+  });
+
+  it('merge skips records not in same workspace', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findUnique.mockImplementation(async ({ where }: any) => {
+      if (where.id === 'primary') return { id: 'primary', workspaceId: 'ws_1' };
+      if (where.id === 'foreign') return { id: 'foreign', workspaceId: 'ws_OTHER' };
+      return null;
+    });
+    prisma.person.update.mockResolvedValue({ id: 'primary' });
+    await tenant.run(ctx(), async () => {
+      await svc.merge({ primaryId: 'primary', mergedIds: ['foreign'] });
+    });
+    expect(prisma.person.update).not.toHaveBeenCalledWith(
+      expect.objectContaining({ where: { id: 'foreign' } }),
+    );
+  });
+});

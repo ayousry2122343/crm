@@ -140,4 +140,148 @@ describe('WorkflowExecutor.execute', () => {
     );
     expect(failCall).toBeDefined();
   });
+
+  it('returns unsupported status for unknown action type', async () => {
+    const { executor, prisma } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_1',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [{ type: 'UNKNOWN_ACTION', params: {} }],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_1' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    await executor.execute(baseJob);
+    const successCall = prisma.workflowRun.update.mock.calls.find(
+      (c: any) => c[0]?.data?.status === 'SUCCESS',
+    );
+    expect(successCall).toBeDefined();
+    expect(successCall![0].data.log).toEqual(
+      expect.arrayContaining([expect.objectContaining({ type: 'UNKNOWN_ACTION', result: { type: 'UNKNOWN_ACTION', status: 'unsupported' } })]),
+    );
+  });
+
+  it('does nothing when workflow not found', async () => {
+    const { executor, prisma } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue(null);
+    await executor.execute(baseJob);
+    expect(prisma.workflowRun.create).not.toHaveBeenCalled();
+  });
+
+  it('executes UPDATE_FIELD on Deal entity', async () => {
+    const { executor, prisma } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_1',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [{ type: 'UPDATE_FIELD', params: { fieldKey: 'status', value: 'OPEN' } }],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_1' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    prisma.deal.update.mockResolvedValue({});
+    const dealJob = { ...baseJob, entityType: 'Deal', entityId: 'd_1' };
+    await executor.execute(dealJob);
+    expect(prisma.deal.update).toHaveBeenCalledWith({
+      where: { id: 'd_1' },
+      data: { status: 'OPEN' },
+    });
+  });
+
+  it('ASSIGN action on Deal routes to deal.update', async () => {
+    const { executor, prisma } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_1',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [{ type: 'ASSIGN', params: { ownerId: 'u_2' } }],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_1' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    prisma.deal.update.mockResolvedValue({});
+    await executor.execute({ ...baseJob, entityType: 'Deal', entityId: 'd_1' });
+    expect(prisma.deal.update).toHaveBeenCalledWith({
+      where: { id: 'd_1' },
+      data: { ownerId: 'u_2' },
+    });
+  });
+
+  it('UPDATE_FIELD returns error when fieldKey is missing', async () => {
+    const { executor, prisma } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_1',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [{ type: 'UPDATE_FIELD', params: { value: 'X' } }],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_1' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    await executor.execute(baseJob);
+    const successCall = prisma.workflowRun.update.mock.calls.find(
+      (c: any) => c[0]?.data?.status === 'SUCCESS',
+    );
+    expect(successCall![0].data.log).toEqual(
+      expect.arrayContaining([expect.objectContaining({ result: { error: 'missing fieldKey' } })]),
+    );
+  });
+
+  it('ASSIGN action returns error when ownerId is missing', async () => {
+    const { executor, prisma } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_1',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [{ type: 'ASSIGN', params: {} }],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_1' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    await executor.execute(baseJob);
+    const successCall = prisma.workflowRun.update.mock.calls.find(
+      (c: any) => c[0]?.data?.status === 'SUCCESS',
+    );
+    expect(successCall![0].data.log).toEqual(
+      expect.arrayContaining([expect.objectContaining({ result: { error: 'missing ownerId' } })]),
+    );
+  });
+
+  it('NOTIFY_USER returns error when userId is missing', async () => {
+    const { executor, prisma } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_1',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [{ type: 'NOTIFY_USER', params: {} }],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_1' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    await executor.execute(baseJob);
+    const successCall = prisma.workflowRun.update.mock.calls.find(
+      (c: any) => c[0]?.data?.status === 'SUCCESS',
+    );
+    expect(successCall![0].data.log).toEqual(
+      expect.arrayContaining([expect.objectContaining({ result: { error: 'missing userId' } })]),
+    );
+  });
+
+  it('executes multiple actions sequentially and logs all', async () => {
+    const { executor, prisma, notificationService } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_1',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [
+        { type: 'UPDATE_FIELD', params: { fieldKey: 'source', value: 'CAMPAIGN' } },
+        { type: 'NOTIFY_USER', params: { userId: 'u_2', title: 'New lead' } },
+      ],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_1' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    prisma.person.update.mockResolvedValue({});
+    await executor.execute(baseJob);
+    expect(prisma.person.update).toHaveBeenCalled();
+    expect(notificationService.create).toHaveBeenCalled();
+    const successCall = prisma.workflowRun.update.mock.calls.find(
+      (c: any) => c[0]?.data?.status === 'SUCCESS',
+    );
+    expect(successCall![0].data.log).toHaveLength(2);
+  });
 });
