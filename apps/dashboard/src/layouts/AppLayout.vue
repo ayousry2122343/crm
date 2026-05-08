@@ -6,12 +6,14 @@ import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import { useI18n } from 'vue-i18n';
 import GlobalSearch from '@/components/GlobalSearch.vue';
+import CopilotSidebar from '@/components/CopilotSidebar.vue';
 
 const auth = useAuth();
 const router = useRouter();
 const { t } = useI18n();
 const { locale, setLocale } = useLocale();
 const searchRef = ref<InstanceType<typeof GlobalSearch> | null>(null);
+const copilotVisible = ref(false);
 
 async function handleLogout() {
   await auth.store.logout();
@@ -120,6 +122,13 @@ async function handleLogout() {
             @click="searchRef?.open()"
           />
           <Button
+            icon="pi pi-sparkles"
+            severity="secondary"
+            size="small"
+            data-test="copilot-toggle"
+            @click="copilotVisible = !copilotVisible"
+          />
+          <Button
             :label="locale === 'ar' ? 'EN' : 'AR'"
             severity="secondary"
             size="small"
@@ -138,6 +147,7 @@ async function handleLogout() {
         <router-view />
       </section>
       <GlobalSearch ref="searchRef" />
+      <CopilotSidebar v-model:visible="copilotVisible" />
     </main>
   </div>
 </template>

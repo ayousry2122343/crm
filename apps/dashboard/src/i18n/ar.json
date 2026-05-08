@@ -398,6 +398,23 @@
     "minQty": "الحد الأدنى للكمية",
     "noPricebooks": "لا توجد قوائم أسعار بعد."
   },
+  "copilot": {
+    "title": "مساعد CRM",
+    "placeholder": "اسألني أي شيء...",
+    "startMessage": "مرحبًا! أنا مساعدك في الـ CRM. اسألني عن جهات الاتصال أو الصفقات أو أي شيء آخر.",
+    "thinking": "جارٍ التفكير...",
+    "error": "عذرًا، حدث خطأ. حاول مرة أخرى.",
+    "clearChat": "مسح المحادثة",
+    "summarizeContact": "لخّص جهة الاتصال",
+    "draftFollowUp": "صِغ بريد متابعة",
+    "contactHistory": "ما تاريخ التعامل مع جهة الاتصال؟",
+    "summarizeDeal": "لخّص الصفقة",
+    "nextSteps": "ما الخطوات التالية؟",
+    "dealRisk": "قيّم مخاطر الصفقة",
+    "recentDeals": "أظهر الصفقات الأخيرة",
+    "pipelineSummary": "لخّص خط الأنابيب",
+    "needsFollowUp": "من يحتاج متابعة؟"
+  },
   "emailSync": {
     "title": "حسابات البريد",
     "connectAccount": "ربط حساب",

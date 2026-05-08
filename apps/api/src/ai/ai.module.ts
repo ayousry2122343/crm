@@ -5,6 +5,8 @@ import { OllamaAIProvider } from './providers/ollama.provider';
 import { EmailComposerService } from './email-composer/email-composer.service';
 import { EmailComposerController } from './email-composer/email-composer.controller';
 import { EmbeddingsService } from './embeddings/embeddings.service';
+import { CopilotService } from './copilot/copilot.service';
+import { CopilotController } from './copilot/copilot.controller';
 
 @Module({
   providers: [
@@ -13,8 +15,9 @@ import { EmbeddingsService } from './embeddings/embeddings.service';
     AIService,
     EmailComposerService,
     EmbeddingsService,
+    CopilotService,
   ],
-  controllers: [EmailComposerController],
-  exports: [AIService, EmbeddingsService],
+  controllers: [EmailComposerController, CopilotController],
+  exports: [AIService, EmbeddingsService, CopilotService],
 })
 export class AIModule {}

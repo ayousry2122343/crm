@@ -398,6 +398,23 @@
     "minQty": "Min Quantity",
     "noPricebooks": "No pricebooks yet."
   },
+  "copilot": {
+    "title": "CRM Copilot",
+    "placeholder": "Ask me anything...",
+    "startMessage": "Hi! I'm your CRM copilot. Ask me about your contacts, deals, or anything else.",
+    "thinking": "Thinking...",
+    "error": "Sorry, something went wrong. Please try again.",
+    "clearChat": "Clear chat",
+    "summarizeContact": "Summarize this contact",
+    "draftFollowUp": "Draft a follow-up email",
+    "contactHistory": "What's the history with this contact?",
+    "summarizeDeal": "Summarize this deal",
+    "nextSteps": "What are the next steps?",
+    "dealRisk": "Assess deal risk",
+    "recentDeals": "Show recent deals",
+    "pipelineSummary": "Summarize pipeline",
+    "needsFollowUp": "Who needs follow-up?"
+  },
   "emailSync": {
     "title": "Email Accounts",
     "connectAccount": "Connect Account",
