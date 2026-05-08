@@ -141,6 +141,11 @@ export const router = createRouter({
           component: () => import('@/views/settings/EmailTemplates.vue'),
         },
         {
+          path: 'settings/email-accounts',
+          name: 'settings-email-accounts',
+          component: () => import('@/views/settings/EmailAccounts.vue'),
+        },
+        {
           path: 'forms',
           name: 'forms',
           component: () => import('@/views/forms/FormsIndex.vue'),

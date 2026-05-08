@@ -102,6 +102,9 @@ async function handleLogout() {
         <router-link to="/settings/email-templates" class="nav-link" data-test="nav-email-templates">
           <i class="pi pi-envelope mr-2" />{{ t('nav.emailTemplates') }}
         </router-link>
+        <router-link to="/settings/email-accounts" class="nav-link" data-test="nav-email-accounts">
+          <i class="pi pi-inbox mr-2" />{{ t('nav.emailAccounts') }}
+        </router-link>
       </nav>
     </aside>
     <main class="flex-1 min-w-0">

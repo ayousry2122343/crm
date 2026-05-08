@@ -8,6 +8,7 @@ import TabPanel from 'primevue/tabpanel';
 import Dialog from 'primevue/dialog';
 import DynamicForm from '@/components/DynamicForm/DynamicForm.vue';
 import { peopleApi, type Person } from '@/api/people';
+import { emailSyncApi, type EmailThread } from '@/api/email-sync';
 
 const props = defineProps<{
   id: string;
@@ -21,6 +22,7 @@ const person = ref<Person | null>(null);
 const loading = ref(true);
 const editMode = ref(false);
 const saving = ref(false);
+const emailThreads = ref<EmailThread[]>([]);
 
 const displayName = computed(() => {
   if (!person.value) return '';
@@ -41,6 +43,7 @@ async function load() {
   loading.value = true;
   try {
     person.value = await peopleApi.get(props.id);
+    emailThreads.value = await emailSyncApi.threadsForPerson(props.id).catch(() => []);
   } finally {
     loading.value = false;
   }
@@ -145,6 +148,19 @@ onMounted(load);
           <p class="text-slate-500" data-test="deals-tab">
             {{ t('people.noDeals') }}
           </p>
+        </TabPanel>
+        <TabPanel :header="t('emailSync.emails')" value="emails">
+          <div data-test="emails-tab">
+            <div v-if="emailThreads.length === 0" class="text-slate-500">{{ t('emailSync.noThreads') }}</div>
+            <div v-for="thread in emailThreads" :key="thread.id" class="border rounded-lg p-3 mb-3">
+              <div class="font-semibold mb-1">{{ thread.subject }}</div>
+              <div class="text-xs text-slate-400 mb-2">{{ new Date(thread.lastMessageAt).toLocaleString() }}</div>
+              <div v-for="msg in thread.messages" :key="msg.id" class="text-sm mb-2 ps-3 border-s-2" :class="msg.direction === 'IN' ? 'border-blue-400' : 'border-green-400'">
+                <div class="text-xs text-slate-500">{{ msg.direction === 'IN' ? msg.fromAddress : `→ ${msg.toAddresses.join(', ')}` }}</div>
+                <div class="mt-1 whitespace-pre-wrap">{{ msg.bodyText ?? '(HTML email)' }}</div>
+              </div>
+            </div>
+          </div>
         </TabPanel>
         <TabPanel :header="t('people.files')" value="files">
           <p class="text-slate-500" data-test="files-tab">

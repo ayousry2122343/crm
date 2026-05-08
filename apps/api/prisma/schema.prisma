@@ -62,6 +62,9 @@ model Workspace {
   campaignRecipients      CampaignRecipient[]
   sequences               Sequence[]
   sequenceEnrollments     SequenceEnrollment[]
+  emailAccounts           EmailAccount[]
+  emailThreads            EmailThread[]
+  emailMessages           EmailMessage[]
 
   @@index([slug])
 }
@@ -98,6 +101,7 @@ model User {
   ownedActivities         Activity[]               @relation("OwnedActivities")
   dashboards              Dashboard[]
   aiUsages                AIUsage[]
+  emailAccounts           EmailAccount[]
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -356,6 +360,7 @@ model Person {
   quotesAsContact        Quote[] @relation("QuoteContact")
   campaignRecipients     CampaignRecipient[]
   sequenceEnrollments    SequenceEnrollment[]
+  emailThreads           EmailThread[]
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -1072,4 +1077,86 @@ model SequenceEnrollment {
   @@unique([sequenceId, personId])
   @@index([workspaceId, status])
   @@index([status, nextRunAt])
+}
+
+// ── Email Sync ────────────────────────────────────
+
+enum EmailProvider {
+  GMAIL
+  OUTLOOK
+}
+
+enum EmailSyncState {
+  IDLE
+  SYNCING
+  ERROR
+}
+
+enum EmailDirection {
+  IN
+  OUT
+}
+
+model EmailAccount {
+  id            String         @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id])
+  userId        String
+  user          User           @relation(fields: [userId], references: [id])
+  provider      EmailProvider
+  emailAddress  String
+  credentials   Json           @default("{}")
+  syncState     EmailSyncState @default(IDLE)
+  syncCursor    String?
+  lastSyncAt    DateTime?
+  errorMessage  String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  threads EmailThread[]
+
+  @@unique([workspaceId, userId, emailAddress])
+  @@index([workspaceId, userId])
+}
+
+model EmailThread {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace @relation(fields: [workspaceId], references: [id])
+  accountId     String
+  account       EmailAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  externalId    String
+  subject       String
+  lastMessageAt DateTime
+  personId      String?
+  person        Person?   @relation(fields: [personId], references: [id])
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  messages EmailMessage[]
+
+  @@unique([accountId, externalId])
+  @@index([workspaceId, personId])
+  @@index([workspaceId, lastMessageAt])
+}
+
+model EmailMessage {
+  id            String         @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace      @relation(fields: [workspaceId], references: [id])
+  threadId      String
+  thread        EmailThread    @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  externalId    String
+  fromAddress   String
+  toAddresses   String[]
+  ccAddresses   String[]       @default([])
+  subject       String
+  bodyText      String?        @db.Text
+  bodyHtml      String?        @db.Text
+  direction     EmailDirection
+  receivedAt    DateTime
+  createdAt     DateTime       @default(now())
+
+  @@unique([threadId, externalId])
+  @@index([workspaceId, receivedAt])
 }

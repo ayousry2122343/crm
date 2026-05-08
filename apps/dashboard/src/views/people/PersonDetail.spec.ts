@@ -16,6 +16,12 @@ vi.mock('@/api/people', () => ({
   },
 }));
 
+vi.mock('@/api/email-sync', () => ({
+  emailSyncApi: {
+    threadsForPerson: vi.fn().mockResolvedValue([]),
+  },
+}));
+
 vi.mock('@/composables/useMetadata', () => ({
   useMetadata: () => ({
     data: { value: { entityType: 'Person', fields: [] } },
