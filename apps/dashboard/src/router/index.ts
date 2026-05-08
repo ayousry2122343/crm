@@ -263,6 +263,17 @@ export const router = createRouter({
           component: () => import('@/views/goals/GoalsPage.vue'),
         },
         {
+          path: 'tickets',
+          name: 'tickets',
+          component: () => import('@/views/tickets/TicketsList.vue'),
+        },
+        {
+          path: 'tickets/:id',
+          name: 'ticket-detail',
+          component: () => import('@/views/tickets/TicketDetail.vue'),
+          props: true,
+        },
+        {
           path: 'settings/scoring-rules',
           name: 'settings-scoring-rules',
           component: () => import('@/views/settings/ScoringRulesAdmin.vue'),
