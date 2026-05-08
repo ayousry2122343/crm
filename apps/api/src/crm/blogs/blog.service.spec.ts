@@ -185,6 +185,14 @@ describe('BlogService.get', () => {
     expect(result.id).toBe('blog_1');
   });
 
+  it('throws NotFoundException when blog does not exist', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.blog.findUnique.mockResolvedValue(null);
+    await expect(
+      tenant.run(ctx(), async () => svc.get('nonexistent')),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
   it('throws NotFoundException for wrong workspace', async () => {
     const { svc, tenant, prisma } = buildSvc();
     prisma.blog.findUnique.mockResolvedValue({
