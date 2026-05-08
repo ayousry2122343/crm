@@ -107,6 +107,23 @@ describe('EmbeddingsService.embedEntity', () => {
     expect(text).toContain('Technology');
   });
 
+  it('uses UPSERT (ON CONFLICT) so re-embedding updates existing row', async () => {
+    const { svc, prisma } = buildSvc();
+    prisma.person.findUnique.mockResolvedValue({ fullName: 'Test', email: null, phone: null, title: null, companyName: null, industry: null });
+    await svc.embedEntity('ws_1', 'Person', 'p1');
+    const sql = prisma.$executeRawUnsafe.mock.calls[0][0];
+    expect(sql).toContain('ON CONFLICT');
+    expect(sql).toContain('DO UPDATE SET vector');
+  });
+
+  it('passes correct workspaceId to the upsert query', async () => {
+    const { svc, prisma } = buildSvc();
+    prisma.deal.findUnique.mockResolvedValue({ name: 'D', amount: 100, status: 'OPEN' });
+    await svc.embedEntity('ws_custom', 'Deal', 'd1');
+    const wsArg = prisma.$executeRawUnsafe.mock.calls[0][1];
+    expect(wsArg).toBe('ws_custom');
+  });
+
   it('handles Person with null optional fields', async () => {
     const { svc, ai, prisma } = buildSvc();
     prisma.person.findUnique.mockResolvedValue({

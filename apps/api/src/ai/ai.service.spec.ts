@@ -103,4 +103,16 @@ describe('AIService edge-cases', () => {
     const { svc } = buildSvc('unknown-provider');
     expect(svc.providerName).toBe('mock');
   });
+
+  it('propagates provider chat error to caller', async () => {
+    const { svc, mockProvider } = buildSvc();
+    jest.spyOn(mockProvider, 'chat').mockRejectedValue(new Error('provider timeout'));
+    await expect(svc.chat([{ role: 'user', content: 'test' }])).rejects.toThrow('provider timeout');
+  });
+
+  it('propagates provider embed error to caller', async () => {
+    const { svc, mockProvider } = buildSvc();
+    jest.spyOn(mockProvider, 'embed').mockRejectedValue(new Error('embed failed'));
+    await expect(svc.embed('text')).rejects.toThrow('embed failed');
+  });
 });

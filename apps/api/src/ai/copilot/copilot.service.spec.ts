@@ -171,6 +171,23 @@ describe('CopilotService', () => {
       expect(msgs[msgs.length - 1].content).toBe('Hello');
     });
 
+    it('throws without tenant context', async () => {
+      const prisma = makePrisma();
+      const ai = makeAI();
+      const embeddings = makeEmbeddings();
+      const tenant = { getStore: () => null };
+      const svc = new CopilotService(prisma as any, ai as any, embeddings as any, tenant as any);
+      await expect(svc.chat({ message: 'Hi' })).rejects.toThrow('no tenant context');
+    });
+
+    it('generates Activity-specific suggestions', async () => {
+      const { svc, prisma } = buildSvc();
+      prisma.$queryRawUnsafe.mockResolvedValue([]);
+      const result = await svc.chat({ message: 'Hi', context: { entityType: 'Activity', entityId: 'a_1' } });
+      expect(result.suggestedPrompts).toContain('Summarize this activity');
+      expect(result.suggestedPrompts).toContain('Suggest follow-up actions');
+    });
+
     it('includes RAG chunks in context when embeddings found', async () => {
       const { svc, prisma, ai } = buildSvc();
       prisma.$queryRawUnsafe.mockResolvedValue([

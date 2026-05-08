@@ -139,6 +139,28 @@ describe('EmailComposerService.compose', () => {
     });
   });
 
+  it('defaults tone to formal when omitted', async () => {
+    const { svc, tenant, ai } = buildSvc();
+    await tenant.run(ctx(), async () => {
+      await svc.compose({ intent: 'Welcome email', language: 'en' });
+      const prompt = ai.chat.mock.calls[0][0][0].content;
+      expect(prompt).toContain('formal');
+    });
+  });
+
+  it('ignores unknown entity type in recordRef', async () => {
+    const { svc, tenant, ai } = buildSvc();
+    await tenant.run(ctx(), async () => {
+      const result = await svc.compose({
+        intent: 'Test',
+        language: 'en',
+        recordRef: { entityType: 'Widget', entityId: 'w_1' },
+      });
+      expect(result.subject).toBe('Hello');
+      expect(ai.chat).toHaveBeenCalled();
+    });
+  });
+
   it('handles entity context when record not found', async () => {
     const { svc, tenant, prisma, ai } = buildSvc();
     prisma.person.findUnique.mockResolvedValue(null);
