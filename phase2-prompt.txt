@@ -1,0 +1,172 @@
+أنت بتكمّل بناء CRM platform — multi-tenant SaaS, Arabic-first RTL, مبني بالـ stack ده:
+- Backend: NestJS 10 + Prisma 6 + Postgres 16 (pgvector) + Redis 7 + BullMQ 5
+- Frontend: Vue 3 + PrimeVue 4 + Pinia 2 + Vite 5 + Tailwind 3
+- Website: Vue 3 SPA (apps/website)
+- Testing: Jest (backend) + Vitest (frontend) + Playwright (e2e)
+- AI: Ollama (self-hosted, OpenAI-compatible API) + pgvector embeddings
+- Multi-tenancy: workspaceId via AsyncLocalStorage + Prisma middleware
+
+المشروع في: /home/ayousry/Desktop/db_manager/systems/crm
+Monorepo بـ pnpm: apps/{api, dashboard, website} + packages/{shared-types, metadata}
+
+== Phase 1 (v1.0.0) — مكتمل بالكامل ==
+
+Sprint 0: Monorepo scaffold + Docker Compose + CI
+Sprint 1: Auth (JWT + refresh) + Workspaces + Users + Teams + Roles + RBAC + Audit + Custom Fields engine (metadata-driven)
+Sprint 2: People + Companies + Tags + Lists (saved-query) + Global Search (Postgres FTS + tsvector + GIN)
+Sprint 3: Pipelines + Stages + Deals (multi-pipeline, Kanban, won/lost reasons, rotting) + Activities (polymorphic) + Calendar
+Sprint 4: Email Templates + Outbound Email (SMTP/MailHog) + Forms + Form Builder + Embeddable Widget + Workflow Engine (TCA: Trigger-Condition-Action) + Webhooks (HMAC-SHA256) + Validation Rules
+Sprint 5: 5 Standard Reports + Dashboard Builder (4 widget types) + AI Provider (Ollama/Mock) + AI Email Composer + pgvector Embeddings + Public Website (Home/Features/Pricing/Contact/SignUp) + e2e tests
+
+الإحصائيات:
+- 380+ test passing (277 backend + 103 frontend)
+- 794 سطر Prisma schema (33 model + 8 enums)
+- 63 test file
+- 5 e2e spec files (Playwright)
+
+== الـ Prisma Models الموجودة ==
+Workspace, User, Team, RefreshToken, EmailVerificationToken, PasswordResetToken,
+Role, Profile, UserRole, UserProfile, AuditLog, CustomFieldDef, UserInvite,
+Person, Tag, EntityTag, List, Pipeline, Stage, Deal, Activity, WonLostReason,
+EmailTemplate, OutboundEmail, Form, FormSubmission, Workflow, WorkflowRun,
+Webhook, WebhookDelivery, ValidationRule, Dashboard, Embedding, AIUsage
+
+== الـ API Modules الموجودة ==
+src/core/: auth, workspaces, users, teams, rbac, audit, custom-fields, metadata, tenant, email
+src/crm/: people, deals, pipelines, activities, lists, tags, forms, search, won-lost-reasons
+src/automation/: workflow (TCA engine + 6 action types + condition evaluator), webhooks (HMAC + retry), validation
+src/integrations/: email (SMTP + templates)
+src/reports/: 5 standard reports + dashboard CRUD
+src/ai/: provider interface + ollama + mock + email-composer + embeddings
+
+== Dashboard Views الموجودة ==
+auth/ (SignUp, Login, PasswordReset, AcceptInvite)
+people/ (PeopleList, PersonDetail — reused for Companies)
+deals/ (DealsKanban, DealsList, DealDetail)
+lists/ (ListsIndex, ListEditor with QueryBuilder)
+activities/ (ActivityCalendar)
+forms/ (FormsIndex, FormEditor)
+automation/ (WorkflowsIndex, WorkflowEditor, WebhooksAdmin)
+settings/ (Workspace, Users, CustomFields, Pipelines, WonLostReasons, EmailTemplates)
+reports/ (ReportsIndex)
+dashboards/ (DashboardsIndex, DashboardEditor)
+components/ (GlobalSearch, EmailComposer with AI, DynamicForm, 4 Widget types)
+
+== Website الموجود ==
+pages/ (Home, Features, Pricing, Contact, SignUp)
+components/ (SiteHeader, SiteFooter)
+
+================================================================
+  Phase 2 — المطلوب تنفيذه (~8 sprints)
+================================================================
+
+## Sprint 6: Products + Pricebooks
+- Product model (name, SKU, description, unitPrice, currency, isActive, bilingual labels)
+- ProductCategory model
+- Pricebook model (name, isDefault, currency) + PricebookEntry (productId, pricebookId, unitPrice, minQty)
+- Product CRUD API + controller
+- Product admin UI (DataTable + create/edit dialog)
+- Pricebook admin UI
+- Tests (TDD)
+
+## Sprint 7: Quotes / Proposals
+- Quote model (dealId, contactId, status: DRAFT/SENT/ACCEPTED/REJECTED/EXPIRED, validUntil, subtotal, discount, tax, total)
+- QuoteLineItem model (quoteId, productId, quantity, unitPrice, discount, total)
+- Quote PDF generation (using pdfmake or @react-pdf — no external API)
+- Quote API: CRUD + send (email with PDF attachment) + accept/reject endpoints
+- Quote Builder UI (line items table, totals, discount, tax calc, PDF preview)
+- QuoteDetail view with status timeline
+- "Create Quote" button on DealDetail
+- Tests (TDD)
+
+## Sprint 8: Email Marketing — Campaigns
+- Campaign model (name, subject, body, status: DRAFT/SCHEDULED/SENDING/SENT/PAUSED, listId, scheduledAt, sentAt, stats JSON)
+- CampaignRecipient model (campaignId, personId, status: PENDING/SENT/OPENED/CLICKED/BOUNCED/UNSUBSCRIBED)
+- Campaign API: CRUD + schedule + send (BullMQ job — batch send with rate limiting)
+- Open/click tracking (tracking pixel + redirect links)
+- Unsubscribe mechanism (token-based link + Person.unsubscribed flag)
+- Campaign Builder UI (template editor, list selector, schedule picker, stats dashboard)
+- Tests (TDD)
+
+## Sprint 9: Drip Sequences
+- Sequence model (name, triggerEvent, steps JSON array)
+- SequenceStep: {delay (hours/days), action (send_email/update_field/notify), templateId, conditions}
+- SequenceEnrollment model (sequenceId, personId, currentStep, status: ACTIVE/COMPLETED/PAUSED/EXITED)
+- Drip engine: BullMQ delayed jobs — schedule next step on enrollment, process step, advance or exit
+- Exit conditions (person replies, deal created, manual exit, field changed)
+- Sequence Builder UI (visual step list — add/remove/reorder steps, delay config, condition editor)
+- Enrollment UI on PersonDetail (enroll/pause/exit)
+- Tests (TDD)
+
+## Sprint 10: Time-based Workflow Triggers + Cron
+- Extend Workflow model: add triggerType 'SCHEDULED' + cronExpression + lastRunAt
+- CronRunner service: BullMQ repeatable job that evaluates cron workflows every minute
+- Query builder for scheduled triggers: "deals where expectedClose < today AND status = OPEN"
+- UI: add 'Scheduled' trigger type in WorkflowEditor with cron expression builder (or simple interval picker: daily/weekly/monthly + time)
+- Deal rotting automation: "if deal in stage X for > 7 days, notify owner"
+- Tests (TDD)
+
+## Sprint 11: Two-way Email Sync
+- EmailAccount model (userId, provider: GMAIL/OUTLOOK, credentials (encrypted), syncState, lastSyncAt)
+- Gmail OAuth 2.0 flow (consent screen + callback + token storage)
+- Microsoft Graph OAuth flow (same pattern)
+- Email sync worker (BullMQ): pull inbox/sent via IMAP or API, match to Person by email, store as Activity type=EMAIL
+- EmailThread model (accountId, threadId, subject, lastMessageAt, personId)
+- EmailMessage model (threadId, messageId, from, to, subject, body, direction: IN/OUT, receivedAt)
+- Email tab on PersonDetail: show threaded conversations
+- Settings page: connect/disconnect email accounts
+- Tests (TDD)
+- ⚠️ ملحوظة: Gmail OAuth محتاج Google Cloud Console project + OAuth consent screen. Microsoft محتاج Azure AD app registration. الـ implementation هيكون جاهز بس التفعيل محتاج credentials.
+
+## Sprint 12: Copilot Sidebar (RAG)
+- Copilot API: POST /api/v1/ai/copilot/chat with {message, context: {entityType, entityId}}
+- RAG pipeline: query pgvector for relevant embeddings → build context → call Ollama chat
+- Copilot sidebar component (slide-out panel, chat interface, streaming responses)
+- Context-aware: knows which page/record the user is viewing
+- Suggested prompts: "Summarize this deal", "Draft follow-up email", "What's the history with this contact?"
+- BullMQ embedding worker: auto-embed on Person/Deal/Activity create/update (wire up the existing EmbeddingsService)
+- Tests (TDD)
+
+## Sprint 13: Customer Portal
+- Portal model (workspaceId, domain, theme, enabled)
+- PortalUser model (personId, email, passwordHash — separate from internal User)
+- Portal auth (separate JWT issuer, portal-scoped guards)
+- Portal API: view own deals + quotes + activities + submitted forms
+- Portal frontend (separate Vue app or route group — light PrimeVue theme)
+- Portal pages: Dashboard, My Deals, My Quotes (accept/reject), My Activities, Profile
+- Settings: enable/disable portal, customize branding
+- Tests (TDD)
+
+## Sprint 14: Blog + Phase 2 Closeout
+- Blog model (title, slug, body (markdown), author, status: DRAFT/PUBLISHED, publishedAt, tags, metaDescription)
+- BlogCategory model
+- Markdown-to-HTML rendering (marked or markdown-it)
+- Blog pages on website: /blog, /blog/:slug
+- Blog admin in dashboard: CRUD + markdown editor + image upload (MinIO)
+- SEO: meta tags, og:image, sitemap.xml generation
+- Phase 2 closeout: full test suite run, e2e, tag v2.0.0
+
+================================================================
+  التعليمات
+================================================================
+
+1. ابدأ من Sprint 6 بالترتيب
+2. كل sprint: backend أولاً (models + API + tests) → ثم frontend (views + specs)
+3. TDD: اكتب الـ test الأول، شغّله يفشل، بعدين implement
+4. Prisma: أضف الـ models الجديدة + relations في schema.prisma + أضف الـ relations في Workspace/User models
+5. كل API module: service + controller + DTOs + spec
+6. كل view: Vue 3 + PrimeVue 4 + i18n (en.json + ar.json) + data-test attributes + spec
+7. Router: أضف الـ routes الجديدة في apps/dashboard/src/router/index.ts
+8. Nav: أضف الـ links في apps/dashboard/src/layouts/AppLayout.vue
+9. Commit: conventional commits — feat(scope): message
+10. الـ API clients في apps/dashboard/src/api/ — استخدم import { api as http } from './client'
+11. Multi-tenancy: كل query فيها workspaceId filter
+12. Arabic-first: كل label بيكون bilingual (labelAr + labelEn)
+13. لو حاجة محتاجة external API (Gmail OAuth, Microsoft Graph) — اعمل الكود جاهز بس وضّح إن التفعيل محتاج credentials
+
+بعد كل sprint:
+- شغّل كل الـ tests (jest + vitest)
+- اعمل typecheck (vue-tsc --noEmit)
+- commit + tag (v1.1.0-sprint6, v1.2.0-sprint7, ...)
+
+ابدأ Sprint 6 (Products + Pricebooks).
