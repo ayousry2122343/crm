@@ -78,6 +78,7 @@ model Workspace {
   forecastPeriods         ForecastPeriod[]
   goals                   Goal[]
   scoringRules            ScoringRule[]
+  tickets                 Ticket[]
 
   @@index([slug])
 }
@@ -124,6 +125,7 @@ model User {
   forecastPeriodsCreated  ForecastPeriod[] @relation("ForecastPeriodCreatedBy")
   forecastEntries         ForecastEntry[]  @relation("ForecastEntries")
   goalsOwned              Goal[]           @relation("GoalOwner")
+  assignedTickets         Ticket[] @relation("TicketAssignee")
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -145,6 +147,7 @@ model Team {
   children    Team[]    @relation("TeamHierarchy")
   createdAt   DateTime  @default(now())
   goals       Goal[]
+  tickets                 Ticket[]
 
   @@unique([workspaceId, name])
 }
@@ -388,6 +391,8 @@ model Person {
   sequenceEnrollments    SequenceEnrollment[]
   emailThreads           EmailThread[]
   portalUsers            PortalUser[]
+  ticketsAsContact        Ticket[] @relation("TicketContact")
+  ticketsAsCompany        Ticket[] @relation("TicketCompany")
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -1281,6 +1286,7 @@ enum AttachmentEntityType {
   DEAL
   BLOG
   ACTIVITY
+  TICKET
 }
 
 model Attachment {
@@ -1564,5 +1570,68 @@ model ScoringRule {
   createdById String
 
   @@index([workspaceId, entityType, isActive])
+  @@index([workspaceId, archivedAt])
+}
+
+// --- Sprint 22: Tickets ---
+
+enum TicketStatus {
+  NEW
+  OPEN
+  PENDING
+  ON_HOLD
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum TicketChannel {
+  EMAIL
+  PHONE
+  CHAT
+  WEB_FORM
+  PORTAL
+  API
+}
+
+model Ticket {
+  id           String         @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace      @relation(fields: [workspaceId], references: [id])
+  ticketNumber Int
+  subject      String
+  description  String?        @db.Text
+  status       TicketStatus   @default(NEW)
+  priority     TicketPriority @default(MEDIUM)
+  channel      TicketChannel  @default(WEB_FORM)
+  contactId    String?
+  contact      Person?        @relation("TicketContact", fields: [contactId], references: [id])
+  companyId    String?
+  company      Person?        @relation("TicketCompany", fields: [companyId], references: [id])
+  assigneeId   String?
+  assignee     User?          @relation("TicketAssignee", fields: [assigneeId], references: [id])
+  teamId       String?
+  team         Team?          @relation(fields: [teamId], references: [id])
+  tags         Json           @default("[]")
+  customFields Json           @default("{}")
+  firstResponseAt DateTime?
+  resolvedAt      DateTime?
+  closedAt        DateTime?
+  archivedAt      DateTime?
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  createdById     String
+
+  @@unique([workspaceId, ticketNumber])
+  @@index([workspaceId, status])
+  @@index([workspaceId, assigneeId])
+  @@index([workspaceId, contactId])
+  @@index([workspaceId, priority])
   @@index([workspaceId, archivedAt])
 }
