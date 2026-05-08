@@ -195,6 +195,17 @@ export const router = createRouter({
           props: true,
         },
         {
+          path: 'sequences',
+          name: 'sequences',
+          component: () => import('@/views/sequences/SequencesIndex.vue'),
+        },
+        {
+          path: 'sequences/:id',
+          name: 'sequence-detail',
+          component: () => import('@/views/sequences/SequenceDetail.vue'),
+          props: true,
+        },
+        {
           path: 'settings/products',
           name: 'settings-products',
           component: () => import('@/views/settings/Products.vue'),

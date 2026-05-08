@@ -44,6 +44,9 @@ async function handleLogout() {
         <router-link to="/campaigns" class="nav-link" data-test="nav-campaigns">
           <i class="pi pi-megaphone mr-2" />{{ t('nav.campaigns') }}
         </router-link>
+        <router-link to="/sequences" class="nav-link" data-test="nav-sequences">
+          <i class="pi pi-replay mr-2" />{{ t('nav.sequences') }}
+        </router-link>
         <router-link to="/lists" class="nav-link" data-test="nav-lists">
           <i class="pi pi-list mr-2" />{{ t('nav.lists') }}
         </router-link>

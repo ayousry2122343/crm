@@ -60,6 +60,8 @@ model Workspace {
   quoteLineItems          QuoteLineItem[]
   campaigns               Campaign[]
   campaignRecipients      CampaignRecipient[]
+  sequences               Sequence[]
+  sequenceEnrollments     SequenceEnrollment[]
 
   @@index([slug])
 }
@@ -351,8 +353,9 @@ model Person {
 
   dealsAsPrimary  Deal[] @relation("DealPrimaryContact")
   dealsAsCompany  Deal[] @relation("DealPrimaryCompany")
-  quotesAsContact      Quote[] @relation("QuoteContact")
-  campaignRecipients   CampaignRecipient[]
+  quotesAsContact        Quote[] @relation("QuoteContact")
+  campaignRecipients     CampaignRecipient[]
+  sequenceEnrollments    SequenceEnrollment[]
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -1018,4 +1021,53 @@ model CampaignRecipient {
 
   @@index([campaignId, status])
   @@index([workspaceId, personId])
+}
+
+// ── Sprint 9: Drip Sequences ───────────────────────────────
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  PAUSED
+  EXITED
+}
+
+model Sequence {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  name         String
+  triggerEvent String?
+  steps        Json      @default("[]")
+  enabled      Boolean   @default(false)
+  archivedAt   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  createdById  String?
+
+  enrollments SequenceEnrollment[]
+
+  @@index([workspaceId, archivedAt])
+}
+
+model SequenceEnrollment {
+  id          String           @id @default(cuid())
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
+  sequenceId  String
+  sequence    Sequence         @relation(fields: [sequenceId], references: [id], onDelete: Cascade)
+  personId    String
+  person      Person           @relation(fields: [personId], references: [id])
+  currentStep Int              @default(0)
+  status      EnrollmentStatus @default(ACTIVE)
+  nextRunAt   DateTime?
+  exitedAt    DateTime?
+  exitReason  String?
+  completedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  @@unique([sequenceId, personId])
+  @@index([workspaceId, status])
+  @@index([status, nextRunAt])
 }

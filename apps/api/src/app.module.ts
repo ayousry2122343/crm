@@ -32,6 +32,7 @@ import { ProductModule } from './crm/products/product.module';
 import { PricebookModule } from './crm/pricebooks/pricebook.module';
 import { QuoteModule } from './crm/quotes/quote.module';
 import { CampaignModule } from './crm/campaigns/campaign.module';
+import { SequenceModule } from './crm/sequences/sequence.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -76,6 +77,7 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     PricebookModule,
     QuoteModule,
     CampaignModule,
+    SequenceModule,
     HealthModule,
   ],
   providers: [

@@ -49,6 +49,9 @@ export const PERMISSIONS = {
   CAMPAIGN_READ: 'campaign:read',
   CAMPAIGN_WRITE: 'campaign:write',
   CAMPAIGN_DELETE: 'campaign:delete',
+  SEQUENCE_READ: 'sequence:read',
+  SEQUENCE_WRITE: 'sequence:write',
+  SEQUENCE_DELETE: 'sequence:delete',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
