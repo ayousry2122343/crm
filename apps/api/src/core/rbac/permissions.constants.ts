@@ -82,6 +82,9 @@ export const PERMISSIONS = {
   TICKET_WRITE: 'ticket:write',
   TICKET_DELETE: 'ticket:delete',
   TICKET_ASSIGN: 'ticket:assign',
+  QUEUE_READ: 'queue:read',
+  QUEUE_WRITE: 'queue:write',
+  QUEUE_DELETE: 'queue:delete',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

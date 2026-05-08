@@ -25,13 +25,18 @@ function makeNotification() {
   return { create: jest.fn().mockResolvedValue(undefined) };
 }
 
+function makeQueueService() {
+  return { getNextAssignee: jest.fn().mockResolvedValue(null) };
+}
+
 function buildSvc() {
   const prisma = makePrisma();
   const tenant = new TenantContextService();
   const audit = makeAudit();
   const notification = makeNotification();
-  const svc = new TicketService(prisma as any, tenant, audit as any, notification as any);
-  return { svc, tenant, prisma, audit, notification };
+  const queueSvc = makeQueueService();
+  const svc = new TicketService(prisma as any, tenant, audit as any, notification as any, queueSvc as any);
+  return { svc, tenant, prisma, audit, notification, queueSvc };
 }
 
 const ctx = (workspaceId = 'ws_1', userId = 'u_1') => ({
@@ -268,7 +273,7 @@ describe('TicketService.get', () => {
     expect(prisma.ticket.findUnique).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { id: 't_1' },
-        include: { contact: true, company: true, assignee: true, team: true },
+        include: { contact: true, company: true, assignee: true, team: true, queue: true },
       }),
     );
   });
@@ -611,5 +616,69 @@ describe('TicketService.archive', () => {
     expect(audit.log).toHaveBeenCalledWith(
       expect.objectContaining({ entityType: 'Ticket', entityId: 't_1', action: 'DELETE' }),
     );
+  });
+});
+
+/* ──────────────────────── queue integration ──────────────────────── */
+
+describe('TicketService queue integration', () => {
+  it('create with queueId + no assigneeId → auto-assigns from queue', async () => {
+    const { svc, tenant, prisma, queueSvc, notification } = buildSvc();
+    queueSvc.getNextAssignee.mockResolvedValue('u_auto');
+    prisma.ticket.findFirst.mockResolvedValue(null);
+    prisma.ticket.create.mockResolvedValue({
+      id: 't_q1',
+      workspaceId: 'ws_1',
+      ticketNumber: 1,
+      subject: 'Queue ticket',
+      assigneeId: 'u_auto',
+      queueId: 'q_1',
+    });
+
+    await tenant.run(ctx(), async () => {
+      const result = await svc.create({ subject: 'Queue ticket', queueId: 'q_1' });
+      expect(result.assigneeId).toBe('u_auto');
+    });
+
+    expect(queueSvc.getNextAssignee).toHaveBeenCalledWith('q_1');
+    const createArgs = prisma.ticket.create.mock.calls[0][0];
+    expect(createArgs.data.queueId).toBe('q_1');
+    expect(createArgs.data.assigneeId).toBe('u_auto');
+    expect(notification.create).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'u_auto' }),
+    );
+  });
+
+  it('create with queueId + assigneeId → uses provided assigneeId (no auto-assign)', async () => {
+    const { svc, tenant, prisma, queueSvc } = buildSvc();
+    prisma.ticket.findFirst.mockResolvedValue(null);
+    prisma.ticket.create.mockResolvedValue({
+      id: 't_q2',
+      workspaceId: 'ws_1',
+      ticketNumber: 1,
+      subject: 'Manual assign',
+      assigneeId: 'u_manual',
+      queueId: 'q_1',
+    });
+
+    await tenant.run(ctx(), async () => {
+      await svc.create({ subject: 'Manual assign', queueId: 'q_1', assigneeId: 'u_manual' });
+    });
+
+    expect(queueSvc.getNextAssignee).not.toHaveBeenCalled();
+    const createArgs = prisma.ticket.create.mock.calls[0][0];
+    expect(createArgs.data.assigneeId).toBe('u_manual');
+  });
+
+  it('list filters by queueId', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.ticket.findMany.mockResolvedValue([]);
+
+    await tenant.run(ctx(), async () => {
+      await svc.list({ queueId: 'q_1' });
+    });
+
+    const where = prisma.ticket.findMany.mock.calls[0][0].where;
+    expect(where.queueId).toBe('q_1');
   });
 });

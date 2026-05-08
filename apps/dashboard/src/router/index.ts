@@ -279,6 +279,11 @@ export const router = createRouter({
           component: () => import('@/views/settings/ScoringRulesAdmin.vue'),
         },
         {
+          path: 'settings/queues',
+          name: 'settings-queues',
+          component: () => import('@/views/settings/QueuesAdmin.vue'),
+        },
+        {
           path: 'reports',
           name: 'reports',
           component: () => import('@/views/reports/ReportsIndex.vue'),

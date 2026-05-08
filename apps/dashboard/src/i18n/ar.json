@@ -38,6 +38,7 @@
     "serviceGroup": "الخدمة",
     "tickets": "التذاكر",
     "scoringRules": "قواعد التقييم",
+    "queues": "قوائم الانتظار",
     "logout": "تسجيل الخروج"
   },
   "auth": {
@@ -759,6 +760,32 @@
       "webForm": "نموذج ويب",
       "portal": "بوابة",
       "api": "API"
+    },
+    "queue": "قائمة الانتظار",
+    "autoAssigned": "تعيين تلقائي"
+  },
+  "queues": {
+    "title": "قوائم الانتظار",
+    "queue": "قائمة انتظار",
+    "create": "إنشاء قائمة انتظار",
+    "edit": "تعديل قائمة الانتظار",
+    "name": "الاسم",
+    "description": "الوصف",
+    "assignmentMode": "وضع التعيين",
+    "members": "الأعضاء",
+    "memberCount": "الأعضاء",
+    "ticketCount": "التذاكر",
+    "isDefault": "افتراضي",
+    "noQueues": "لا توجد قوائم انتظار بعد.",
+    "addMember": "إضافة عضو",
+    "removeMember": "إزالة عضو",
+    "created": "تم إنشاء قائمة الانتظار بنجاح.",
+    "updated": "تم تحديث قائمة الانتظار بنجاح.",
+    "archived": "تم أرشفة قائمة الانتظار.",
+    "modes": {
+      "manual": "يدوي",
+      "roundRobin": "بالتتابع",
+      "leastActive": "الأقل نشاطاً"
     }
   }
 }

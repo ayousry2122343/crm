@@ -9,6 +9,7 @@ export class CreateTicketDto {
   @IsOptional() @IsString() companyId?: string;
   @IsOptional() @IsString() assigneeId?: string;
   @IsOptional() @IsString() teamId?: string;
+  @IsOptional() @IsString() queueId?: string;
   @IsOptional() tags?: any;
   @IsOptional() customFields?: any;
 }

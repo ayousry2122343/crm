@@ -10,5 +10,6 @@ export class QueryTicketDto {
   @IsOptional() @IsString() assigneeId?: string;
   @IsOptional() @IsString() contactId?: string;
   @IsOptional() @IsString() teamId?: string;
+  @IsOptional() @IsString() queueId?: string;
   @IsOptional() @IsString() search?: string;
 }

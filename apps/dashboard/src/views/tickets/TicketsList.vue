@@ -9,6 +9,7 @@ import Tag from 'primevue/tag';
 import Select from 'primevue/select';
 import InputText from 'primevue/inputtext';
 import { ticketsApi, type Ticket } from '@/api/tickets';
+import { queuesApi, type Queue } from '@/api/queues';
 import TicketCreateDialog from '@/components/TicketCreateDialog.vue';
 
 const { t } = useI18n();
@@ -19,7 +20,9 @@ const loading = ref(true);
 const showCreate = ref(false);
 const filterStatus = ref<string | undefined>();
 const filterPriority = ref<string | undefined>();
+const filterQueue = ref<string | undefined>();
 const searchText = ref('');
+const queuesList = ref<Queue[]>([]);
 
 const statusSeverity: Record<string, string> = {
   NEW: 'info',
@@ -65,6 +68,7 @@ async function load() {
     const params: Record<string, any> = {};
     if (filterStatus.value) params.status = filterStatus.value;
     if (filterPriority.value) params.priority = filterPriority.value;
+    if (filterQueue.value) params.queueId = filterQueue.value;
     if (searchText.value) params.search = searchText.value;
     const res = await ticketsApi.list(params);
     tickets.value = res.items;
@@ -77,7 +81,13 @@ function goToDetail(ticket: Ticket) {
   router.push({ name: 'ticket-detail', params: { id: ticket.id } });
 }
 
-onMounted(load);
+onMounted(async () => {
+  try {
+    const res = await queuesApi.list();
+    queuesList.value = res.items;
+  } catch { /* ignore */ }
+  load();
+});
 </script>
 
 <template>
@@ -111,6 +121,16 @@ onMounted(load);
         :placeholder="t('tickets.priority')"
         class="w-40"
         data-test="priority-filter"
+        @change="load"
+      />
+      <Select
+        v-model="filterQueue"
+        :options="[{ label: 'All', value: undefined }, ...queuesList.map(q => ({ label: q.name, value: q.id }))]"
+        option-label="label"
+        option-value="value"
+        :placeholder="t('tickets.queue')"
+        class="w-40"
+        data-test="queue-filter"
         @change="load"
       />
       <InputText

@@ -132,6 +132,9 @@ async function handleLogout() {
         <router-link to="/settings/scoring-rules" class="nav-link" data-test="nav-scoring-rules">
           <i class="pi pi-star mr-2" />{{ t('nav.scoringRules') }}
         </router-link>
+        <router-link to="/settings/queues" class="nav-link" data-test="nav-queues">
+          <i class="pi pi-inbox mr-2" />{{ t('nav.queues') }}
+        </router-link>
       </nav>
     </aside>
     <main class="flex-1 min-w-0">

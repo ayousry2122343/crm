@@ -7,6 +7,7 @@ import { PrismaService } from '../../prisma/prisma.service';
 import { TenantContextService } from '../../core/tenant/tenant-context.service';
 import { AuditService } from '../../core/audit/audit.service';
 import { NotificationService } from '../../notifications/notification.service';
+import { QueueService } from '../queues/queue.service';
 import type { CreateTicketDto } from './dto/create-ticket.dto';
 import type { UpdateTicketDto } from './dto/update-ticket.dto';
 import type { QueryTicketDto } from './dto/query-ticket.dto';
@@ -26,7 +27,7 @@ export const VALID_TRANSITIONS: Record<string, string[]> = {
   CLOSED: ['OPEN'],
 };
 
-const TICKET_INCLUDE = { contact: true, company: true, assignee: true, team: true };
+const TICKET_INCLUDE = { contact: true, company: true, assignee: true, team: true, queue: true };
 
 @Injectable()
 export class TicketService {
@@ -35,6 +36,7 @@ export class TicketService {
     private readonly tenant: TenantContextService,
     private readonly audit: AuditService,
     private readonly notification: NotificationService,
+    private readonly queueService: QueueService,
   ) {}
 
   private requireWs(): string {
@@ -69,8 +71,14 @@ export class TicketService {
     if (dto.companyId !== undefined) data.companyId = dto.companyId;
     if (dto.assigneeId !== undefined) data.assigneeId = dto.assigneeId;
     if (dto.teamId !== undefined) data.teamId = dto.teamId;
+    if (dto.queueId !== undefined) data.queueId = dto.queueId;
     if (dto.tags !== undefined) data.tags = dto.tags;
     if (dto.customFields !== undefined) data.customFields = dto.customFields;
+
+    if (dto.queueId && !dto.assigneeId) {
+      const nextAssignee = await this.queueService.getNextAssignee(dto.queueId);
+      if (nextAssignee) data.assigneeId = nextAssignee;
+    }
 
     const ticket = await this.prisma.ticket.create({
       data,
@@ -84,9 +92,9 @@ export class TicketService {
       newValue: { subject: dto.subject, ticketNumber },
     });
 
-    if (dto.assigneeId) {
+    if (ticket.assigneeId) {
       await this.notification.create({
-        userId: dto.assigneeId,
+        userId: ticket.assigneeId,
         type: 'GENERAL',
         title: `Ticket assigned to you: ${dto.subject}`,
         link: `/tickets/${ticket.id}`,
@@ -106,6 +114,7 @@ export class TicketService {
     if (q.contactId) where.contactId = q.contactId;
     if (q.channel) where.channel = q.channel;
     if (q.teamId) where.teamId = q.teamId;
+    if (q.queueId) where.queueId = q.queueId;
     if (q.search) where.subject = { contains: q.search, mode: 'insensitive' };
 
     const items = await this.prisma.ticket.findMany({
@@ -261,5 +270,41 @@ export class TicketService {
     });
 
     return archived;
+  }
+
+  async moveToQueue(ticketId: string, queueId: string) {
+    const workspaceId = this.requireWs();
+    const ticket = await this.prisma.ticket.findUnique({ where: { id: ticketId } });
+    if (!ticket || ticket.workspaceId !== workspaceId) throw new NotFoundException();
+
+    const data: any = { queueId };
+    const nextAssignee = await this.queueService.getNextAssignee(queueId);
+    if (nextAssignee) data.assigneeId = nextAssignee;
+
+    const updated = await this.prisma.ticket.update({
+      where: { id: ticketId },
+      data,
+      include: TICKET_INCLUDE,
+    });
+
+    await this.audit.log({
+      entityType: 'Ticket',
+      entityId: ticketId,
+      action: 'UPDATE',
+      fieldKey: 'queueId',
+      oldValue: ticket.queueId,
+      newValue: queueId,
+    });
+
+    if (nextAssignee) {
+      await this.notification.create({
+        userId: nextAssignee,
+        type: 'GENERAL',
+        title: `Ticket assigned to you: ${ticket.subject}`,
+        link: `/tickets/${ticketId}`,
+      });
+    }
+
+    return updated;
   }
 }

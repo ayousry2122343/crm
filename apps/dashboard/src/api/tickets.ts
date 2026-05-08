@@ -17,6 +17,8 @@ export interface Ticket {
   assignee?: { id: string; fullName: string };
   teamId?: string;
   team?: { id: string; name: string };
+  queueId?: string;
+  queue?: { id: string; name: string; assignmentMode: string };
   tags: any[];
   customFields: Record<string, any>;
   firstResponseAt?: string;
@@ -42,6 +44,7 @@ export interface CreateTicketInput {
   companyId?: string;
   assigneeId?: string;
   teamId?: string;
+  queueId?: string;
   tags?: any[];
   customFields?: Record<string, any>;
 }

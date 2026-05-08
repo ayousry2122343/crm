@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
@@ -7,6 +7,7 @@ import Textarea from 'primevue/textarea';
 import Select from 'primevue/select';
 import Button from 'primevue/button';
 import { ticketsApi, type CreateTicketInput } from '@/api/tickets';
+import { queuesApi, type Queue } from '@/api/queues';
 import { useAppToast } from '@/composables/useAppToast';
 
 const props = defineProps<{ visible: boolean }>();
@@ -18,6 +19,7 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const toast = useAppToast();
 const saving = ref(false);
+const queuesList = ref<Queue[]>([]);
 
 const form = ref<CreateTicketInput>({
   subject: '',
@@ -42,10 +44,31 @@ const channels = [
   { label: 'API', value: 'API' },
 ];
 
+const queueOptions = computed(() => [
+  { label: '—', value: undefined },
+  ...queuesList.value.map((q) => ({ label: q.name, value: q.id })),
+]);
+
+const selectedQueue = computed(() =>
+  queuesList.value.find((q) => q.id === form.value.queueId),
+);
+
+const assigneeDisabled = computed(() =>
+  selectedQueue.value?.assignmentMode !== undefined &&
+  selectedQueue.value?.assignmentMode !== 'MANUAL',
+);
+
 watch(() => props.visible, (v) => {
   if (v) {
     form.value = { subject: '', description: '', priority: 'MEDIUM', channel: 'WEB_FORM' };
   }
+});
+
+onMounted(async () => {
+  try {
+    const res = await queuesApi.list();
+    queuesList.value = res.items;
+  } catch { /* queues not available */ }
 });
 
 async function submit() {
@@ -116,6 +139,17 @@ async function submit() {
         </div>
       </div>
       <div>
+        <label class="block text-sm font-medium mb-1">{{ t('tickets.queue') }}</label>
+        <Select
+          v-model="form.queueId"
+          :options="queueOptions"
+          option-label="label"
+          option-value="value"
+          class="w-full"
+          data-test="ticket-queue"
+        />
+      </div>
+      <div>
         <label class="block text-sm font-medium mb-1">{{ t('tickets.contact') }}</label>
         <InputText
           v-model="form.contactId"
@@ -129,7 +163,8 @@ async function submit() {
         <InputText
           v-model="form.assigneeId"
           class="w-full"
-          :placeholder="t('tickets.assignee')"
+          :placeholder="assigneeDisabled ? t('tickets.autoAssigned') : t('tickets.assignee')"
+          :disabled="assigneeDisabled"
           data-test="ticket-assignee"
         />
       </div>

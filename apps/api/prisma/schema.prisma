@@ -79,6 +79,7 @@ model Workspace {
   goals                   Goal[]
   scoringRules            ScoringRule[]
   tickets                 Ticket[]
+  queues                  Queue[]
 
   @@index([slug])
 }
@@ -1573,6 +1574,33 @@ model ScoringRule {
   @@index([workspaceId, archivedAt])
 }
 
+// --- Sprint 23: Queues + Assignment Rules ---
+
+enum AssignmentMode {
+  MANUAL
+  ROUND_ROBIN
+  LEAST_ACTIVE
+}
+
+model Queue {
+  id             String         @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace      @relation(fields: [workspaceId], references: [id])
+  name           String
+  description    String?
+  isDefault      Boolean        @default(false)
+  assignmentMode AssignmentMode @default(MANUAL)
+  members        Json           @default("[]")
+  archivedAt     DateTime?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  createdById    String
+  tickets        Ticket[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, archivedAt])
+}
+
 // --- Sprint 22: Tickets ---
 
 enum TicketStatus {
@@ -1618,6 +1646,8 @@ model Ticket {
   assignee     User?          @relation("TicketAssignee", fields: [assigneeId], references: [id])
   teamId       String?
   team         Team?          @relation(fields: [teamId], references: [id])
+  queueId      String?
+  queue        Queue?         @relation(fields: [queueId], references: [id])
   tags         Json           @default("[]")
   customFields Json           @default("{}")
   firstResponseAt DateTime?

@@ -38,6 +38,7 @@
     "serviceGroup": "Service",
     "tickets": "Tickets",
     "scoringRules": "Scoring Rules",
+    "queues": "Queues",
     "logout": "Log out"
   },
   "auth": {
@@ -759,6 +760,32 @@
       "webForm": "Web Form",
       "portal": "Portal",
       "api": "API"
+    },
+    "queue": "Queue",
+    "autoAssigned": "Auto-assigned"
+  },
+  "queues": {
+    "title": "Queues",
+    "queue": "Queue",
+    "create": "Create Queue",
+    "edit": "Edit Queue",
+    "name": "Name",
+    "description": "Description",
+    "assignmentMode": "Assignment Mode",
+    "members": "Members",
+    "memberCount": "Members",
+    "ticketCount": "Tickets",
+    "isDefault": "Default",
+    "noQueues": "No queues yet.",
+    "addMember": "Add Member",
+    "removeMember": "Remove Member",
+    "created": "Queue created successfully.",
+    "updated": "Queue updated successfully.",
+    "archived": "Queue archived.",
+    "modes": {
+      "manual": "Manual",
+      "roundRobin": "Round Robin",
+      "leastActive": "Least Active"
     }
   }
 }

@@ -4,18 +4,15 @@ import { createI18n } from 'vue-i18n';
 import PrimeVue from 'primevue/config';
 import en from '@/i18n/en.json';
 import ar from '@/i18n/ar.json';
-import TicketsList from './TicketsList.vue';
+import QueuesAdmin from './QueuesAdmin.vue';
 
 const mockList = vi.fn();
-vi.mock('@/api/tickets', () => ({
-  ticketsApi: {
-    list: (...args: any[]) => mockList(...args),
-  },
-}));
-
 vi.mock('@/api/queues', () => ({
   queuesApi: {
-    list: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
+    list: (...args: any[]) => mockList(...args),
+    create: vi.fn(),
+    update: vi.fn(),
+    archive: vi.fn(),
   },
 }));
 
@@ -31,49 +28,44 @@ vi.mock('@/composables/useAppToast', () => ({
 const i18n = createI18n({ legacy: false, locale: 'en', messages: { en, ar } });
 
 function createWrapper() {
-  return mount(TicketsList, {
+  return mount(QueuesAdmin, {
     global: {
       plugins: [i18n, PrimeVue],
       stubs: {
         DataTable: {
-          template: '<div data-test="tickets-table"><slot /></div>',
+          template: '<div data-test="queues-table"><slot /></div>',
           props: ['value', 'loading'],
         },
-        Column: { template: '<div></div>', props: ['field', 'header', 'sortable'] },
+        Column: { template: '<div></div>', props: ['field', 'header'] },
         Tag: { template: '<span>{{ $attrs.value }}</span>', props: ['value', 'severity'] },
         Button: {
           template:
             '<button @click="$emit(\'click\')" :data-test="$attrs[\'data-test\']">{{ $attrs.label }}</button>',
-          props: ['label', 'icon', 'loading', 'severity', 'size'],
+          props: ['label', 'icon', 'loading', 'severity', 'size', 'text'],
         },
+        Dialog: { template: '<div v-if="visible" data-test="queue-dialog"><slot /><slot name="footer" /></div>', props: ['visible', 'header', 'modal'] },
+        InputText: { template: '<input :data-test="$attrs[\'data-test\']" />', props: ['modelValue'] },
+        Textarea: { template: '<textarea :data-test="$attrs[\'data-test\']"></textarea>', props: ['modelValue', 'rows'] },
         Select: {
           template: '<select :data-test="$attrs[\'data-test\']"></select>',
           props: ['modelValue', 'options', 'optionLabel', 'optionValue', 'placeholder'],
         },
-        InputText: {
-          template: '<input :data-test="$attrs[\'data-test\']" />',
-          props: ['modelValue', 'placeholder'],
-        },
-        TicketCreateDialog: { template: '<div></div>', props: ['visible'] },
       },
     },
   });
 }
 
-describe('TicketsList', () => {
+describe('QueuesAdmin', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockList.mockResolvedValue({
       items: [
         {
-          id: 't_1',
-          ticketNumber: 1,
-          subject: 'Cannot login',
-          status: 'NEW',
-          priority: 'HIGH',
-          channel: 'EMAIL',
-          assignee: { fullName: 'Agent' },
-          contact: { fullName: 'John' },
+          id: 'q_1',
+          name: 'Support',
+          description: 'Main queue',
+          assignmentMode: 'ROUND_ROBIN',
+          members: ['u_1', 'u_2'],
           createdAt: '2026-01-01',
         },
       ],
@@ -81,34 +73,28 @@ describe('TicketsList', () => {
     });
   });
 
-  it('renders page and loads tickets', async () => {
+  it('renders page + loads queues', async () => {
     const w = createWrapper();
     await flushPromises();
-    expect(w.find('[data-test="tickets-list-page"]').exists()).toBe(true);
+    expect(w.find('[data-test="queues-admin-page"]').exists()).toBe(true);
     expect(mockList).toHaveBeenCalled();
   });
 
   it('shows DataTable with correct columns', async () => {
     const w = createWrapper();
     await flushPromises();
-    expect(w.find('[data-test="tickets-table"]').exists()).toBe(true);
+    expect(w.find('[data-test="queues-table"]').exists()).toBe(true);
   });
 
   it('has create button', async () => {
     const w = createWrapper();
     await flushPromises();
-    expect(w.find('[data-test="create-ticket-btn"]').exists()).toBe(true);
+    expect(w.find('[data-test="create-queue-btn"]').exists()).toBe(true);
   });
 
-  it('shows status filter', async () => {
+  it('shows assignment mode in table', async () => {
     const w = createWrapper();
     await flushPromises();
-    expect(w.find('[data-test="status-filter"]').exists()).toBe(true);
-  });
-
-  it('shows priority filter', async () => {
-    const w = createWrapper();
-    await flushPromises();
-    expect(w.find('[data-test="priority-filter"]').exists()).toBe(true);
+    expect(w.find('[data-test="queues-table"]').exists()).toBe(true);
   });
 });
