@@ -7,6 +7,7 @@ import Button from 'primevue/button';
 import { useI18n } from 'vue-i18n';
 import GlobalSearch from '@/components/GlobalSearch.vue';
 import CopilotSidebar from '@/components/CopilotSidebar.vue';
+import NotificationBell from '@/components/NotificationBell.vue';
 
 const auth = useAuth();
 const router = useRouter();
@@ -61,6 +62,12 @@ async function handleLogout() {
         <router-link to="/dashboards" class="nav-link" data-test="nav-dashboards">
           <i class="pi pi-th-large mr-2" />{{ t('nav.dashboards') }}
         </router-link>
+        <router-link to="/forecasts" class="nav-link" data-test="nav-forecasts">
+          <i class="pi pi-chart-line mr-2" />{{ t('nav.forecasts') }}
+        </router-link>
+        <router-link to="/goals" class="nav-link" data-test="nav-goals">
+          <i class="pi pi-flag mr-2" />{{ t('nav.goals') }}
+        </router-link>
         <router-link to="/forms" class="nav-link" data-test="nav-forms">
           <i class="pi pi-file-edit mr-2" />{{ t('nav.forms') }}
         </router-link>
@@ -113,6 +120,12 @@ async function handleLogout() {
         <router-link to="/settings/portal" class="nav-link" data-test="nav-portal">
           <i class="pi pi-globe mr-2" />{{ t('nav.portal') }}
         </router-link>
+        <router-link to="/settings/notification-preferences" class="nav-link" data-test="nav-notification-prefs">
+          <i class="pi pi-bell mr-2" />{{ t('nav.notificationPreferences') }}
+        </router-link>
+        <router-link to="/settings/scoring-rules" class="nav-link" data-test="nav-scoring-rules">
+          <i class="pi pi-star mr-2" />{{ t('nav.scoringRules') }}
+        </router-link>
       </nav>
     </aside>
     <main class="flex-1 min-w-0">
@@ -127,6 +140,7 @@ async function handleLogout() {
             data-test="search-trigger"
             @click="searchRef?.open()"
           />
+          <NotificationBell />
           <Button
             icon="pi pi-sparkles"
             severity="secondary"

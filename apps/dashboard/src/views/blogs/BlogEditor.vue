@@ -9,6 +9,7 @@ import Select from 'primevue/select';
 import Tag from 'primevue/tag';
 import Chips from 'primevue/chips';
 import AttachmentList from '@/components/AttachmentList.vue';
+import CommentSection from '@/components/CommentSection.vue';
 import { blogsApi, type Blog, type BlogCategory } from '@/api/blogs';
 import { useAppToast } from '@/composables/useAppToast';
 
@@ -196,6 +197,14 @@ onMounted(() => {
           entity-type="BLOG"
           :entity-id="id"
           class="mt-4"
+        />
+
+        <CommentSection
+          v-if="!isNew"
+          entity-type="BLOG"
+          :entity-id="id"
+          class="mt-4"
+          data-test="comments-section"
         />
       </div>
     </div>

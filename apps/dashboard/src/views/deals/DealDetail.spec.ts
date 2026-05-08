@@ -36,6 +36,26 @@ vi.mock('@/api/pipelines', () => ({
   },
 }));
 
+vi.mock('@/api/comments', () => ({
+  commentsApi: {
+    list: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
+    create: vi.fn(),
+    update: vi.fn(),
+    archive: vi.fn(),
+    pin: vi.fn(),
+    unpin: vi.fn(),
+    follow: vi.fn(),
+    unfollow: vi.fn(),
+    listFollowers: vi.fn(),
+  },
+}));
+
+vi.mock('@/api/users', () => ({
+  usersApi: {
+    list: vi.fn().mockResolvedValue({ members: [], invites: [] }),
+  },
+}));
+
 vi.mock('@/api/attachments', () => ({
   attachmentsApi: {
     list: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),

@@ -7,8 +7,10 @@ import Tag from 'primevue/tag';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import AttachmentList from '@/components/AttachmentList.vue';
+import CommentSection from '@/components/CommentSection.vue';
 import { dealsApi, type Deal } from '@/api/deals';
 import { activitiesApi, type Activity } from '@/api/activities';
+import ScoreBadge from '@/components/ScoreBadge.vue';
 
 const props = defineProps<{ id: string }>();
 const { t } = useI18n();
@@ -50,7 +52,10 @@ onMounted(load);
       <div class="flex items-center gap-4 mb-6" data-test="deal-header">
         <Button icon="pi pi-arrow-left" severity="secondary" text rounded @click="goBack" />
         <div class="flex-1">
-          <h1 class="text-2xl font-bold" data-test="deal-name">{{ deal.name }}</h1>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-bold" data-test="deal-name">{{ deal.name }}</h1>
+            <ScoreBadge v-if="deal.score != null" :score="deal.score" />
+          </div>
           <div class="flex gap-3 items-center mt-1">
             <Tag :value="deal.status" :severity="statusSeverity" />
             <span class="text-sm text-slate-500">{{ deal.pipeline?.name }} / {{ deal.stage?.name }}</span>
@@ -117,6 +122,9 @@ onMounted(load);
         </TabPanel>
         <TabPanel :header="t('people.files')" value="files">
           <AttachmentList entity-type="DEAL" :entity-id="id" />
+        </TabPanel>
+        <TabPanel :header="t('people.comments')" value="comments">
+          <CommentSection entity-type="DEAL" :entity-id="id" data-test="comments-tab" />
         </TabPanel>
       </TabView>
     </template>

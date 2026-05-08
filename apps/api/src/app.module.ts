@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
+import { BullModule } from '@nestjs/bullmq';
 import { LoggerModule } from 'nestjs-pino';
 import { HealthModule } from './health/health.module';
 import { TenantModule } from './core/tenant/tenant.module';
@@ -37,12 +38,27 @@ import { EmailSyncModule } from './integrations/email-sync/email-sync.module';
 import { PortalModule } from './portal/portal.module';
 import { BlogModule } from './crm/blogs/blog.module';
 import { AttachmentModule } from './crm/attachments/attachment.module';
+import { ImportExportModule } from './crm/import-export/import-export.module';
+import { NotificationModule } from './notifications/notification.module';
+import { CommentModule } from './comments/comment.module';
+import { ForecastModule } from './crm/forecasts/forecast.module';
+import { GoalModule } from './crm/goals/goal.module';
+import { ScoringModule } from './crm/scoring/scoring.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (cfg: ConfigService) => ({
+        connection: {
+          host: cfg.get('REDIS_HOST', 'localhost'),
+          port: cfg.get<number>('REDIS_PORT', 6379),
+        },
+      }),
+    }),
     LoggerModule.forRoot({
       pinoHttp: {
         transport:
@@ -86,6 +102,12 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     PortalModule,
     BlogModule,
     AttachmentModule,
+    ImportExportModule,
+    NotificationModule,
+    CommentModule,
+    ForecastModule,
+    GoalModule,
+    ScoringModule,
     HealthModule,
   ],
   providers: [

@@ -27,6 +27,19 @@ vi.mock('@/api/tags', () => ({
   },
 }));
 
+vi.mock('@/api/import-export', () => ({
+  importExportApi: {
+    preview: vi.fn().mockResolvedValue({ headers: [], rows: [] }),
+    importPeople: vi.fn().mockResolvedValue({ totalRows: 0, successCount: 0, errorCount: 0, errors: [] }),
+    exportPeople: vi.fn(),
+    exportDeals: vi.fn(),
+  },
+}));
+
+vi.mock('@/composables/useAppToast', () => ({
+  useAppToast: () => ({ success: vi.fn(), error: vi.fn(), warn: vi.fn(), apiError: vi.fn() }),
+}));
+
 vi.mock('@/composables/useMetadata', () => ({
   useMetadata: () => ({
     data: { value: { entityType: 'Person', fields: [] } },

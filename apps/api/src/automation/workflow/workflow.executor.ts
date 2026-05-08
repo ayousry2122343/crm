@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { evaluateConditions, type ConditionTree } from './condition-evaluator';
+import { NotificationService } from '../../notifications/notification.service';
 
 export interface WorkflowAction {
   type: string;
@@ -19,7 +20,10 @@ export interface WorkflowJob {
 export class WorkflowExecutor {
   private readonly logger = new Logger(WorkflowExecutor.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly notificationService: NotificationService,
+  ) {}
 
   async execute(job: WorkflowJob): Promise<void> {
     const workflow = await this.prisma.workflow.findUnique({
@@ -86,7 +90,7 @@ export class WorkflowExecutor {
       case 'CALL_WEBHOOK':
         return { type: 'CALL_WEBHOOK', status: 'queued' };
       case 'NOTIFY_USER':
-        return { type: 'NOTIFY_USER', status: 'queued' };
+        return this.actionNotifyUser(action.params, job);
       default:
         return { type: action.type, status: 'unsupported' };
     }
@@ -154,5 +158,22 @@ export class WorkflowExecutor {
       });
     }
     return { assigned: ownerId };
+  }
+
+  private async actionNotifyUser(
+    params: Record<string, unknown>,
+    job: WorkflowJob,
+  ): Promise<Record<string, unknown>> {
+    const userId = params.userId as string | undefined;
+    if (!userId) return { error: 'missing userId' };
+
+    const notification = await this.notificationService.create({
+      userId,
+      type: 'WORKFLOW',
+      title: String(params.title ?? `Workflow triggered on ${job.entityType}`),
+      body: params.body ? String(params.body) : undefined,
+      link: params.link ? String(params.link) : undefined,
+    });
+    return { notificationId: notification.id };
   }
 }

@@ -70,6 +70,14 @@ model Workspace {
   blogCategories          BlogCategory[]
   blogs                   Blog[]
   attachments             Attachment[]
+  importJobs              ImportJob[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
+  comments                Comment[]
+  followers               Follower[]
+  forecastPeriods         ForecastPeriod[]
+  goals                   Goal[]
+  scoringRules            ScoringRule[]
 
   @@index([slug])
 }
@@ -109,6 +117,13 @@ model User {
   emailAccounts           EmailAccount[]
   blogs                   Blog[]
   attachments             Attachment[]
+  notifications           Notification[]
+  notificationPreferences NotificationPreference[]
+  comments                Comment[]
+  followers               Follower[]
+  forecastPeriodsCreated  ForecastPeriod[] @relation("ForecastPeriodCreatedBy")
+  forecastEntries         ForecastEntry[]  @relation("ForecastEntries")
+  goalsOwned              Goal[]           @relation("GoalOwner")
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -129,6 +144,7 @@ model Team {
   parent      Team?     @relation("TeamHierarchy", fields: [parentId], references: [id])
   children    Team[]    @relation("TeamHierarchy")
   createdAt   DateTime  @default(now())
+  goals       Goal[]
 
   @@unique([workspaceId, name])
 }
@@ -356,6 +372,9 @@ model Person {
   unsubscribed Boolean @default(false)
   consent      Json?
 
+  score          Int       @default(0)
+  scoreUpdatedAt DateTime?
+
   archivedAt  DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -376,6 +395,7 @@ model Person {
   @@index([workspaceId, lifecycleStage])
   @@index([workspaceId, isCompany])
   @@index([workspaceId, archivedAt])
+  @@index([workspaceId, score])
 }
 
 enum LifecycleStage {
@@ -448,8 +468,9 @@ model Pipeline {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
-  stages Stage[]
-  deals  Deal[]
+  stages          Stage[]
+  deals           Deal[]
+  forecastEntries ForecastEntry[]
 
   @@unique([workspaceId, entityType, name])
   @@index([workspaceId, entityType])
@@ -508,18 +529,23 @@ model Deal {
   lastActivityAt DateTime?
   customFields   Json      @default("{}")
 
+  score          Int       @default(0)
+  scoreUpdatedAt DateTime?
+
   archivedAt  DateTime?
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   createdById String?
   updatedById String?
 
-  quotes      Quote[]
+  quotes           Quote[]
+  forecastCategory ForecastCategory?
 
   @@index([workspaceId, pipelineId, stageId, status])
   @@index([workspaceId, ownerId, status])
   @@index([workspaceId, lastActivityAt])
   @@index([workspaceId, archivedAt])
+  @@index([workspaceId, score])
 }
 
 enum DealStatus {
@@ -1276,4 +1302,267 @@ model Attachment {
 
   @@index([workspaceId, entityType, entityId])
   @@index([workspaceId, uploadedById])
+}
+
+// ─── Import / Export ────────────────────────────────────────
+
+enum ImportJobStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+}
+
+model ImportJob {
+  id            String          @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+  entityType    String
+  fileName      String
+  totalRows     Int             @default(0)
+  successCount  Int             @default(0)
+  errorCount    Int             @default(0)
+  errors        Json            @default("[]")
+  status        ImportJobStatus @default(PENDING)
+  startedById   String
+  completedAt   DateTime?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  @@index([workspaceId, createdAt])
+}
+
+// ─── Notifications ──────────────────────────────────────────
+
+enum NotificationType {
+  ASSIGNMENT
+  MENTION
+  DEAL_WON
+  DEAL_LOST
+  TASK_DUE
+  TICKET_CREATED
+  SLA_BREACH
+  WORKFLOW
+  SYSTEM
+}
+
+enum NotificationChannel {
+  IN_APP
+  EMAIL
+}
+
+model Notification {
+  id          String           @id @default(cuid())
+  workspaceId String
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
+  userId      String
+  user        User             @relation(fields: [userId], references: [id])
+  type        NotificationType
+  title       String
+  body        String?
+  link        String?
+  isRead      Boolean          @default(false)
+  readAt      DateTime?
+  createdAt   DateTime         @default(now())
+
+  @@index([workspaceId, userId, isRead, createdAt])
+  @@index([workspaceId, userId, createdAt])
+}
+
+model NotificationPreference {
+  id          String              @id @default(cuid())
+  workspaceId String
+  workspace   Workspace           @relation(fields: [workspaceId], references: [id])
+  userId      String
+  user        User                @relation(fields: [userId], references: [id])
+  channel     NotificationChannel
+  type        NotificationType
+  enabled     Boolean             @default(true)
+
+  @@unique([workspaceId, userId, channel, type])
+  @@index([workspaceId, userId])
+}
+
+// ─── Comments + Followers ───────────────────────────────────
+
+enum CommentEntityType {
+  PERSON
+  COMPANY
+  DEAL
+  ACTIVITY
+  TICKET
+  BLOG
+}
+
+model Comment {
+  id          String            @id @default(cuid())
+  workspaceId String
+  workspace   Workspace         @relation(fields: [workspaceId], references: [id])
+  entityType  CommentEntityType
+  entityId    String
+  authorId    String
+  author      User              @relation(fields: [authorId], references: [id])
+  body        String            @db.Text
+  mentions    Json              @default("[]")
+  parentId    String?
+  parent      Comment?          @relation("CommentThread", fields: [parentId], references: [id])
+  replies     Comment[]         @relation("CommentThread")
+  isPinned    Boolean           @default(false)
+  archivedAt  DateTime?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  @@index([workspaceId, entityType, entityId, createdAt])
+  @@index([workspaceId, authorId])
+}
+
+model Follower {
+  id          String            @id @default(cuid())
+  workspaceId String
+  workspace   Workspace         @relation(fields: [workspaceId], references: [id])
+  userId      String
+  user        User              @relation(fields: [userId], references: [id])
+  entityType  CommentEntityType
+  entityId    String
+  createdAt   DateTime          @default(now())
+
+  @@unique([workspaceId, userId, entityType, entityId])
+  @@index([workspaceId, entityType, entityId])
+}
+
+// ─── Forecasting + Goals ────────────────────────────────────
+
+enum ForecastCategory {
+  PIPELINE
+  BEST_CASE
+  COMMIT
+  CLOSED_WON
+  OMITTED
+}
+
+enum ForecastPeriodType {
+  MONTHLY
+  QUARTERLY
+}
+
+model ForecastPeriod {
+  id         String             @id @default(cuid())
+  workspaceId String
+  workspace  Workspace          @relation(fields: [workspaceId], references: [id])
+  periodType ForecastPeriodType
+  startDate  DateTime
+  endDate    DateTime
+  createdById String
+  createdBy  User               @relation("ForecastPeriodCreatedBy", fields: [createdById], references: [id])
+  createdAt  DateTime           @default(now())
+  updatedAt  DateTime           @updatedAt
+
+  entries   ForecastEntry[]
+  snapshots ForecastSnapshot[]
+
+  @@unique([workspaceId, periodType, startDate])
+  @@index([workspaceId, periodType])
+}
+
+model ForecastEntry {
+  id               String           @id @default(cuid())
+  forecastPeriodId String
+  forecastPeriod   ForecastPeriod   @relation(fields: [forecastPeriodId], references: [id], onDelete: Cascade)
+  userId           String
+  user             User             @relation("ForecastEntries", fields: [userId], references: [id])
+  pipelineId       String
+  pipeline         Pipeline         @relation(fields: [pipelineId], references: [id])
+  category         ForecastCategory
+  amount           Decimal          @default(0) @db.Decimal(15, 2)
+  adjustedAmount   Decimal?         @db.Decimal(15, 2)
+  note             String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  @@unique([forecastPeriodId, userId, pipelineId, category])
+  @@index([forecastPeriodId, userId])
+}
+
+model ForecastSnapshot {
+  id               String         @id @default(cuid())
+  forecastPeriodId String
+  forecastPeriod   ForecastPeriod @relation(fields: [forecastPeriodId], references: [id], onDelete: Cascade)
+  snapshotDate     DateTime
+  data             Json
+  createdAt        DateTime       @default(now())
+
+  @@index([forecastPeriodId, snapshotDate])
+}
+
+enum GoalMetric {
+  REVENUE
+  DEAL_COUNT
+  ACTIVITY_COUNT
+  WON_DEAL_COUNT
+  AVG_DEAL_SIZE
+  CUSTOM
+}
+
+enum GoalStatus {
+  ON_TRACK
+  AT_RISK
+  BEHIND
+  ACHIEVED
+}
+
+model Goal {
+  id          String     @id @default(cuid())
+  workspaceId String
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+  name        String
+  metric      GoalMetric
+  targetValue Decimal    @db.Decimal(15, 2)
+  currentValue Decimal   @default(0) @db.Decimal(15, 2)
+  period      String
+  startDate   DateTime
+  endDate     DateTime
+  ownerId     String?
+  owner       User?      @relation("GoalOwner", fields: [ownerId], references: [id])
+  teamId      String?
+  team        Team?      @relation(fields: [teamId], references: [id])
+  status      GoalStatus @default(ON_TRACK)
+  archivedAt  DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  createdById String
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, ownerId])
+}
+
+enum ScoringOperator {
+  EQUALS
+  NOT_EQUALS
+  CONTAINS
+  GT
+  LT
+  GTE
+  LTE
+  IN
+  NOT_IN
+  IS_SET
+  IS_NOT_SET
+}
+
+model ScoringRule {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  entityType  String
+  isActive    Boolean   @default(true)
+  rules       Json
+  maxScore    Int       @default(100)
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String
+
+  @@index([workspaceId, entityType, isActive])
+  @@index([workspaceId, archivedAt])
 }

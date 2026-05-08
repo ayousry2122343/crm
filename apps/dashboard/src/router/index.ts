@@ -243,6 +243,31 @@ export const router = createRouter({
           props: true,
         },
         {
+          path: 'notifications',
+          name: 'notifications',
+          component: () => import('@/views/notifications/NotificationsList.vue'),
+        },
+        {
+          path: 'settings/notification-preferences',
+          name: 'settings-notification-preferences',
+          component: () => import('@/views/settings/NotificationPreferences.vue'),
+        },
+        {
+          path: 'forecasts',
+          name: 'forecasts',
+          component: () => import('@/views/forecasts/ForecastView.vue'),
+        },
+        {
+          path: 'goals',
+          name: 'goals',
+          component: () => import('@/views/goals/GoalsPage.vue'),
+        },
+        {
+          path: 'settings/scoring-rules',
+          name: 'settings-scoring-rules',
+          component: () => import('@/views/settings/ScoringRulesAdmin.vue'),
+        },
+        {
           path: 'reports',
           name: 'reports',
           component: () => import('@/views/reports/ReportsIndex.vue'),

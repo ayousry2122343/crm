@@ -10,10 +10,15 @@ function makePrisma() {
   };
 }
 
+function makeNotificationService() {
+  return { create: jest.fn().mockResolvedValue({ id: 'notif_1' }) };
+}
+
 function buildExecutor() {
   const prisma = makePrisma();
-  const executor = new WorkflowExecutor(prisma as any);
-  return { executor, prisma };
+  const notificationService = makeNotificationService();
+  const executor = new WorkflowExecutor(prisma as any, notificationService as any);
+  return { executor, prisma, notificationService };
 }
 
 const baseJob: WorkflowJob = {
@@ -100,6 +105,22 @@ describe('WorkflowExecutor.execute', () => {
       where: { id: 'p_1' },
       data: { ownerId: 'u_5' },
     });
+  });
+
+  it('executes NOTIFY_USER action via NotificationService', async () => {
+    const { executor, prisma, notificationService } = buildExecutor();
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_1',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [{ type: 'NOTIFY_USER', params: { userId: 'u_1', title: 'Hello' } }],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_1' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    await executor.execute(baseJob);
+    expect(notificationService.create).toHaveBeenCalledWith(
+      expect.objectContaining({ userId: 'u_1', type: 'WORKFLOW', title: 'Hello' }),
+    );
   });
 
   it('marks run as FAILED on error', async () => {

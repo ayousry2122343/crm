@@ -8,8 +8,10 @@ import TabPanel from 'primevue/tabpanel';
 import Dialog from 'primevue/dialog';
 import DynamicForm from '@/components/DynamicForm/DynamicForm.vue';
 import AttachmentList from '@/components/AttachmentList.vue';
+import CommentSection from '@/components/CommentSection.vue';
 import { peopleApi, type Person } from '@/api/people';
 import { emailSyncApi, type EmailThread } from '@/api/email-sync';
+import ScoreBadge from '@/components/ScoreBadge.vue';
 
 const props = defineProps<{
   id: string;
@@ -90,7 +92,10 @@ onMounted(load);
           {{ initials }}
         </div>
         <div class="flex-1">
-          <h1 class="text-2xl font-bold" data-test="display-name">{{ displayName }}</h1>
+          <div class="flex items-center gap-2">
+            <h1 class="text-2xl font-bold" data-test="display-name">{{ displayName }}</h1>
+            <ScoreBadge v-if="person.score != null" :score="person.score" />
+          </div>
           <div class="text-sm text-slate-500">
             <span v-if="person.email">{{ person.email }}</span>
             <span v-if="person.email && person.phone" class="mx-2">|</span>
@@ -168,6 +173,13 @@ onMounted(load);
             :entity-type="isCompany ? 'COMPANY' : 'PERSON'"
             :entity-id="id"
             data-test="files-tab"
+          />
+        </TabPanel>
+        <TabPanel :header="t('people.comments')" value="comments">
+          <CommentSection
+            :entity-type="isCompany ? 'COMPANY' : 'PERSON'"
+            :entity-id="id"
+            data-test="comments-tab"
           />
         </TabPanel>
         <TabPanel v-if="isCompany" :header="t('people.employees')" value="employees">

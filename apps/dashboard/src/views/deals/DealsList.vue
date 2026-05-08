@@ -6,6 +6,8 @@ import Button from 'primevue/button';
 import ListView, { type ColumnDef } from '@/components/lists/ListView.vue';
 import FilterBar, { type FilterOption } from '@/components/lists/FilterBar.vue';
 import { dealsApi, type Deal } from '@/api/deals';
+import { importExportApi } from '@/api/import-export';
+import ScoreBadge from '@/components/ScoreBadge.vue';
 
 const { t } = useI18n();
 const router = useRouter();
@@ -19,6 +21,7 @@ const columns = computed<ColumnDef[]>(() => [
   { field: 'name', header: t('deals.name'), sortable: true },
   { field: 'amount', header: t('deals.amount'), sortable: true },
   { field: 'status', header: t('deals.status'), type: 'tag', sortable: true },
+  { field: 'score', header: t('scoring.score'), sortable: true },
   { field: 'createdAt', header: t('people.createdAt'), type: 'date', sortable: true },
 ]);
 
@@ -34,6 +37,22 @@ const filterOptions = computed<FilterOption[]>(() => [
     ],
   },
 ]);
+
+function exportCsv() {
+  importExportApi.exportDeals({
+    format: 'csv',
+    search: filters.value.search as string | undefined,
+    status: filters.value.status as string | undefined,
+  });
+}
+
+function exportExcel() {
+  importExportApi.exportDeals({
+    format: 'excel',
+    search: filters.value.search as string | undefined,
+    status: filters.value.status as string | undefined,
+  });
+}
 
 async function fetch(append = false) {
   loading.value = true;
@@ -60,6 +79,20 @@ onMounted(() => fetch());
     <div class="flex items-center justify-between mb-4">
       <h1 class="text-2xl font-bold">{{ t('deals.deals') }}</h1>
       <div class="flex gap-2">
+        <Button
+          :label="t('importExport.exportCsv')"
+          icon="pi pi-file"
+          severity="secondary"
+          data-test="export-csv-btn"
+          @click="exportCsv"
+        />
+        <Button
+          :label="t('importExport.exportExcel')"
+          icon="pi pi-file-excel"
+          severity="secondary"
+          data-test="export-excel-btn"
+          @click="exportExcel"
+        />
         <Button
           :label="t('deals.kanban')"
           icon="pi pi-th-large"

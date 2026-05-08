@@ -7,10 +7,13 @@ import Dialog from 'primevue/dialog';
 import FilterBar, { type FilterOption } from '@/components/lists/FilterBar.vue';
 import ListView, { type ColumnDef } from '@/components/lists/ListView.vue';
 import DynamicForm from '@/components/DynamicForm/DynamicForm.vue';
+import ImportDialog from '@/components/ImportDialog.vue';
 import { usePeople } from '@/composables/usePeople';
 import { useMetadata } from '@/composables/useMetadata';
 import { peopleApi, type Person } from '@/api/people';
 import { tagsApi } from '@/api/tags';
+import { importExportApi } from '@/api/import-export';
+import ScoreBadge from '@/components/ScoreBadge.vue';
 
 const props = defineProps<{
   isCompany?: boolean;
@@ -37,6 +40,25 @@ const creating = ref(false);
 const showTagDialog = ref(false);
 const tagName = ref('');
 const tagging = ref(false);
+const showImportDialog = ref(false);
+
+function exportCsv() {
+  importExportApi.exportPeople({
+    format: 'csv',
+    search: filters.search,
+    lifecycleStage: filters.lifecycleStage,
+    isCompany: props.isCompany != null ? String(props.isCompany) : undefined,
+  });
+}
+
+function exportExcel() {
+  importExportApi.exportPeople({
+    format: 'excel',
+    search: filters.search,
+    lifecycleStage: filters.lifecycleStage,
+    isCompany: props.isCompany != null ? String(props.isCompany) : undefined,
+  });
+}
 
 const columns = computed<ColumnDef[]>(() => {
   const base: ColumnDef[] = [
@@ -44,6 +66,7 @@ const columns = computed<ColumnDef[]>(() => {
     { field: 'email', header: t('people.email'), sortable: true },
     { field: 'phone', header: t('people.phone') },
     { field: 'lifecycleStage', header: t('people.stage'), type: 'tag', sortable: true },
+    { field: 'score', header: t('scoring.score'), sortable: true },
     { field: 'createdAt', header: t('people.createdAt'), type: 'date', sortable: true },
   ];
   if (props.isCompany) {
@@ -148,6 +171,27 @@ onMounted(() => fetch());
           @click="archiveSelected()"
         />
         <Button
+          :label="t('importExport.import')"
+          icon="pi pi-upload"
+          severity="secondary"
+          data-test="import-btn"
+          @click="showImportDialog = true"
+        />
+        <Button
+          :label="t('importExport.exportCsv')"
+          icon="pi pi-file"
+          severity="secondary"
+          data-test="export-csv-btn"
+          @click="exportCsv"
+        />
+        <Button
+          :label="t('importExport.exportExcel')"
+          icon="pi pi-file-excel"
+          severity="secondary"
+          data-test="export-excel-btn"
+          @click="exportExcel"
+        />
+        <Button
           :label="isCompany ? t('people.addCompany') : t('people.addPerson')"
           icon="pi pi-plus"
           data-test="add-btn"
@@ -223,5 +267,10 @@ onMounted(() => fetch());
         </div>
       </div>
     </Dialog>
+
+    <ImportDialog
+      v-model:visible="showImportDialog"
+      @imported="fetch()"
+    />
   </div>
 </template>

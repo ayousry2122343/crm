@@ -63,6 +63,21 @@ export const PERMISSIONS = {
   ATTACHMENT_READ: 'attachment:read',
   ATTACHMENT_WRITE: 'attachment:write',
   ATTACHMENT_DELETE: 'attachment:delete',
+  IMPORT_EXECUTE: 'import:execute',
+  EXPORT_EXECUTE: 'export:execute',
+  NOTIFICATION_READ: 'notification:read',
+  NOTIFICATION_WRITE: 'notification:write',
+  COMMENT_READ: 'comment:read',
+  COMMENT_WRITE: 'comment:write',
+  COMMENT_DELETE: 'comment:delete',
+  FORECAST_READ: 'forecast:read',
+  FORECAST_WRITE: 'forecast:write',
+  GOAL_READ: 'goal:read',
+  GOAL_WRITE: 'goal:write',
+  GOAL_DELETE: 'goal:delete',
+  SCORING_RULE_READ: 'scoring-rule:read',
+  SCORING_RULE_WRITE: 'scoring-rule:write',
+  SCORING_RULE_DELETE: 'scoring-rule:delete',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
