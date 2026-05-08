@@ -78,6 +78,10 @@ export const PERMISSIONS = {
   SCORING_RULE_READ: 'scoring-rule:read',
   SCORING_RULE_WRITE: 'scoring-rule:write',
   SCORING_RULE_DELETE: 'scoring-rule:delete',
+  TICKET_READ: 'ticket:read',
+  TICKET_WRITE: 'ticket:write',
+  TICKET_DELETE: 'ticket:delete',
+  TICKET_ASSIGN: 'ticket:assign',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
