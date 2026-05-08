@@ -1,6 +1,7 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import PrimeVue from 'primevue/config';
+import ToastService from 'primevue/toastservice';
 import Aura from '@primevue/themes/aura';
 import App from './App.vue';
 import { router } from './router';
@@ -15,6 +16,11 @@ app.use(i18n);
 app.use(PrimeVue, {
   theme: { preset: Aura, options: { darkModeSelector: '.crm-dark' } },
 });
+app.use(ToastService);
+
+app.config.errorHandler = (err, _instance, info) => {
+  console.error(`[Vue Error] ${info}:`, err);
+};
 
 window.addEventListener('crm:logout', () => {
   router.push({ name: 'login' });

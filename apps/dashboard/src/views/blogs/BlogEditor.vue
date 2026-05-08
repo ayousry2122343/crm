@@ -9,10 +9,12 @@ import Select from 'primevue/select';
 import Tag from 'primevue/tag';
 import Chips from 'primevue/chips';
 import { blogsApi, type Blog, type BlogCategory } from '@/api/blogs';
+import { useAppToast } from '@/composables/useAppToast';
 
 const props = defineProps<{ id: string }>();
 const { t } = useI18n();
 const router = useRouter();
+const toast = useAppToast();
 
 const saving = ref(false);
 const loading = ref(false);
@@ -67,9 +69,11 @@ async function handleSave() {
 
     if (isNew.value) {
       const created = await blogsApi.create(data);
+      toast.success('common.created');
       router.replace({ name: 'blog-editor', params: { id: created.id } });
     } else {
       await blogsApi.update(props.id, data);
+      toast.success('common.saved');
     }
   } finally {
     saving.value = false;

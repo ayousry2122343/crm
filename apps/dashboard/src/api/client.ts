@@ -1,5 +1,6 @@
 import axios from 'axios';
 import type { AxiosError, AxiosRequestConfig } from 'axios';
+import { emitApiError } from './errorNotifier';
 
 export const api = axios.create({
   baseURL: '/api/v1',
@@ -49,6 +50,7 @@ api.interceptors.response.use(
       original._retry ||
       original.url?.includes('/auth/refresh')
     ) {
+      emitApiError(err);
       return Promise.reject(err);
     }
     original._retry = true;

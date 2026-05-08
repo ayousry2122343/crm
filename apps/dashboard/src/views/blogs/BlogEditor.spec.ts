@@ -29,6 +29,10 @@ vi.mock('vue-router', () => ({
   useRoute: () => ({ params: {}, query: {} }),
 }));
 
+vi.mock('@/composables/useAppToast', () => ({
+  useAppToast: () => ({ success: vi.fn(), error: vi.fn(), warn: vi.fn(), apiError: vi.fn() }),
+}));
+
 const blog = {
   id: 'b_1',
   title: 'Test Post',

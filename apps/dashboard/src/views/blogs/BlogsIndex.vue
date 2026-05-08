@@ -9,9 +9,11 @@ import Dialog from 'primevue/dialog';
 import InputText from 'primevue/inputtext';
 import Tag from 'primevue/tag';
 import { blogsApi, type Blog, type BlogCategory } from '@/api/blogs';
+import { useAppToast } from '@/composables/useAppToast';
 
 const { t } = useI18n();
 const router = useRouter();
+const toast = useAppToast();
 
 const blogs = ref<Blog[]>([]);
 const categories = ref<BlogCategory[]>([]);
@@ -73,14 +75,17 @@ function slugify(text: string): string {
 
 async function handleArchive(id: string) {
   await blogsApi.archive(id);
+  toast.success('common.deleted');
   await load();
 }
 
 async function handleTogglePublish(blog: Blog) {
   if (blog.status === 'DRAFT') {
     await blogsApi.publish(blog.id);
+    toast.success('common.published');
   } else {
     await blogsApi.unpublish(blog.id);
+    toast.success('common.unpublished');
   }
   await load();
 }

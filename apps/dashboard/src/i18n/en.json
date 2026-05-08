@@ -488,6 +488,24 @@
     "actions": "Actions",
     "back": "Back",
     "confirm": "Confirm",
-    "noData": "No data"
+    "noData": "No data",
+    "success": "Success",
+    "error": "Error",
+    "created": "Created successfully",
+    "updated": "Updated successfully",
+    "deleted": "Deleted successfully",
+    "saved": "Saved successfully",
+    "published": "Published successfully",
+    "unpublished": "Unpublished successfully"
+  },
+  "errors": {
+    "unexpected": "Something went wrong. Please try again.",
+    "network": "Network error. Check your connection.",
+    "unauthorized": "Session expired. Please log in again.",
+    "forbidden": "You don't have permission to perform this action.",
+    "notFound": "The requested resource was not found.",
+    "conflict": "A conflict occurred. The item may already exist.",
+    "validation": "Please check your input and try again.",
+    "serverError": "Server error. Please try again later."
   }
 }
