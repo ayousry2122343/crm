@@ -65,6 +65,8 @@ model Workspace {
   emailAccounts           EmailAccount[]
   emailThreads            EmailThread[]
   emailMessages           EmailMessage[]
+  portals                 Portal[]
+  portalUsers             PortalUser[]
 
   @@index([slug])
 }
@@ -361,6 +363,7 @@ model Person {
   campaignRecipients     CampaignRecipient[]
   sequenceEnrollments    SequenceEnrollment[]
   emailThreads           EmailThread[]
+  portalUsers            PortalUser[]
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -1159,4 +1162,36 @@ model EmailMessage {
 
   @@unique([threadId, externalId])
   @@index([workspaceId, receivedAt])
+}
+
+// ─── Customer Portal ────────────────────────────────────────
+
+model Portal {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  domain      String?
+  theme       Json      @default("{}")
+  enabled     Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([workspaceId])
+  @@index([domain])
+}
+
+model PortalUser {
+  id           String    @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  personId     String
+  person       Person    @relation(fields: [personId], references: [id])
+  email        String
+  passwordHash String
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([workspaceId, email])
+  @@index([workspaceId, personId])
 }

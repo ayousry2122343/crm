@@ -23,6 +23,7 @@
     "pricebooks": "Pricebooks",
     "emailTemplates": "Email Templates",
     "emailAccounts": "Email Accounts",
+    "portal": "Customer Portal",
     "forms": "Forms",
     "automationGroup": "Automation",
     "workflows": "Workflows",
@@ -397,6 +398,16 @@
     "selectProduct": "Select product...",
     "minQty": "Min Quantity",
     "noPricebooks": "No pricebooks yet."
+  },
+  "portal": {
+    "title": "Customer Portal",
+    "enabled": "Enable Portal",
+    "domain": "Portal Domain",
+    "note": "Portal users register with their CRM contact email. They can view their deals, quotes, activities, and profile.",
+    "myDeals": "My Deals",
+    "myQuotes": "My Quotes",
+    "myActivities": "My Activities",
+    "profile": "Profile"
   },
   "copilot": {
     "title": "CRM Copilot",
