@@ -63,4 +63,11 @@ describe('QuoteBuilder.vue', () => {
     const w = createWrapper();
     expect(w.find('[data-test="quote-total"]').exists()).toBe(true);
   });
+
+  it('has cancel button alongside save', () => {
+    const w = createWrapper();
+    const buttons = w.findAll('button');
+    const cancelBtn = buttons.find((b) => b.text().includes('Cancel'));
+    expect(cancelBtn).toBeDefined();
+  });
 });

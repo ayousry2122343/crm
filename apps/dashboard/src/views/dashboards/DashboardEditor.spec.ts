@@ -93,4 +93,10 @@ describe('DashboardEditor.vue', () => {
     await flushPromises();
     expect(w.find('[data-test="number-widget-stub"]').exists()).toBe(true);
   });
+
+  it('loads reports list on mount', async () => {
+    createWrapper();
+    await flushPromises();
+    expect(mockReportsList).toHaveBeenCalled();
+  });
 });

@@ -85,4 +85,11 @@ describe('FormEditor.vue', () => {
     await flushPromises();
     expect(w.text()).toContain('Contact Us');
   });
+
+  it('shows field type tags for each field', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.text()).toContain('text');
+    expect(w.text()).toContain('email');
+  });
 });

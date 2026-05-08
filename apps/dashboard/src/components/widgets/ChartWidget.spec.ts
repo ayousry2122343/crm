@@ -67,4 +67,11 @@ describe('ChartWidget.vue', () => {
     const w = createWrapper();
     expect(w.text()).toContain('Loading...');
   });
+
+  it('renders chart even with empty rows', async () => {
+    mockRun.mockResolvedValue({ rows: [] });
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="chart-stub"]').exists()).toBe(true);
+  });
 });

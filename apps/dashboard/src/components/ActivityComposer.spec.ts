@@ -57,4 +57,15 @@ describe('ActivityComposer.vue', () => {
     const w = createWrapper();
     expect(w.find('[data-test="save-activity-btn"]').exists()).toBe(true);
   });
+
+  it('calls activitiesApi.create on save when subject is set', async () => {
+    const w = createWrapper();
+    const vm = w.vm as any;
+    vm.subject = 'Test call';
+    await w.find('[data-test="save-activity-btn"]').trigger('click');
+    await flushPromises();
+    expect(mockCreate).toHaveBeenCalledWith(
+      expect.objectContaining({ subject: 'Test call', parentEntity: 'Person', parentId: 'p1' }),
+    );
+  });
 });

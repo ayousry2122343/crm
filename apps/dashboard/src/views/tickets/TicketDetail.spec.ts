@@ -110,4 +110,16 @@ describe('TicketDetail', () => {
     expect(w.find('[data-test="ticket-contact"]').text()).toContain('John Doe');
     expect(w.find('[data-test="ticket-company"]').text()).toContain('Acme Corp');
   });
+
+  it('shows priority tag', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="ticket-priority"]').text()).toContain('HIGH');
+  });
+
+  it('shows assignee name', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="ticket-assignee"]').text()).toContain('Agent Smith');
+  });
 });

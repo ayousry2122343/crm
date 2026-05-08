@@ -84,4 +84,18 @@ describe('BlogView.vue', () => {
     await flushPromises();
     expect(w.find('[data-test="blog-view-page"]').exists()).toBe(true);
   });
+
+  it('shows published date', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    const dateStr = new Date('2026-01-01T00:00:00Z').toLocaleDateString();
+    expect(w.text()).toContain(dateStr);
+  });
+
+  it('renders tags', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.text()).toContain('vue');
+    expect(w.text()).toContain('testing');
+  });
 });

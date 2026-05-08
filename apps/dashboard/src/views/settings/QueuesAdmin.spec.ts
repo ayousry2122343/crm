@@ -97,4 +97,17 @@ describe('QueuesAdmin', () => {
     await flushPromises();
     expect(w.find('[data-test="queues-table"]').exists()).toBe(true);
   });
+
+  it('calls list API on mount', async () => {
+    createWrapper();
+    await flushPromises();
+    expect(mockList).toHaveBeenCalledTimes(1);
+  });
+
+  it('stores fetched queues after mount', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(mockList).toHaveBeenCalledTimes(1);
+    expect(w.find('[data-test="queues-table"]').attributes('loading')).toBeFalsy();
+  });
 });

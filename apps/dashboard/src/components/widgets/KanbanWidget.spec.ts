@@ -71,4 +71,12 @@ describe('KanbanWidget.vue', () => {
     expect(w.text()).toContain('10');
     expect(w.text()).toContain('5');
   });
+
+  it('handles empty rows gracefully', async () => {
+    mockRun.mockResolvedValue({ rows: [] });
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="kanban-widget"]').exists()).toBe(true);
+    expect(w.text()).not.toContain('Loading...');
+  });
 });

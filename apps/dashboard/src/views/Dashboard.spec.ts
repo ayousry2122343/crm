@@ -69,4 +69,11 @@ describe('Dashboard.vue', () => {
     await flushPromises();
     expect(w.find('[data-test="stat-people"]').text()).toContain('25');
   });
+
+  it('fetches stats from API on mount', async () => {
+    createWrapper();
+    await flushPromises();
+    expect(mockGet).toHaveBeenCalledWith('/people', expect.objectContaining({ params: { limit: 0 } }));
+    expect(mockGet).toHaveBeenCalledWith('/deals', expect.objectContaining({ params: { limit: 0 } }));
+  });
 });

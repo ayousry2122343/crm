@@ -59,4 +59,10 @@ describe('PasswordResetRequest.vue', () => {
     await flushPromises();
     expect(w.text()).toContain('Not found');
   });
+
+  it('has back to login link', () => {
+    const w = createWrapper();
+    const links = w.findAll('a');
+    expect(links.length).toBeGreaterThanOrEqual(1);
+  });
 });

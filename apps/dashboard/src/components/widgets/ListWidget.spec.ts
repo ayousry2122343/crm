@@ -68,4 +68,12 @@ describe('ListWidget.vue', () => {
     await flushPromises();
     expect(mockRun).toHaveBeenCalledWith('r1', undefined);
   });
+
+  it('handles empty rows gracefully', async () => {
+    mockRun.mockResolvedValue({ rows: [] });
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="list-widget"]').exists()).toBe(true);
+    expect(w.find('[data-test="data-table-stub"]').exists()).toBe(true);
+  });
 });

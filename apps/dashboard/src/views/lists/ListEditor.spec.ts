@@ -81,4 +81,17 @@ describe('ListEditor.vue', () => {
     await flushPromises();
     expect(w.find('[data-test="add-filter-btn"]').exists()).toBe(true);
   });
+
+  it('calls listsApi.get and listsApi.members on mount', async () => {
+    createWrapper();
+    await flushPromises();
+    expect(mockGet).toHaveBeenCalledWith('l1');
+    expect(mockMembers).toHaveBeenCalledWith('l1');
+  });
+
+  it('renders members table', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="members-table"]').exists()).toBe(true);
+  });
 });

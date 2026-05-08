@@ -111,4 +111,16 @@ describe('TicketsList', () => {
     await flushPromises();
     expect(w.find('[data-test="priority-filter"]').exists()).toBe(true);
   });
+
+  it('shows queue filter', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="queue-filter"]').exists()).toBe(true);
+  });
+
+  it('shows search input', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="search-input"]').exists()).toBe(true);
+  });
 });

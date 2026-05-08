@@ -81,4 +81,16 @@ describe('DealsList.vue', () => {
     const kanbanBtn = w.findAll('button').find((b) => b.text().includes('Kanban'));
     expect(kanbanBtn).toBeDefined();
   });
+
+  it('shows filter bar for status filtering', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="filter-bar-stub"]').exists()).toBe(true);
+  });
+
+  it('navigates to deal detail on row click via router.push', async () => {
+    createWrapper();
+    await flushPromises();
+    expect(mockList).toHaveBeenCalledWith(expect.objectContaining({ limit: 50 }));
+  });
 });

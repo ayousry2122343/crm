@@ -77,4 +77,16 @@ describe('EmailComposer.vue', () => {
     await flushPromises();
     expect(w.find('[data-test="draft-ai-btn"]').exists()).toBe(true);
   });
+
+  it('renders template selector', async () => {
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.find('[data-test="email-template-select"]').exists()).toBe(true);
+  });
+
+  it('loads templates on mount', async () => {
+    createWrapper();
+    await flushPromises();
+    expect(mockTemplatesList).toHaveBeenCalled();
+  });
 });

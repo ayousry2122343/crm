@@ -63,4 +63,11 @@ describe('NumberWidget.vue', () => {
     await flushPromises();
     expect(w.text()).toContain('—');
   });
+
+  it('shows zero when total is 0', async () => {
+    mockRun.mockResolvedValue({ summary: { total: 0 }, rows: [] });
+    const w = createWrapper();
+    await flushPromises();
+    expect(w.text()).toContain('0');
+  });
 });
