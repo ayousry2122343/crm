@@ -1,7 +1,7 @@
 # CRM Platform — Progress Plan & Status
 
-> **Last update:** 2026-05-01
-> **Current state:** 29 commits, 173 tests passing, end of Sprint 1 + 33% of Sprint 2 done.
+> **Last update:** 2026-05-08
+> **Current state:** Phase 2 complete (Sprints 6–14), 439 backend + 160 frontend tests, tagged `v2.0.0`.
 > **Repo:** `/home/ayousry/Desktop/db_manager/systems/crm/`
 > **Spec:** [`docs/specs/2026-04-30-crm-design.md`](specs/2026-04-30-crm-design.md) (954 lines)
 > **Plan:** [`docs/plans/2026-04-30-crm-mvp-phase1.md`](plans/2026-04-30-crm-mvp-phase1.md) (4170 lines, full TDD breakdown)
@@ -13,13 +13,12 @@
 
 | Metric | Value |
 |---|---|
-| Sprints planned (Phase 1 / MVP) | 6 (S0 → S5) |
-| Sprints completed | 2 (S0 + S1) + 33% of S2 |
-| Total commits | 29 |
-| Total passing tests | **173** (144 api + 25 dashboard + 3 metadata + 1 website) |
-| Tagged releases | `v0.1.0-sprint0`, `v0.2.0-sprint1` |
-| Lines of code (excluding research/docs) | ~8 500 (rough) |
-| Migrations applied | 8 |
+| Sprints completed | 15 (S0 → S14) across Phase 1 + Phase 2 |
+| Total passing tests | **599** (439 backend + 160 frontend) |
+| Pre-existing failures | 7 (DB-dependent integration: search.service + prisma-tenant) |
+| Tagged releases | `v0.1.0-sprint0` … `v1.0.0` (Phase 1), `v2.0.0` (Phase 2) |
+| Backend test suites | 50 |
+| Frontend test suites | 36 |
 | TypeScript errors | 0 |
 
 ---
@@ -72,51 +71,52 @@
   - `buildZodSchema(fields)` derives Zod validation from FieldDef[].
   - `DynamicForm.vue` + 14 field wrappers around PrimeVue inputs.
   - Smoke test mounts with mocked metadata.
-- **Tasks 2.6–2.7 (PeopleList + PersonDetail):** ⏳ NOT STARTED (rate limit). Sprint 2 progress = 5/12 tasks.
-- **Tasks 2.8–2.12 (Companies + Lists UI + Search UI + e2e + closeout):** ⏳ NOT STARTED.
+- **Tasks 2.6–2.12:** Completed. PeopleList, PersonDetail, Companies, Lists UI, Global Search, e2e, tag `v0.3.0-sprint2`.
 
----
-
-## 3. Sprint-by-sprint outlook (remaining)
-
-### Sprint 2 — finish (estimated 2–3 implementer dispatches)
-1. **Task 2.6 PeopleList view + filters**: DataTable + FilterBar + load-more cursor pagination · `usePeople` composable · "Add Person" dialog with DynamicForm.
-2. **Task 2.7 PersonDetail view**: RecordHeader + Tabs (Overview / Activities / Files) · OverviewTab reads metadata + customFields · Activities/Files placeholders for Sprint 3.
-3. **Task 2.8 Companies UI**: Reuses PeopleList/PersonDetail with `?isCompany=true` filter. Children-as-employees subview.
-4. **Task 2.9 Lists UI**: ListsIndex + ListEditor + QueryBuilder component (operator dropdowns + value inputs).
-5. **Task 2.10 Global Search UI**: Cmd-K modal mounting in topbar.
-6. **Task 2.11 Playwright e2e**: signup → invite → create person → tag → save-list → search → merge.
-7. **Task 2.12 Closeout**: tag `v0.3.0-sprint2`.
-
-### Sprint 3 — Pipelines + Deals + Activities + Calendar + Kanban (5 days)
-- 12 tasks. The **Sales-deep MVP heart**.
-- Pipeline + Stage CRUD with default seed.
-- Deal model with multi-pipeline + required-fields-per-stage gate + won/lost reasons + rotting indicator.
+### Sprint 3 — Pipelines + Deals + Activities + Calendar + Kanban (✅ DONE — `v0.4.0-sprint3`)
+- Pipeline + Stage CRUD, Deal model with multi-pipeline + won/lost reasons.
 - Polymorphic Activity (Call/Meeting/Task/Note) + lastActivityAt rollup.
-- Won/Lost reasons admin.
-- Deals Kanban (drag-drop via `vue-draggable-plus`) + Deals list/detail.
-- Calendar UI (FullCalendar 6).
-- Activity composer modal.
-- Pipeline + Stage admin UI with drag-reorder.
+- Deals Kanban (drag-drop) + Deals list/detail. Calendar UI. Pipeline admin UI.
 
-### Sprint 4 — Email + Forms + Workflow Engine + Webhooks + Validation (5 days)
-- 12 tasks. The **engagement and automation backbone**.
-- Outbound SMTP + EmailTemplate (merge tags + record-attached log).
-- Form builder (admin) + public submission endpoint + embed JS.
-- Workflow engine (event-based TCA, 6 action types, BullMQ queue, idempotent runs).
-- Webhooks-out with HMAC + retry.
-- Validation rules (pre-save, i18n errors).
-- Workflow admin UI (recipe-style editor).
+### Sprint 4 — Email + Forms + Workflow Engine + Webhooks + Validation (✅ DONE — `v0.5.0-sprint4`)
+- Outbound SMTP + EmailTemplate, Form builder + public endpoint.
+- Workflow engine (event-based TCA, 6 action types, BullMQ). Webhooks + HMAC.
+- Validation rules. Workflow admin UI.
 
-### Sprint 5 — Reports + Dashboards + AI + Public Website + Launch (5 days)
-- 12 tasks. The **shippable v1**.
-- 5 standard reports (Pipeline Funnel, Activities by Owner, Conversion, Forecast, Won/Lost).
-- Dashboard widgets: Number / Chart / List / Kanban (4 types).
-- AIProvider adapter (OpenAI / Anthropic / Mock) + AI Email Composer endpoint + UI button.
-- pgvector embeddings worker (foundation only — RAG Copilot is Phase 2).
-- Public website pages: Home / Pricing / Features / Contact / Sign-up.
-- Full e2e launch checklist (signup → custom field → person → deal → win → report → dashboard → AI compose).
-- Documentation + runbook + tag `v1.0.0`.
+### Sprint 5 — Reports + Dashboards + AI + Public Website + Launch (✅ DONE — `v1.0.0`)
+- 5 standard reports, Dashboard widgets (Number/Chart/List/Kanban).
+- AIProvider adapter + AI Email Composer + pgvector embeddings.
+- Public website pages. Tag `v1.0.0`.
+
+### Phase 2 — Sprints 6–14 (✅ DONE — `v2.0.0`)
+
+### Sprint 6 — Products + Pricebooks (✅ DONE)
+- Product + ProductCategory models, CRUD with cursor pagination, Pricebook + PricebookEntry.
+
+### Sprint 7 — Quotes / Proposals (✅ DONE)
+- Quote + QuoteLineItem models, QuoteBuilder UI, PDF-ready totals calculation.
+
+### Sprint 8 — Email Marketing Campaigns (✅ DONE)
+- Campaign + CampaignRecipient models, send/schedule, tracking, analytics UI.
+
+### Sprint 9 — Drip Sequences (✅ DONE)
+- Sequence + SequenceStep + SequenceEnrollment, enrollment engine, step execution.
+
+### Sprint 10 — Time-based Workflow Triggers + Cron Runner (✅ DONE)
+- SCHEDULED trigger event, cronExpression on Workflow, CronRunnerService.
+
+### Sprint 11 — Two-way Email Sync (✅ DONE)
+- EmailAccount + EmailThread + EmailMessage models, OAuth sync, person email tab.
+
+### Sprint 12 — Copilot Sidebar (✅ DONE)
+- RAG pipeline, pgvector embeddings, context-aware chat, suggested prompts.
+
+### Sprint 13 — Customer Portal (✅ DONE)
+- Portal + PortalUser models, separate JWT auth, settings UI.
+
+### Sprint 14 — Blog + Phase 2 Closeout (✅ DONE — `v2.0.0`)
+- Blog + BlogCategory models, CRUD + publish/unpublish + markdown rendering (markdown-it).
+- BlogsIndex + BlogEditor + BlogView frontend. i18n en+ar. Tag `v2.0.0`.
 
 ---
 
@@ -281,88 +281,62 @@ crm/
 
 ---
 
-## 9. Backend feature completeness (Sprint 2 backend cutoff)
+## 9. Feature completeness (v2.0.0)
 
-Endpoints live and working:
+### API modules (63 permission keys)
 
-```
-PUBLIC
-  GET    /api/v1/health
-  POST   /api/v1/auth/sign-up
-  POST   /api/v1/auth/login
-  POST   /api/v1/auth/refresh
-  POST   /api/v1/auth/request-password-reset
-  POST   /api/v1/auth/confirm-password-reset
-  POST   /api/v1/auth/confirm-email
-  POST   /api/v1/users/accept-invite
+| Domain | Endpoints | Permissions |
+|--------|-----------|-------------|
+| Auth | signup, login, refresh, logout, password reset, email verify, accept invite | public + auth |
+| Workspace | settings, users, invite | workspace:*, user:* |
+| Metadata + Custom Fields | CRUD, entity defs | custom-field:write |
+| Audit | per-record log | audit:read |
+| People + Companies | CRUD, merge, duplicates | person:*, company:* |
+| Tags + Lists | CRUD, assign/unassign, query-builder | tag:write, list:* |
+| Search | full-text search | — |
+| Pipelines + Deals | CRUD, stage transitions, won/lost | pipeline:*, deal:* |
+| Activities | CRUD, calendar | activity:* |
+| Email Templates + Outbound | CRUD, send | email-template:*, email:send |
+| Forms | builder + public submission | form:* |
+| Workflows + Webhooks | engine, triggers, cron runner | workflow:write, webhook:write |
+| Validation Rules | pre-save rules | validation-rule:* |
+| Reports + Dashboards | 5 report types, widget CRUD | report:read, dashboard:write |
+| AI | email composer, embeddings, copilot | ai:use |
+| Products + Pricebooks | CRUD + categories + entries | product:*, pricebook:* |
+| Quotes | CRUD + line items + builder | quote:* |
+| Campaigns | CRUD + recipients + send | campaign:* |
+| Sequences | CRUD + enrollment + execution | sequence:* |
+| Email Sync | accounts, threads, messages | email-account:*, email-sync:read |
+| Portal | settings, portal users, separate auth | portal:* |
+| **Blog** | **CRUD + categories + publish + markdown** | **blog:*** |
 
-PROTECTED
-  POST   /api/v1/auth/logout
-  GET    /api/v1/auth/me
-  GET    /api/v1/workspace
-  PATCH  /api/v1/workspace                  (perm workspace:settings:write)
-  GET    /api/v1/users
-  POST   /api/v1/users/invite               (perm user:invite)
-  GET    /api/v1/metadata
-  GET    /api/v1/metadata/:entityType
-  GET    /api/v1/custom-fields
-  POST   /api/v1/custom-fields              (perm custom-field:write)
-  PATCH  /api/v1/custom-fields/:id          (perm custom-field:write)
-  DELETE /api/v1/custom-fields/:id          (perm custom-field:write)
-  GET    /api/v1/audit/:entityType/:entityId (perm audit:read)
-  GET    /api/v1/people                     (perm person:read)
-  GET    /api/v1/people/duplicates          (perm person:read)
-  GET    /api/v1/people/:id                 (perm person:read)
-  POST   /api/v1/people                     (perm person:write)
-  PATCH  /api/v1/people/:id                 (perm person:write)
-  DELETE /api/v1/people/:id                 (perm person:delete)
-  POST   /api/v1/people/merge               (perm person:write)
-  POST   /api/v1/tags                       (perm tag:write)
-  GET    /api/v1/tags
-  PATCH  /api/v1/tags/:id                   (perm tag:write)
-  DELETE /api/v1/tags/:id                   (perm tag:write)
-  POST   /api/v1/tags/:tagId/assign         (perm tag:write)
-  POST   /api/v1/tags/:tagId/unassign       (perm tag:write)
-  POST   /api/v1/lists                      (perm list:write)
-  GET    /api/v1/lists                      (perm list:read)
-  GET    /api/v1/lists/:id                  (perm list:read)
-  GET    /api/v1/lists/:id/members          (perm list:read)
-  PATCH  /api/v1/lists/:id                  (perm list:write)
-  DELETE /api/v1/lists/:id                  (perm list:write)
-  GET    /api/v1/search?q=...&types=...
-```
-
-Dashboard pages live:
+### Dashboard pages (all live)
 
 ```
 /sign-up, /login, /forgot-password, /reset-password, /accept-invite (public)
-/dashboard (placeholder welcome)
-/settings/workspace
-/settings/users
-/settings/custom-fields
-```
-
-Dashboard pages pending Sprint 2 frontend resume:
-
-```
-/people                  (PeopleList — Task 2.6)
-/people/:id              (PersonDetail — Task 2.7)
-/companies               (Task 2.8)
-/companies/:id           (Task 2.8)
-/lists                   (Task 2.9)
-/lists/:id               (Task 2.9)
-+ global Cmd-K search    (Task 2.10)
+/dashboard, /people, /people/:id, /companies, /companies/:id
+/deals, /deals/list, /deals/:id, /calendar
+/lists, /lists/:id, /forms, /forms/:id
+/quotes, /quotes/new, /quotes/:id
+/campaigns, /campaigns/:id, /sequences, /sequences/:id
+/blogs, /blogs/:id, /blog/:slug
+/automation/workflows, /automation/workflows/:id, /automation/webhooks
+/reports, /dashboards, /dashboards/:id
+/settings/workspace, /settings/users, /settings/custom-fields
+/settings/pipelines, /settings/won-lost-reasons
+/settings/products, /settings/pricebooks
+/settings/email-templates, /settings/email-accounts, /settings/portal
 ```
 
 ---
 
-## 10. How to resume
+## 10. How to resume (Phase 3 planning)
 
-1. **Restart Postgres + MailHog**: `make infra-up`. Verify `apps/api/.env` has `DATABASE_URL=postgresql://crm:crm_dev_2026@localhost:15432/crm?schema=public` (or whatever port the host left free).
-2. **Verify state**: `pnpm install && pnpm -r typecheck && pnpm -r test`.
-3. **Resume Sprint 2** at Task 2.6 (PeopleList) — the implementer prompt is in `docs/plans/2026-04-30-crm-mvp-phase1.md` under "Task 2.6: People list view + filters". Dispatch a fresh subagent with that prompt and the project context summary at the top of this PROGRESS.md.
-4. **After 2.7 commits**, dispatch 2.8–2.10 together (smaller batch given recent rate-limit history).
-5. **Tag `v0.3.0-sprint2`** after 2.11 e2e + 2.12 closeout.
+Phase 2 is complete and tagged `v2.0.0`. Next steps:
+
+1. **Verify state**: `pnpm install && pnpm -r typecheck && pnpm -r test`.
+2. **Plan Phase 3** — potential areas: GraphQL API, advanced analytics, mobile app, multi-language search, organization-level features, marketplace integrations.
+3. **Pre-existing test failures** to address: `search.service.spec.ts` + `prisma-tenant.spec.ts` (7 DB-dependent integration tests needing live Postgres).
 
 ---
 
