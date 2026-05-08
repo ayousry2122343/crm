@@ -167,6 +167,22 @@ export const router = createRouter({
           name: 'webhooks',
           component: () => import('@/views/automation/WebhooksAdmin.vue'),
         },
+        {
+          path: 'reports',
+          name: 'reports',
+          component: () => import('@/views/reports/ReportsIndex.vue'),
+        },
+        {
+          path: 'dashboards',
+          name: 'dashboards',
+          component: () => import('@/views/dashboards/DashboardsIndex.vue'),
+        },
+        {
+          path: 'dashboards/:id',
+          name: 'dashboard-editor',
+          component: () => import('@/views/dashboards/DashboardEditor.vue'),
+          props: true,
+        },
       ],
     },
   ],

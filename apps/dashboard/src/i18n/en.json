@@ -21,6 +21,8 @@
     "automationGroup": "Automation",
     "workflows": "Workflows",
     "webhooks": "Webhooks",
+    "reports": "Reports",
+    "dashboards": "Dashboards",
     "logout": "Log out"
   },
   "auth": {
@@ -190,7 +192,12 @@
     "to": "To",
     "send": "Send",
     "selectTemplate": "Select template...",
-    "noTemplate": "No template"
+    "noTemplate": "No template",
+    "draftWithAi": "Draft with AI",
+    "aiIntentPlaceholder": "What should the email say? e.g. Follow up on pricing proposal",
+    "aiGenerate": "Generate",
+    "formal": "Formal",
+    "casual": "Casual"
   },
   "forms": {
     "title": "Forms",
@@ -248,6 +255,22 @@
     "events": "Events",
     "selectEvents": "Select events...",
     "noWebhooks": "No webhooks configured."
+  },
+  "reports": {
+    "title": "Reports",
+    "selectReport": "Select a report...",
+    "run": "Run Report",
+    "summary": "Summary",
+    "noReport": "Select a report and click Run to see results."
+  },
+  "dashboards": {
+    "title": "Dashboards",
+    "addDashboard": "Create Dashboard",
+    "name": "Dashboard Name",
+    "widgets": "Widgets",
+    "addWidget": "Add Widget",
+    "noWidgets": "No widgets yet. Click Add Widget to get started.",
+    "noDashboards": "No dashboards yet."
   },
   "search": {
     "placeholder": "Search... (Ctrl+K)",

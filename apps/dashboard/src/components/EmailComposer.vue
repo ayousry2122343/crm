@@ -7,6 +7,7 @@ import InputText from 'primevue/inputtext';
 import Textarea from 'primevue/textarea';
 import Button from 'primevue/button';
 import { emailTemplatesApi, emailApi, type EmailTemplate } from '@/api/email-templates';
+import { aiApi } from '@/api/ai';
 
 const props = defineProps<{
   visible: boolean;
@@ -20,7 +21,7 @@ const emit = defineEmits<{
   (e: 'sent'): void;
 }>();
 
-const { t } = useI18n();
+const { t, locale } = useI18n();
 
 const templates = ref<EmailTemplate[]>([]);
 const selectedTemplateId = ref<string | null>(null);
@@ -28,6 +29,29 @@ const to = ref('');
 const subject = ref('');
 const body = ref('');
 const sending = ref(false);
+const showAiPrompt = ref(false);
+const aiIntent = ref('');
+const aiTone = ref<'formal' | 'casual'>('formal');
+const drafting = ref(false);
+
+async function draftWithAi() {
+  if (!aiIntent.value.trim()) return;
+  drafting.value = true;
+  try {
+    const result = await aiApi.composeEmail({
+      intent: aiIntent.value.trim(),
+      language: locale.value as 'ar' | 'en',
+      tone: aiTone.value,
+      recordRef: props.entityType && props.entityId ? { entityType: props.entityType, entityId: props.entityId } : undefined,
+    });
+    subject.value = result.subject;
+    body.value = result.body;
+    showAiPrompt.value = false;
+    aiIntent.value = '';
+  } finally {
+    drafting.value = false;
+  }
+}
 
 const templateOptions = computed(() => [
   { label: t('email.noTemplate'), value: null },
@@ -111,15 +135,27 @@ onMounted(async () => {
         class="w-full"
         data-test="email-body"
       />
-      <div class="flex gap-2 justify-end">
-        <Button :label="t('common.cancel')" severity="secondary" @click="emit('update:visible', false)" />
-        <Button
-          :label="t('email.send')"
-          icon="pi pi-send"
-          :loading="sending"
-          data-test="send-email-btn"
-          @click="send"
-        />
+      <div v-if="showAiPrompt" class="bg-indigo-50 rounded-lg p-3 flex flex-col gap-2" data-test="ai-prompt-panel">
+        <Textarea v-model="aiIntent" :placeholder="t('email.aiIntentPlaceholder')" rows="2" class="w-full" data-test="ai-intent" />
+        <div class="flex items-center gap-2">
+          <Select v-model="aiTone" :options="[{ label: t('email.formal'), value: 'formal' }, { label: t('email.casual'), value: 'casual' }]" optionLabel="label" optionValue="value" class="w-32" />
+          <Button :label="t('email.aiGenerate')" icon="pi pi-sparkles" :loading="drafting" size="small" data-test="ai-generate-btn" @click="draftWithAi" />
+          <Button :label="t('common.cancel')" severity="secondary" text size="small" @click="showAiPrompt = false" />
+        </div>
+      </div>
+
+      <div class="flex gap-2 justify-between">
+        <Button :label="t('email.draftWithAi')" icon="pi pi-sparkles" severity="help" text data-test="draft-ai-btn" @click="showAiPrompt = !showAiPrompt" />
+        <div class="flex gap-2">
+          <Button :label="t('common.cancel')" severity="secondary" @click="emit('update:visible', false)" />
+          <Button
+            :label="t('email.send')"
+            icon="pi pi-send"
+            :loading="sending"
+            data-test="send-email-btn"
+            @click="send"
+          />
+        </div>
       </div>
     </div>
   </Dialog>

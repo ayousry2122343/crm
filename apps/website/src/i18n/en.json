@@ -3,5 +3,87 @@
     "title": "CRM",
     "tagline": "Customer Relationship Management — built for the Arab market",
     "cta": "Start Free"
+  },
+  "nav": {
+    "features": "Features",
+    "pricing": "Pricing",
+    "contact": "Contact",
+    "login": "Log in"
+  },
+  "home": {
+    "headline": "The CRM Built for MENA",
+    "contactsTitle": "Contacts & Companies",
+    "contactsDesc": "Manage people, companies, and relationships in one place with custom fields and tagging.",
+    "pipelinesTitle": "Sales Pipelines",
+    "pipelinesDesc": "Visual Kanban boards, deal tracking, forecasting, and win/loss analytics.",
+    "automationTitle": "Workflow Automation",
+    "automationDesc": "Event-driven workflows, form submissions, webhooks, and email templates.",
+    "ctaTitle": "Ready to grow your business?"
+  },
+  "features": {
+    "title": "Features",
+    "subtitle": "Everything you need to manage customer relationships",
+    "contacts": { "title": "Contact Management", "desc": "People, companies, custom fields, tags, lists, merge/dedupe, and full-text search." },
+    "pipelines": { "title": "Sales Pipelines", "desc": "Multi-pipeline Kanban, stage gates, required fields, probability weighting, and forecasting." },
+    "automation": { "title": "Workflow Automation", "desc": "Trigger-Condition-Action engine: auto-assign, send emails, update fields, call webhooks." },
+    "email": { "title": "Email & Templates", "desc": "Outbound email with merge tags, template library, and AI-powered email composer." },
+    "reports": { "title": "Reports & Dashboards", "desc": "5 standard reports, drag-drop dashboard builder with charts, numbers, and lists." },
+    "arabic": { "title": "Arabic-First RTL", "desc": "Full RTL support, Arabic UI, bilingual labels, MENA currencies (EGP/SAR/AED)." }
+  },
+  "pricing": {
+    "title": "Simple, Transparent Pricing",
+    "subtitle": "Start free, upgrade as you grow",
+    "contactSales": "Contact Sales",
+    "free": {
+      "name": "Free Trial",
+      "desc": "Try everything for 14 days",
+      "f1": "Up to 5 users",
+      "f2": "1,000 contacts",
+      "f3": "1 pipeline",
+      "f4": "Email templates"
+    },
+    "growth": {
+      "name": "Growth",
+      "desc": "For growing sales teams",
+      "f1": "Unlimited users",
+      "f2": "Unlimited contacts",
+      "f3": "Unlimited pipelines",
+      "f4": "AI Email Composer + Reports"
+    },
+    "enterprise": {
+      "name": "Enterprise",
+      "desc": "Custom solutions for large teams",
+      "f1": "Dedicated support",
+      "f2": "Custom integrations",
+      "f3": "SLA guarantee",
+      "f4": "On-premise option"
+    }
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Have a question? We'd love to hear from you.",
+    "name": "Name",
+    "email": "Email",
+    "message": "Message",
+    "send": "Send Message",
+    "success": "Thank you! We'll get back to you soon."
+  },
+  "signUp": {
+    "title": "Create Your Account",
+    "fullName": "Full Name",
+    "email": "Email",
+    "password": "Password",
+    "workspaceName": "Workspace Name",
+    "workspaceSlug": "Workspace Slug",
+    "submit": "Create Account",
+    "error": "Something went wrong. Please try again."
+  },
+  "footer": {
+    "product": "Product",
+    "company": "Company",
+    "rights": "All rights reserved."
+  },
+  "common": {
+    "loading": "Loading..."
   }
 }

@@ -44,6 +44,12 @@ async function handleLogout() {
         <router-link to="/calendar" class="nav-link" data-test="nav-calendar">
           <i class="pi pi-calendar mr-2" />{{ t('nav.calendar') }}
         </router-link>
+        <router-link to="/reports" class="nav-link" data-test="nav-reports">
+          <i class="pi pi-chart-bar mr-2" />{{ t('nav.reports') }}
+        </router-link>
+        <router-link to="/dashboards" class="nav-link" data-test="nav-dashboards">
+          <i class="pi pi-th-large mr-2" />{{ t('nav.dashboards') }}
+        </router-link>
         <router-link to="/forms" class="nav-link" data-test="nav-forms">
           <i class="pi pi-file-edit mr-2" />{{ t('nav.forms') }}
         </router-link>

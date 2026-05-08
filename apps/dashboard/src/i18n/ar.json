@@ -21,6 +21,8 @@
     "automationGroup": "الأتمتة",
     "workflows": "سلاسل العمل",
     "webhooks": "الويب هوكس",
+    "reports": "التقارير",
+    "dashboards": "لوحات المعلومات",
     "logout": "تسجيل الخروج"
   },
   "auth": {
@@ -190,7 +192,12 @@
     "to": "إلى",
     "send": "إرسال",
     "selectTemplate": "اختر قالب...",
-    "noTemplate": "بدون قالب"
+    "noTemplate": "بدون قالب",
+    "draftWithAi": "صياغة بالذكاء الاصطناعي",
+    "aiIntentPlaceholder": "ماذا يجب أن يقول البريد؟ مثال: متابعة عرض الأسعار",
+    "aiGenerate": "إنشاء",
+    "formal": "رسمي",
+    "casual": "عادي"
   },
   "forms": {
     "title": "النماذج",
@@ -248,6 +255,22 @@
     "events": "الأحداث",
     "selectEvents": "اختر الأحداث...",
     "noWebhooks": "لا توجد ويب هوكس."
+  },
+  "reports": {
+    "title": "التقارير",
+    "selectReport": "اختر تقرير...",
+    "run": "تشغيل التقرير",
+    "summary": "الملخص",
+    "noReport": "اختر تقريراً واضغط تشغيل لرؤية النتائج."
+  },
+  "dashboards": {
+    "title": "لوحات المعلومات",
+    "addDashboard": "إنشاء لوحة",
+    "name": "اسم اللوحة",
+    "widgets": "الأدوات",
+    "addWidget": "إضافة أداة",
+    "noWidgets": "لا توجد أدوات. اضغط إضافة أداة للبدء.",
+    "noDashboards": "لا توجد لوحات معلومات بعد."
   },
   "search": {
     "placeholder": "ابحث... (Ctrl+K)",
