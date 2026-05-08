@@ -7,6 +7,7 @@ import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
 import Dialog from 'primevue/dialog';
 import DynamicForm from '@/components/DynamicForm/DynamicForm.vue';
+import AttachmentList from '@/components/AttachmentList.vue';
 import { peopleApi, type Person } from '@/api/people';
 import { emailSyncApi, type EmailThread } from '@/api/email-sync';
 
@@ -163,9 +164,11 @@ onMounted(load);
           </div>
         </TabPanel>
         <TabPanel :header="t('people.files')" value="files">
-          <p class="text-slate-500" data-test="files-tab">
-            {{ t('people.noFiles') }}
-          </p>
+          <AttachmentList
+            :entity-type="isCompany ? 'COMPANY' : 'PERSON'"
+            :entity-id="id"
+            data-test="files-tab"
+          />
         </TabPanel>
         <TabPanel v-if="isCompany" :header="t('people.employees')" value="employees">
           <p class="text-slate-500" data-test="employees-tab">

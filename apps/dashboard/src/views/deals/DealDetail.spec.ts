@@ -36,6 +36,19 @@ vi.mock('@/api/pipelines', () => ({
   },
 }));
 
+vi.mock('@/api/attachments', () => ({
+  attachmentsApi: {
+    list: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
+    upload: vi.fn(),
+    download: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+vi.mock('@/composables/useAppToast', () => ({
+  useAppToast: () => ({ success: vi.fn(), error: vi.fn(), apiError: vi.fn() }),
+}));
+
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: vi.fn(), back: vi.fn() }),
   useRoute: () => ({ params: { id: 'd1' } }),

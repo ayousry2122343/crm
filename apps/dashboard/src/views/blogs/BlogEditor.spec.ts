@@ -24,6 +24,15 @@ vi.mock('@/api/blogs', () => ({
   },
 }));
 
+vi.mock('@/api/attachments', () => ({
+  attachmentsApi: {
+    list: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
+    upload: vi.fn(),
+    download: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
 vi.mock('vue-router', () => ({
   useRouter: () => ({ push: mockPush, back: mockBack }),
   useRoute: () => ({ params: {}, query: {} }),

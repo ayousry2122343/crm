@@ -427,6 +427,23 @@
     "pipelineSummary": "لخّص خط الأنابيب",
     "needsFollowUp": "من يحتاج متابعة؟"
   },
+  "attachments": {
+    "title": "المرفقات",
+    "upload": "رفع ملف",
+    "download": "تحميل",
+    "delete": "حذف",
+    "fileName": "اسم الملف",
+    "fileSize": "الحجم",
+    "fileType": "النوع",
+    "uploadDate": "تاريخ الرفع",
+    "uploadedBy": "رُفع بواسطة",
+    "noAttachments": "لا توجد مرفقات بعد.",
+    "uploadSuccess": "تم رفع الملف بنجاح",
+    "deleteSuccess": "تم حذف المرفق بنجاح",
+    "fileTooLarge": "الملف كبير جدًا. الحد الأقصى 20 ميجابايت.",
+    "invalidFileType": "نوع الملف غير مسموح.",
+    "confirmDelete": "هل أنت متأكد من حذف هذا المرفق؟"
+  },
   "blogs": {
     "title": "المدونة",
     "addBlog": "إضافة مقال",

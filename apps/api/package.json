@@ -19,6 +19,8 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1045.0",
+    "@aws-sdk/s3-request-presigner": "^3.1045.0",
     "@crm/metadata": "workspace:*",
     "@crm/shared-types": "workspace:*",
     "@nestjs/common": "^10.4.15",
@@ -53,6 +55,7 @@
     "@types/jest": "^29.5.14",
     "@types/jsonwebtoken": "^9.0.7",
     "@types/markdown-it": "^14.1.2",
+    "@types/multer": "^2.1.0",
     "@types/node": "^22.10.5",
     "@types/nodemailer": "^6.4.17",
     "@types/passport-jwt": "^4.0.1",

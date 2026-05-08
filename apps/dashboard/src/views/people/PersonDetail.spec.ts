@@ -22,6 +22,19 @@ vi.mock('@/api/email-sync', () => ({
   },
 }));
 
+vi.mock('@/api/attachments', () => ({
+  attachmentsApi: {
+    list: vi.fn().mockResolvedValue({ items: [], nextCursor: null }),
+    upload: vi.fn(),
+    download: vi.fn(),
+    delete: vi.fn(),
+  },
+}));
+
+vi.mock('@/composables/useAppToast', () => ({
+  useAppToast: () => ({ success: vi.fn(), error: vi.fn(), apiError: vi.fn() }),
+}));
+
 vi.mock('@/composables/useMetadata', () => ({
   useMetadata: () => ({
     data: { value: { entityType: 'Person', fields: [] } },

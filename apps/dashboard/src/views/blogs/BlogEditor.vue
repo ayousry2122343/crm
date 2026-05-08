@@ -8,6 +8,7 @@ import Textarea from 'primevue/textarea';
 import Select from 'primevue/select';
 import Tag from 'primevue/tag';
 import Chips from 'primevue/chips';
+import AttachmentList from '@/components/AttachmentList.vue';
 import { blogsApi, type Blog, type BlogCategory } from '@/api/blogs';
 import { useAppToast } from '@/composables/useAppToast';
 
@@ -189,6 +190,13 @@ onMounted(() => {
             @click="handlePublish"
           />
         </div>
+
+        <AttachmentList
+          v-if="!isNew"
+          entity-type="BLOG"
+          :entity-id="id"
+          class="mt-4"
+        />
       </div>
     </div>
   </div>

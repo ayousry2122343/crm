@@ -60,6 +60,9 @@ export const PERMISSIONS = {
   BLOG_READ: 'blog:read',
   BLOG_WRITE: 'blog:write',
   BLOG_DELETE: 'blog:delete',
+  ATTACHMENT_READ: 'attachment:read',
+  ATTACHMENT_WRITE: 'attachment:write',
+  ATTACHMENT_DELETE: 'attachment:delete',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

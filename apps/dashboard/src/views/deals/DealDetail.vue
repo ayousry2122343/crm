@@ -6,6 +6,7 @@ import Button from 'primevue/button';
 import Tag from 'primevue/tag';
 import TabView from 'primevue/tabview';
 import TabPanel from 'primevue/tabpanel';
+import AttachmentList from '@/components/AttachmentList.vue';
 import { dealsApi, type Deal } from '@/api/deals';
 import { activitiesApi, type Activity } from '@/api/activities';
 
@@ -115,7 +116,7 @@ onMounted(load);
           </div>
         </TabPanel>
         <TabPanel :header="t('people.files')" value="files">
-          <p class="text-slate-500">{{ t('people.noFiles') }}</p>
+          <AttachmentList entity-type="DEAL" :entity-id="id" />
         </TabPanel>
       </TabView>
     </template>

@@ -69,6 +69,7 @@ model Workspace {
   portalUsers             PortalUser[]
   blogCategories          BlogCategory[]
   blogs                   Blog[]
+  attachments             Attachment[]
 
   @@index([slug])
 }
@@ -107,6 +108,7 @@ model User {
   aiUsages                AIUsage[]
   emailAccounts           EmailAccount[]
   blogs                   Blog[]
+  attachments             Attachment[]
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -1243,4 +1245,35 @@ model Blog {
   @@unique([workspaceId, slug])
   @@index([workspaceId, status])
   @@index([workspaceId, authorId])
+}
+
+// ─── File Attachments ───────────────────────────────────────
+
+enum AttachmentEntityType {
+  PERSON
+  COMPANY
+  DEAL
+  BLOG
+  ACTIVITY
+}
+
+model Attachment {
+  id           String               @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace            @relation(fields: [workspaceId], references: [id])
+  entityType   AttachmentEntityType
+  entityId     String
+  filename     String
+  originalName String
+  mimeType     String
+  sizeBytes    Int
+  storagePath  String
+  uploadedById String
+  uploadedBy   User                 @relation(fields: [uploadedById], references: [id])
+  archivedAt   DateTime?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  @@index([workspaceId, entityType, entityId])
+  @@index([workspaceId, uploadedById])
 }

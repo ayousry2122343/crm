@@ -427,6 +427,23 @@
     "pipelineSummary": "Summarize pipeline",
     "needsFollowUp": "Who needs follow-up?"
   },
+  "attachments": {
+    "title": "Attachments",
+    "upload": "Upload File",
+    "download": "Download",
+    "delete": "Delete",
+    "fileName": "File Name",
+    "fileSize": "Size",
+    "fileType": "Type",
+    "uploadDate": "Uploaded",
+    "uploadedBy": "Uploaded By",
+    "noAttachments": "No attachments yet.",
+    "uploadSuccess": "File uploaded successfully",
+    "deleteSuccess": "Attachment deleted successfully",
+    "fileTooLarge": "File is too large. Maximum size is 20 MB.",
+    "invalidFileType": "This file type is not allowed.",
+    "confirmDelete": "Are you sure you want to delete this attachment?"
+  },
   "blogs": {
     "title": "Blog",
     "addBlog": "Add Blog",

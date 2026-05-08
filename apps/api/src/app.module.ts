@@ -36,6 +36,7 @@ import { SequenceModule } from './crm/sequences/sequence.module';
 import { EmailSyncModule } from './integrations/email-sync/email-sync.module';
 import { PortalModule } from './portal/portal.module';
 import { BlogModule } from './crm/blogs/blog.module';
+import { AttachmentModule } from './crm/attachments/attachment.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -84,6 +85,7 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     EmailSyncModule,
     PortalModule,
     BlogModule,
+    AttachmentModule,
     HealthModule,
   ],
   providers: [
