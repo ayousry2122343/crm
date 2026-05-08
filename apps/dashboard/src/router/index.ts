@@ -184,6 +184,17 @@ export const router = createRouter({
           props: true,
         },
         {
+          path: 'campaigns',
+          name: 'campaigns',
+          component: () => import('@/views/campaigns/CampaignsIndex.vue'),
+        },
+        {
+          path: 'campaigns/:id',
+          name: 'campaign-detail',
+          component: () => import('@/views/campaigns/CampaignDetail.vue'),
+          props: true,
+        },
+        {
           path: 'settings/products',
           name: 'settings-products',
           component: () => import('@/views/settings/Products.vue'),

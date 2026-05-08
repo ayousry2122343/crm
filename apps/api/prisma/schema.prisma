@@ -58,6 +58,8 @@ model Workspace {
   pricebookEntries        PricebookEntry[]
   quotes                  Quote[]
   quoteLineItems          QuoteLineItem[]
+  campaigns               Campaign[]
+  campaignRecipients      CampaignRecipient[]
 
   @@index([slug])
 }
@@ -338,6 +340,7 @@ model Person {
   customFields Json @default("{}")
 
   doNotContact Boolean @default(false)
+  unsubscribed Boolean @default(false)
   consent      Json?
 
   archivedAt  DateTime?
@@ -348,7 +351,8 @@ model Person {
 
   dealsAsPrimary  Deal[] @relation("DealPrimaryContact")
   dealsAsCompany  Deal[] @relation("DealPrimaryCompany")
-  quotesAsContact Quote[] @relation("QuoteContact")
+  quotesAsContact      Quote[] @relation("QuoteContact")
+  campaignRecipients   CampaignRecipient[]
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -952,4 +956,66 @@ model QuoteLineItem {
 
   @@index([quoteId, sortOrder])
   @@index([workspaceId])
+}
+
+// ── Sprint 8: Email Marketing Campaigns ────────────────────
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  SENDING
+  SENT
+  PAUSED
+}
+
+enum RecipientStatus {
+  PENDING
+  SENT
+  OPENED
+  CLICKED
+  BOUNCED
+  UNSUBSCRIBED
+}
+
+model Campaign {
+  id          String         @id @default(cuid())
+  workspaceId String
+  workspace   Workspace      @relation(fields: [workspaceId], references: [id])
+  name        String
+  subject     String
+  body        String         @db.Text
+  status      CampaignStatus @default(DRAFT)
+  listId      String?
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  stats       Json           @default("{}")
+  archivedAt  DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  createdById String?
+
+  recipients CampaignRecipient[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, archivedAt])
+}
+
+model CampaignRecipient {
+  id             String          @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace       @relation(fields: [workspaceId], references: [id])
+  campaignId     String
+  campaign       Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  personId       String
+  person         Person          @relation(fields: [personId], references: [id])
+  email          String
+  status         RecipientStatus @default(PENDING)
+  openedAt       DateTime?
+  clickedAt      DateTime?
+  bouncedAt      DateTime?
+  unsubscribedAt DateTime?
+  createdAt      DateTime        @default(now())
+
+  @@index([campaignId, status])
+  @@index([workspaceId, personId])
 }

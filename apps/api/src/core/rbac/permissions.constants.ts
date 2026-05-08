@@ -46,6 +46,9 @@ export const PERMISSIONS = {
   QUOTE_READ: 'quote:read',
   QUOTE_WRITE: 'quote:write',
   QUOTE_DELETE: 'quote:delete',
+  CAMPAIGN_READ: 'campaign:read',
+  CAMPAIGN_WRITE: 'campaign:write',
+  CAMPAIGN_DELETE: 'campaign:delete',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
