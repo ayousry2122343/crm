@@ -408,4 +408,27 @@ describe('PersonService edge-cases', () => {
       expect.objectContaining({ where: { id: 'foreign' } }),
     );
   });
+
+  it('list with cursor adds id filter', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => {
+      await svc.list({ cursor: 'p_cursor' });
+    });
+    const args = prisma.person.findMany.mock.calls[0][0];
+    expect(args.where.id).toEqual({ lt: 'p_cursor' });
+  });
+
+  it('list parses descending sort with dash prefix', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.person.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => {
+      await svc.list({ sort: '-fullName,email' });
+    });
+    const args = prisma.person.findMany.mock.calls[0][0];
+    expect(args.orderBy).toEqual([
+      { fullName: 'desc' },
+      { email: 'asc' },
+    ]);
+  });
 });

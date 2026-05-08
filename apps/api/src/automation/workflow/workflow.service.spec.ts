@@ -150,3 +150,62 @@ describe('WorkflowService.delete', () => {
     expect(audit.log).toHaveBeenCalled();
   });
 });
+
+describe('WorkflowService edge-cases', () => {
+  it('list returns empty array when no workflows exist', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.workflow.findMany.mockResolvedValue([]);
+    const result = await tenant.run(ctx(), async () => svc.list());
+    expect(result).toEqual([]);
+  });
+
+  it('create defaults enabled to true when not specified', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.workflow.create.mockResolvedValue({ id: 'wf_1', name: 'Auto', enabled: true });
+    await tenant.run(ctx(), async () => {
+      await svc.create({
+        name: 'Auto',
+        entityType: 'Deal',
+        trigger: { event: 'deal.created' },
+        conditions: { op: 'AND', items: [] },
+        actions: [],
+      });
+    });
+    const data = prisma.workflow.create.mock.calls[0][0].data;
+    expect(data.enabled).toBe(true);
+  });
+
+  it('create sets enabled to false when explicitly passed', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.workflow.create.mockResolvedValue({ id: 'wf_2', name: 'Draft', enabled: false });
+    await tenant.run(ctx(), async () => {
+      await svc.create({
+        name: 'Draft',
+        entityType: 'Person',
+        trigger: { event: 'person.created' },
+        conditions: { op: 'AND', items: [] },
+        actions: [],
+        enabled: false,
+      });
+    });
+    const data = prisma.workflow.create.mock.calls[0][0].data;
+    expect(data.enabled).toBe(false);
+  });
+
+  it('findMatchingWorkflows returns empty when no workflows match event', async () => {
+    const { svc, prisma } = buildSvc();
+    prisma.workflow.findMany.mockResolvedValue([
+      { id: 'wf_1', trigger: { event: 'deal.created' } },
+    ]);
+    const result = await svc.findMatchingWorkflows('Deal', 'deal.won', 'ws_1');
+    expect(result).toEqual([]);
+  });
+
+  it('listRuns throws NotFoundException for wrong workspace workflow', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.workflow.findUnique.mockResolvedValue({ id: 'wf_1', workspaceId: 'ws_other' });
+    await tenant.run(ctx(), async () => {
+      await expect(svc.listRuns('wf_1')).rejects.toThrow(NotFoundException);
+    });
+  });
+});

@@ -367,4 +367,29 @@ describe('DealService edge-cases', () => {
       tenant.run(ctx(), async () => svc.archive('d_1')),
     ).rejects.toBeInstanceOf(NotFoundException);
   });
+
+  it('get throws NotFoundException for archived deal', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.deal.findUnique.mockResolvedValue({
+      id: 'd_1', workspaceId: 'ws_1', archivedAt: new Date(),
+    });
+    await expect(
+      tenant.run(ctx(), async () => svc.get('d_1')),
+    ).rejects.toBeInstanceOf(NotFoundException);
+  });
+
+  it('list filters by stageId and ownerId when provided', async () => {
+    const { svc, tenant, prisma } = buildSvc();
+    prisma.deal.findMany.mockResolvedValue([]);
+    await tenant.run(ctx(), async () => {
+      await svc.list({ stageId: 's_1', ownerId: 'u_2' });
+    });
+    const args = prisma.deal.findMany.mock.calls[0][0];
+    expect(args.where).toMatchObject({
+      workspaceId: 'ws_1',
+      stageId: 's_1',
+      ownerId: 'u_2',
+      archivedAt: null,
+    });
+  });
 });
