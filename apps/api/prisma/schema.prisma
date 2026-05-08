@@ -667,17 +667,19 @@ model FormSubmission {
 }
 
 model Workflow {
-  id          String    @id @default(cuid())
-  workspaceId String
-  workspace   Workspace @relation(fields: [workspaceId], references: [id])
-  name        String
-  entityType  String
-  enabled     Boolean   @default(true)
-  trigger     Json
-  conditions  Json
-  actions     Json
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id             String    @id @default(cuid())
+  workspaceId    String
+  workspace      Workspace @relation(fields: [workspaceId], references: [id])
+  name           String
+  entityType     String
+  enabled        Boolean   @default(true)
+  trigger        Json
+  conditions     Json
+  actions        Json
+  cronExpression String?
+  lastRunAt      DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   runs        WorkflowRun[]
 

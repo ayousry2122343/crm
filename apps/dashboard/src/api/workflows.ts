@@ -1,8 +1,9 @@
 import { api } from './client';
 
 export type WorkflowTrigger = {
-  event: 'CREATED' | 'UPDATED' | 'DELETED' | 'FIELD_CHANGED' | 'MANUAL';
+  event: 'CREATED' | 'UPDATED' | 'DELETED' | 'FIELD_CHANGED' | 'MANUAL' | 'SCHEDULED';
   fieldKey?: string;
+  query?: Record<string, unknown>;
 };
 
 export type ConditionItem = {
@@ -30,6 +31,8 @@ export type Workflow = {
   trigger: WorkflowTrigger;
   conditions: ConditionGroup;
   actions: WorkflowAction[];
+  cronExpression?: string | null;
+  lastRunAt?: string | null;
   createdAt: string;
   updatedAt: string;
 };

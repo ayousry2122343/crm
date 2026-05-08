@@ -44,6 +44,7 @@ const triggerLabel = (trigger: Workflow['trigger']) => {
     DELETED: t('workflow.triggerDeleted'),
     FIELD_CHANGED: t('workflow.triggerFieldChanged'),
     MANUAL: t('workflow.triggerManual'),
+    SCHEDULED: t('workflow.triggerScheduled'),
   };
   return labels[trigger.event] ?? trigger.event;
 };
@@ -83,6 +84,16 @@ onMounted(load);
       <Column :header="t('workflow.status')">
         <template #body="{ data }">
           <Tag :value="data.enabled ? t('workflow.enabled') : t('workflow.disabled')" :severity="data.enabled ? 'success' : 'secondary'" />
+        </template>
+      </Column>
+      <Column field="cronExpression" :header="t('workflow.cronExpression')">
+        <template #body="{ data }">
+          <code v-if="data.cronExpression" class="text-xs bg-slate-100 px-2 py-1 rounded">{{ data.cronExpression }}</code>
+        </template>
+      </Column>
+      <Column field="lastRunAt" :header="t('workflow.lastRunAt')">
+        <template #body="{ data }">
+          <span v-if="data.lastRunAt" class="text-sm">{{ new Date(data.lastRunAt).toLocaleString() }}</span>
         </template>
       </Column>
       <Column :header="t('common.actions')" style="width: 120px">

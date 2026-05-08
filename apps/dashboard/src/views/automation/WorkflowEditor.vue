@@ -32,6 +32,7 @@ const entityType = ref('Person');
 const enabled = ref(true);
 const triggerEvent = ref<string>('CREATED');
 const triggerFieldKey = ref('');
+const cronExpression = ref('');
 const conditions = ref<ConditionItem[]>([]);
 const actions = ref<WorkflowAction[]>([]);
 
@@ -48,6 +49,14 @@ const triggerOptions = [
   { label: t('workflow.triggerFieldChanged'), value: 'FIELD_CHANGED' },
   { label: t('workflow.triggerDeleted'), value: 'DELETED' },
   { label: t('workflow.triggerManual'), value: 'MANUAL' },
+  { label: t('workflow.triggerScheduled'), value: 'SCHEDULED' },
+];
+
+const cronPresets = [
+  { label: t('workflow.everyMinute'), value: '* * * * *' },
+  { label: t('workflow.daily'), value: '0 9 * * *' },
+  { label: t('workflow.weekly'), value: '0 9 * * 1' },
+  { label: t('workflow.monthly'), value: '0 9 1 * *' },
 ];
 
 const operatorOptions = [
@@ -101,6 +110,9 @@ async function save() {
           ? { fieldKey: triggerFieldKey.value }
           : {}),
       },
+      ...(triggerEvent.value === 'SCHEDULED' && cronExpression.value
+        ? { cronExpression: cronExpression.value }
+        : {}),
       conditions: { op: 'AND' as const, items: conditions.value },
       actions: actions.value,
     };
@@ -125,6 +137,7 @@ async function load() {
     enabled.value = wf.enabled;
     triggerEvent.value = wf.trigger.event;
     triggerFieldKey.value = wf.trigger.fieldKey ?? '';
+    cronExpression.value = wf.cronExpression ?? '';
     conditions.value = (wf.conditions as { items: ConditionItem[] }).items ?? [];
     actions.value = wf.actions;
     runs.value = await workflowsApi.runs(props.id);
@@ -169,6 +182,16 @@ onMounted(load);
         <div v-if="triggerEvent === 'FIELD_CHANGED'" class="mt-3">
           <label class="text-sm font-medium mb-1 block">{{ t('workflow.fieldKey') }}</label>
           <InputText v-model="triggerFieldKey" class="w-64" placeholder="e.g. lifecycleStage" />
+        </div>
+        <div v-if="triggerEvent === 'SCHEDULED'" class="mt-3 grid grid-cols-2 gap-4">
+          <div>
+            <label class="text-sm font-medium mb-1 block">{{ t('workflow.cronExpression') }}</label>
+            <InputText v-model="cronExpression" class="w-full" placeholder="* * * * *" data-test="cron-expression" />
+          </div>
+          <div>
+            <label class="text-sm font-medium mb-1 block">{{ t('workflow.cronPreset') }}</label>
+            <Select v-model="cronExpression" :options="cronPresets" option-label="label" option-value="value" class="w-full" :placeholder="t('workflow.selectPreset')" />
+          </div>
         </div>
       </div>
 

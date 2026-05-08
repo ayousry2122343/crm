@@ -7,4 +7,5 @@ export class CreateWorkflowDto {
   @IsObject() trigger: Record<string, unknown>;
   @IsObject() conditions: Record<string, unknown>;
   @IsArray() actions: Record<string, unknown>[];
+  @IsOptional() @IsString() cronExpression?: string;
 }

@@ -30,6 +30,7 @@ export class WorkflowService {
         trigger: dto.trigger as any,
         conditions: dto.conditions as any,
         actions: dto.actions as any,
+        cronExpression: dto.cronExpression,
       },
     });
     await this.audit.log({
@@ -67,6 +68,7 @@ export class WorkflowService {
     if (dto.trigger !== undefined) data.trigger = dto.trigger;
     if (dto.conditions !== undefined) data.conditions = dto.conditions;
     if (dto.actions !== undefined) data.actions = dto.actions;
+    if (dto.cronExpression !== undefined) data.cronExpression = dto.cronExpression;
 
     const after = await this.prisma.workflow.update({ where: { id }, data });
     await this.audit.logUpdate('Workflow', id, before as any, after as any);
@@ -89,6 +91,22 @@ export class WorkflowService {
       where: { workflowId },
       orderBy: { triggeredAt: 'desc' },
       take: 50,
+    });
+  }
+
+  async findScheduledWorkflows() {
+    return this.prisma.workflow.findMany({
+      where: {
+        enabled: true,
+        cronExpression: { not: null },
+      },
+    });
+  }
+
+  async markRun(id: string) {
+    return this.prisma.workflow.update({
+      where: { id },
+      data: { lastRunAt: new Date() },
     });
   }
 

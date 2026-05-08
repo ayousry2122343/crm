@@ -6,4 +6,5 @@ export class UpdateWorkflowDto {
   @IsOptional() @IsObject() trigger?: Record<string, unknown>;
   @IsOptional() @IsObject() conditions?: Record<string, unknown>;
   @IsOptional() @IsArray() actions?: Record<string, unknown>[];
+  @IsOptional() @IsString() cronExpression?: string;
 }
