@@ -227,5 +227,28 @@ describe('Scoring Integration', () => {
       expect(result.updated).toBe(2);
       expect(prisma.person.update).toHaveBeenCalledTimes(2);
     });
+
+    it('handles empty result set gracefully — returns zero counts', async () => {
+      const { svc, tenant, prisma } = buildSvc();
+      prisma.person.findMany.mockResolvedValueOnce([]);
+
+      prisma.scoringRule.findMany.mockResolvedValue([]);
+
+      const result = await tenant.run(ctx(), async () => svc.bulkRescore('PERSON'));
+      expect(result.processed).toBe(0);
+      expect(result.updated).toBe(0);
+      expect(prisma.person.update).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('evaluateScore with no active rules', () => {
+    it('returns 0 when no scoring rules exist', async () => {
+      const { svc, tenant, prisma } = buildSvc();
+      prisma.scoringRule.findMany.mockResolvedValue([]);
+
+      const entity = { lifecycleStage: 'MQL', email: 'test@example.com' };
+      const score = await tenant.run(ctx(), async () => svc.evaluateScore('PERSON', entity));
+      expect(score).toBe(0);
+    });
   });
 });

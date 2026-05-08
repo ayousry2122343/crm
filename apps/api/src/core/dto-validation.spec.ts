@@ -26,6 +26,12 @@ describe('DTO Validation', () => {
       expect(errors).toHaveLength(0);
     });
 
+    it('accepts email with unusual TLD (.museum, .photography)', async () => {
+      const dto = plainToInstance(CreatePersonDto, { email: 'curator@art.museum' });
+      const errors = await validate(dto);
+      expect(errors.filter((e) => e.property === 'email')).toHaveLength(0);
+    });
+
     it('rejects invalid email format', async () => {
       const dto = plainToInstance(CreatePersonDto, { email: 'not-an-email' });
       const errors = await validate(dto);
@@ -71,6 +77,17 @@ describe('DTO Validation', () => {
       const errors = await validate(dto);
       const nameError = errors.find((e) => e.property === 'name');
       expect(nameError).toBeDefined();
+    });
+
+    it('accepts amount as zero', async () => {
+      const dto = plainToInstance(CreateDealDto, {
+        name: 'Free Deal',
+        pipelineId: 'pip_1',
+        stageId: 's_1',
+        amount: 0,
+      });
+      const errors = await validate(dto);
+      expect(errors).toHaveLength(0);
     });
 
     it('rejects missing pipelineId', async () => {

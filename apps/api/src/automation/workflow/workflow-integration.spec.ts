@@ -171,4 +171,78 @@ describe('CronRunner Integration: scheduled workflow → cron picks up', () => {
     expect(result.matched).toBe(0);
     expect(workflowSvc.markRun).not.toHaveBeenCalled();
   });
+
+  it('tick with no scheduled workflows returns zero counts', async () => {
+    const prisma = makeExecutorPrisma();
+    const notifSvc = makeNotificationService();
+    const executor = new WorkflowExecutor(prisma as any, notifSvc as any);
+    const workflowSvc = makeWorkflowService();
+
+    workflowSvc.findScheduledWorkflows.mockResolvedValue([]);
+
+    const runner = new CronRunnerService(workflowSvc as any, executor, prisma as any);
+    const result = await runner.tick();
+
+    expect(result.evaluated).toBe(0);
+    expect(result.matched).toBe(0);
+  });
+});
+
+describe('Workflow Executor: action failure handling', () => {
+  it('action failure marks run as FAILED and records error', async () => {
+    const prisma = makeExecutorPrisma();
+    const notifSvc = makeNotificationService();
+    const executor = new WorkflowExecutor(prisma as any, notifSvc as any);
+
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_fail',
+      enabled: true,
+      conditions: { op: 'AND', items: [] },
+      actions: [{ type: 'UPDATE_FIELD', params: { fieldKey: 'source', value: 'AUTO' } }],
+    });
+    prisma.workflowRun.create.mockResolvedValue({ id: 'run_fail' });
+    prisma.workflowRun.update.mockResolvedValue({});
+    prisma.person.update.mockRejectedValue(new Error('DB connection lost'));
+
+    const job: WorkflowJob = {
+      workflowId: 'wf_fail',
+      workspaceId: 'ws_1',
+      entityType: 'Person',
+      entityId: 'p_1',
+      record: { fullName: 'Test', lifecycleStage: 'LEAD' },
+    };
+
+    await executor.execute(job);
+
+    const failCall = prisma.workflowRun.update.mock.calls.find(
+      (c: any) => c[0]?.data?.status === 'FAILED',
+    );
+    expect(failCall).toBeDefined();
+    expect(failCall![0].data.error).toBe('DB connection lost');
+  });
+
+  it('disabled workflow is skipped entirely', async () => {
+    const prisma = makeExecutorPrisma();
+    const notifSvc = makeNotificationService();
+    const executor = new WorkflowExecutor(prisma as any, notifSvc as any);
+
+    prisma.workflow.findUnique.mockResolvedValue({
+      id: 'wf_disabled',
+      enabled: false,
+      conditions: {},
+      actions: [],
+    });
+
+    const job: WorkflowJob = {
+      workflowId: 'wf_disabled',
+      workspaceId: 'ws_1',
+      entityType: 'Person',
+      entityId: 'p_1',
+      record: {},
+    };
+
+    await executor.execute(job);
+
+    expect(prisma.workflowRun.create).not.toHaveBeenCalled();
+  });
 });

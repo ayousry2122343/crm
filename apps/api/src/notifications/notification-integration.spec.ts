@@ -203,4 +203,54 @@ describe('Comment → Notification Integration', () => {
       }),
     );
   });
+
+  it('comment with no mentions and no followers sends no notifications', async () => {
+    const { svc, tenant, prisma, notifications } = buildSvc();
+    prisma.comment.create.mockResolvedValue({
+      id: 'c_7',
+      body: 'Just a note',
+      mentions: [],
+      author: { id: 'u_author', fullName: 'Ahmed', email: 'a@b.com' },
+    });
+    prisma.follower.findMany.mockResolvedValue([
+      { userId: 'u_author' },
+    ]);
+
+    await tenant.run(ctx(), async () => {
+      await svc.create({
+        entityType: 'DEAL',
+        entityId: 'd_1',
+        body: 'Just a note',
+      });
+    });
+
+    expect(notifications.create).not.toHaveBeenCalled();
+  });
+
+  it('comment with empty mentions array still notifies followers', async () => {
+    const { svc, tenant, prisma, notifications } = buildSvc();
+    prisma.comment.create.mockResolvedValue({
+      id: 'c_8',
+      body: 'Status update',
+      mentions: [],
+      author: { id: 'u_author', fullName: 'Ahmed', email: 'a@b.com' },
+    });
+    prisma.follower.findMany.mockResolvedValue([
+      { userId: 'u_follower_a' },
+      { userId: 'u_follower_b' },
+    ]);
+
+    await tenant.run(ctx(), async () => {
+      await svc.create({
+        entityType: 'PERSON',
+        entityId: 'p_1',
+        body: 'Status update',
+      });
+    });
+
+    expect(notifications.create).toHaveBeenCalledTimes(2);
+    const ids = notifications.create.mock.calls.map((c: any) => c[0].userId);
+    expect(ids).toContain('u_follower_a');
+    expect(ids).toContain('u_follower_b');
+  });
 });
