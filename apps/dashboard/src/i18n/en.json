@@ -35,6 +35,8 @@
     "notificationPreferences": "Notification Preferences",
     "forecasts": "Forecasts",
     "goals": "Goals",
+    "serviceGroup": "Service",
+    "tickets": "Tickets",
     "scoringRules": "Scoring Rules",
     "logout": "Log out"
   },
@@ -704,5 +706,59 @@
     "created": "Goal created successfully.",
     "updated": "Goal updated successfully.",
     "archived": "Goal archived."
+  },
+  "tickets": {
+    "title": "Tickets",
+    "ticket": "Ticket",
+    "create": "Create Ticket",
+    "edit": "Edit Ticket",
+    "subject": "Subject",
+    "description": "Description",
+    "status": "Status",
+    "priority": "Priority",
+    "channel": "Channel",
+    "assignee": "Assignee",
+    "contact": "Contact",
+    "company": "Company",
+    "team": "Team",
+    "ticketNumber": "Ticket #",
+    "createdAt": "Created",
+    "resolvedAt": "Resolved At",
+    "closedAt": "Closed At",
+    "firstResponseAt": "First Response",
+    "noTickets": "No tickets yet.",
+    "assign": "Assign",
+    "changeStatus": "Change Status",
+    "created": "Ticket created successfully.",
+    "updated": "Ticket updated successfully.",
+    "archived": "Ticket archived.",
+    "assigned": "Ticket assigned successfully.",
+    "statusChanged": "Ticket status changed.",
+    "invalidTransition": "Invalid status transition.",
+    "overview": "Overview",
+    "comments": "Comments",
+    "files": "Files",
+    "statuses": {
+      "new": "New",
+      "open": "Open",
+      "pending": "Pending",
+      "onHold": "On Hold",
+      "resolved": "Resolved",
+      "closed": "Closed"
+    },
+    "priorities": {
+      "low": "Low",
+      "medium": "Medium",
+      "high": "High",
+      "urgent": "Urgent"
+    },
+    "channels": {
+      "email": "Email",
+      "phone": "Phone",
+      "chat": "Chat",
+      "webForm": "Web Form",
+      "portal": "Portal",
+      "api": "API"
+    }
   }
 }

@@ -35,6 +35,8 @@
     "notificationPreferences": "إعدادات الإشعارات",
     "forecasts": "التوقعات",
     "goals": "الأهداف",
+    "serviceGroup": "الخدمة",
+    "tickets": "التذاكر",
     "scoringRules": "قواعد التقييم",
     "logout": "تسجيل الخروج"
   },
@@ -704,5 +706,59 @@
     "created": "تم إنشاء الهدف بنجاح.",
     "updated": "تم تحديث الهدف بنجاح.",
     "archived": "تم أرشفة الهدف."
+  },
+  "tickets": {
+    "title": "التذاكر",
+    "ticket": "تذكرة",
+    "create": "إنشاء تذكرة",
+    "edit": "تعديل التذكرة",
+    "subject": "الموضوع",
+    "description": "الوصف",
+    "status": "الحالة",
+    "priority": "الأولوية",
+    "channel": "القناة",
+    "assignee": "المسؤول",
+    "contact": "جهة الاتصال",
+    "company": "الشركة",
+    "team": "الفريق",
+    "ticketNumber": "رقم التذكرة",
+    "createdAt": "تاريخ الإنشاء",
+    "resolvedAt": "تاريخ الحل",
+    "closedAt": "تاريخ الإغلاق",
+    "firstResponseAt": "أول استجابة",
+    "noTickets": "لا توجد تذاكر بعد.",
+    "assign": "تعيين",
+    "changeStatus": "تغيير الحالة",
+    "created": "تم إنشاء التذكرة بنجاح.",
+    "updated": "تم تحديث التذكرة بنجاح.",
+    "archived": "تم أرشفة التذكرة.",
+    "assigned": "تم تعيين التذكرة بنجاح.",
+    "statusChanged": "تم تغيير حالة التذكرة.",
+    "invalidTransition": "انتقال حالة غير صالح.",
+    "overview": "نظرة عامة",
+    "comments": "التعليقات",
+    "files": "الملفات",
+    "statuses": {
+      "new": "جديدة",
+      "open": "مفتوحة",
+      "pending": "معلقة",
+      "onHold": "قيد الانتظار",
+      "resolved": "تم الحل",
+      "closed": "مغلقة"
+    },
+    "priorities": {
+      "low": "منخفضة",
+      "medium": "متوسطة",
+      "high": "عالية",
+      "urgent": "عاجلة"
+    },
+    "channels": {
+      "email": "بريد إلكتروني",
+      "phone": "هاتف",
+      "chat": "محادثة",
+      "webForm": "نموذج ويب",
+      "portal": "بوابة",
+      "api": "API"
+    }
   }
 }
