@@ -49,6 +49,9 @@ model Workspace {
   webhooks                Webhook[]
   webhookDeliveries       WebhookDelivery[]
   validationRules         ValidationRule[]
+  dashboards              Dashboard[]
+  embeddings              Embedding[]
+  aiUsages                AIUsage[]
 
   @@index([slug])
 }
@@ -83,6 +86,8 @@ model User {
   ownedPeople             Person[]                 @relation("OwnedPeople")
   ownedDeals              Deal[]                   @relation("OwnedDeals")
   ownedActivities         Activity[]               @relation("OwnedActivities")
+  dashboards              Dashboard[]
+  aiUsages                AIUsage[]
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -742,4 +747,48 @@ model ValidationRule {
   updatedAt    DateTime  @updatedAt
 
   @@index([workspaceId, entityType, enabled])
+}
+
+model Dashboard {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  name        String
+  layout      Json     @default("{\"widgets\":[]}")
+  isDefault   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([workspaceId, ownerId])
+}
+
+model Embedding {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  entityType  String
+  entityId    String
+  vector      Unsupported("vector(1536)")
+  updatedAt   DateTime @updatedAt
+
+  @@unique([workspaceId, entityType, entityId])
+  @@index([workspaceId, entityType])
+}
+
+model AIUsage {
+  id          String   @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  feature     String
+  provider    String
+  model       String
+  inputTokens Int      @default(0)
+  outputTokens Int     @default(0)
+  createdAt   DateTime @default(now())
+
+  @@index([workspaceId, createdAt])
 }

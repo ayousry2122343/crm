@@ -26,6 +26,8 @@ import { FormModule } from './crm/forms/form.module';
 import { WorkflowModule } from './automation/workflow/workflow.module';
 import { WebhookModule } from './automation/webhooks/webhook.module';
 import { ValidationModule } from './automation/validation/validation.module';
+import { ReportsModule } from './reports/report.module';
+import { AIModule } from './ai/ai.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -64,6 +66,8 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     WorkflowModule,
     WebhookModule,
     ValidationModule,
+    ReportsModule,
+    AIModule,
     HealthModule,
   ],
   providers: [
