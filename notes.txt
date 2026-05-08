@@ -7,8 +7,8 @@ Date: 2026-05-08
 - Sprint 1 (Auth+RBAC+Custom Fields): DONE - v0.2.0-sprint1
 - Sprint 2 (People+Companies+Tags+Lists+Search): DONE - v0.3.0-sprint2
 - Sprint 3 (Pipelines+Deals+Activities+Calendar): DONE - v0.4.0-sprint3
-- Sprint 4 (Email+Forms+Workflow+Webhooks+Validation): IN PROGRESS
-- Sprint 5 (Reports+Dashboards+AI+Website+Launch): PENDING
+- Sprint 4 (Email+Forms+Workflow+Webhooks+Validation): DONE - v0.5.0-sprint4
+- Sprint 5 (Reports+Dashboards+AI+Website+Launch): DONE - v1.0.0
 
 ## What Can Be Implemented Without External APIs (20/24 tasks)
 
