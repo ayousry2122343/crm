@@ -226,6 +226,23 @@ export const router = createRouter({
           component: () => import('@/views/settings/Pricebooks.vue'),
         },
         {
+          path: 'blogs',
+          name: 'blogs',
+          component: () => import('@/views/blogs/BlogsIndex.vue'),
+        },
+        {
+          path: 'blogs/:id',
+          name: 'blog-editor',
+          component: () => import('@/views/blogs/BlogEditor.vue'),
+          props: true,
+        },
+        {
+          path: 'blog/:slug',
+          name: 'blog-view',
+          component: () => import('@/views/blogs/BlogView.vue'),
+          props: true,
+        },
+        {
           path: 'reports',
           name: 'reports',
           component: () => import('@/views/reports/ReportsIndex.vue'),

@@ -57,6 +57,9 @@ export const PERMISSIONS = {
   EMAIL_ACCOUNT_READ: 'email-account:read',
   EMAIL_ACCOUNT_WRITE: 'email-account:write',
   EMAIL_SYNC_READ: 'email-sync:read',
+  BLOG_READ: 'blog:read',
+  BLOG_WRITE: 'blog:write',
+  BLOG_DELETE: 'blog:delete',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

@@ -30,6 +30,7 @@
     "webhooks": "الويب هوكس",
     "reports": "التقارير",
     "dashboards": "لوحات المعلومات",
+    "blogs": "المدونة",
     "logout": "تسجيل الخروج"
   },
   "auth": {
@@ -425,6 +426,29 @@
     "recentDeals": "أظهر الصفقات الأخيرة",
     "pipelineSummary": "لخّص خط الأنابيب",
     "needsFollowUp": "من يحتاج متابعة؟"
+  },
+  "blogs": {
+    "title": "المدونة",
+    "addBlog": "إضافة مقال",
+    "editBlog": "تعديل المقال",
+    "slug": "الرابط المختصر",
+    "body": "المحتوى",
+    "status": "الحالة",
+    "draft": "مسودة",
+    "published": "منشور",
+    "publish": "نشر",
+    "unpublish": "إلغاء النشر",
+    "tags": "الوسوم",
+    "category": "التصنيف",
+    "addCategory": "إضافة تصنيف",
+    "categoryName": "اسم التصنيف",
+    "selectCategory": "اختر تصنيفًا",
+    "noBlogs": "لا توجد مقالات بعد.",
+    "metaDescription": "وصف الميتا",
+    "author": "الكاتب",
+    "publishedAt": "تاريخ النشر",
+    "preview": "معاينة",
+    "backToList": "العودة للمدونة"
   },
   "emailSync": {
     "title": "حسابات البريد",

@@ -30,6 +30,7 @@
     "webhooks": "Webhooks",
     "reports": "Reports",
     "dashboards": "Dashboards",
+    "blogs": "Blog",
     "logout": "Log out"
   },
   "auth": {
@@ -425,6 +426,29 @@
     "recentDeals": "Show recent deals",
     "pipelineSummary": "Summarize pipeline",
     "needsFollowUp": "Who needs follow-up?"
+  },
+  "blogs": {
+    "title": "Blog",
+    "addBlog": "Add Blog",
+    "editBlog": "Edit Blog",
+    "slug": "Slug",
+    "body": "Body",
+    "status": "Status",
+    "draft": "Draft",
+    "published": "Published",
+    "publish": "Publish",
+    "unpublish": "Unpublish",
+    "tags": "Tags",
+    "category": "Category",
+    "addCategory": "Add Category",
+    "categoryName": "Category Name",
+    "selectCategory": "Select category",
+    "noBlogs": "No blog posts yet.",
+    "metaDescription": "Meta Description",
+    "author": "Author",
+    "publishedAt": "Published At",
+    "preview": "Preview",
+    "backToList": "Back to Blogs"
   },
   "emailSync": {
     "title": "Email Accounts",

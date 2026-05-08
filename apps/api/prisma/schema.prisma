@@ -67,6 +67,8 @@ model Workspace {
   emailMessages           EmailMessage[]
   portals                 Portal[]
   portalUsers             PortalUser[]
+  blogCategories          BlogCategory[]
+  blogs                   Blog[]
 
   @@index([slug])
 }
@@ -104,6 +106,7 @@ model User {
   dashboards              Dashboard[]
   aiUsages                AIUsage[]
   emailAccounts           EmailAccount[]
+  blogs                   Blog[]
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -1194,4 +1197,50 @@ model PortalUser {
 
   @@unique([workspaceId, email])
   @@index([workspaceId, personId])
+}
+
+// ─── Blog ────────────────────────────────────────────────────
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+}
+
+model BlogCategory {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  slug        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  blogs Blog[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId])
+}
+
+model Blog {
+  id              String        @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id])
+  title           String
+  slug            String
+  body            String        @db.Text
+  authorId        String
+  author          User          @relation(fields: [authorId], references: [id])
+  status          BlogStatus    @default(DRAFT)
+  publishedAt     DateTime?
+  tags            String[]      @default([])
+  metaDescription String?
+  categoryId      String?
+  category        BlogCategory? @relation(fields: [categoryId], references: [id])
+  archivedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId, status])
+  @@index([workspaceId, authorId])
 }

@@ -64,6 +64,9 @@ async function handleLogout() {
         <router-link to="/forms" class="nav-link" data-test="nav-forms">
           <i class="pi pi-file-edit mr-2" />{{ t('nav.forms') }}
         </router-link>
+        <router-link to="/blogs" class="nav-link" data-test="nav-blogs">
+          <i class="pi pi-file-edit mr-2" />{{ t('nav.blogs') }}
+        </router-link>
         <div class="mt-4 mb-2 text-xs text-slate-400 uppercase tracking-wider">
           {{ t('nav.automationGroup') }}
         </div>
