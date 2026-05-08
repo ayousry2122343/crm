@@ -1,0 +1,79 @@
+CRM Platform - Sprint Analysis Notes
+=====================================
+Date: 2026-05-08
+
+## Sprint Status
+- Sprint 0 (Scaffold): DONE - v0.1.0-sprint0
+- Sprint 1 (Auth+RBAC+Custom Fields): DONE - v0.2.0-sprint1
+- Sprint 2 (People+Companies+Tags+Lists+Search): DONE - v0.3.0-sprint2
+- Sprint 3 (Pipelines+Deals+Activities+Calendar): DONE - v0.4.0-sprint3
+- Sprint 4 (Email+Forms+Workflow+Webhooks+Validation): IN PROGRESS
+- Sprint 5 (Reports+Dashboards+AI+Website+Launch): PENDING
+
+## What Can Be Implemented Without External APIs (20/24 tasks)
+
+### Sprint 4 - All 12 tasks can be built locally:
+- T4.1  Outbound Email (SMTP)         -> NodeMailer + MailHog (already in Docker)
+- T4.2  Email Templates admin UI      -> Pure frontend
+- T4.3  Form Builder backend          -> Honeypot + rate-limit instead of reCAPTCHA
+- T4.4  Form Builder admin UI         -> Pure frontend (drag-drop)
+- T4.5  Embeddable form widget        -> Vanilla JS snippet
+- T4.6  Public website Contact page   -> Pure frontend
+- T4.7  Workflow engine (TCA)         -> BullMQ + Redis (already in stack)
+- T4.8  Workflow admin UI             -> Pure frontend (recipe editor)
+- T4.9  Webhooks-out                  -> HTTP POST + HMAC signing
+- T4.10 Validation Rules              -> JSON rule evaluator
+- T4.11 e2e tests                     -> Playwright
+- T4.12 Sprint 4 closeout             -> Tag v0.5.0-sprint4
+
+### Sprint 5 - 8 of 12 tasks fully local:
+- T5.1  Report engine (5 reports)     -> SQL queries on existing data
+- T5.2  Dashboard widget API          -> Pure backend
+- T5.3  Dashboard UI (charts)         -> Chart.js (local library)
+- T5.6  AI Email Composer UI          -> Pure frontend (calls internal API)
+- T5.8  Public website pages          -> Pure frontend
+- T5.9  REST API polish + OpenAPI     -> Pure backend
+- T5.10 e2e launch checklist          -> Playwright
+- T5.11-12 Docs + closeout            -> Documentation
+
+## What Originally Needed External APIs (4 tasks) + Free Alternatives
+
+### 1. AI/LLM Provider (T5.4 + T5.5)
+   Original: OpenAI API ($) or Anthropic API ($)
+   Alternative: Ollama (FREE, self-hosted)
+   - Install: curl -fsSL https://ollama.com/install.sh | sh
+   - Models: llama3.1:8b (chat), qwen2.5 (Arabic-strong)
+   - API: OpenAI-compatible (http://localhost:11434/v1)
+   - Code: Same OpenAI SDK, just change baseURL
+
+### 2. Embeddings API (T5.7)
+   Original: OpenAI embeddings ($0.0001/1K tokens)
+   Alternative: Ollama embeddings (FREE)
+   - Model: nomic-embed-text (274MB) or all-minilm
+   - Same endpoint: POST /api/embeddings
+
+### 3. reCAPTCHA (T4.3 - partial)
+   Original: Google reCAPTCHA (free but requires Google account + domain)
+   Alternative: Three-layer local protection:
+   - Honeypot field (hidden CSS input, bots fill it)
+   - Rate limit per IP (5 submissions/hour)
+   - Math CAPTCHA in Arabic ("كم = ٧ + ٣؟")
+
+### 4. Production Email SMTP (T4.1 - production only)
+   Dev: MailHog (already configured)
+   Free production options:
+   - Brevo (ex-Sendinblue): 300 emails/day free
+   - Resend.com: 3000 emails/month free
+   - Gmail SMTP: 500/day with App Password
+   - Postal (self-hosted): unlimited, needs VPS
+
+## Result
+   Total remaining tasks: 24
+   Can implement now:      24 (100% with alternatives)
+   External API needed:     0 (all have free local alternatives)
+
+## Architecture Decisions for Sprint 4
+- OllamaProvider added as 4th AI provider alongside OpenAI/Anthropic/Mock
+- Honeypot anti-spam replaces reCAPTCHA
+- MailHog stays for dev; SMTP config is per-workspace for production
+- Workflow engine uses BullMQ for async execution (Redis already in stack)

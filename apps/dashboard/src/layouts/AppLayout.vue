@@ -44,6 +44,18 @@ async function handleLogout() {
         <router-link to="/calendar" class="nav-link" data-test="nav-calendar">
           <i class="pi pi-calendar mr-2" />{{ t('nav.calendar') }}
         </router-link>
+        <router-link to="/forms" class="nav-link" data-test="nav-forms">
+          <i class="pi pi-file-edit mr-2" />{{ t('nav.forms') }}
+        </router-link>
+        <div class="mt-4 mb-2 text-xs text-slate-400 uppercase tracking-wider">
+          {{ t('nav.automationGroup') }}
+        </div>
+        <router-link to="/automation/workflows" class="nav-link" data-test="nav-workflows">
+          <i class="pi pi-bolt mr-2" />{{ t('nav.workflows') }}
+        </router-link>
+        <router-link to="/automation/webhooks" class="nav-link" data-test="nav-webhooks">
+          <i class="pi pi-link mr-2" />{{ t('nav.webhooks') }}
+        </router-link>
         <div class="mt-4 mb-2 text-xs text-slate-400 uppercase tracking-wider">
           {{ t('nav.settingsGroup') }}
         </div>
@@ -65,6 +77,9 @@ async function handleLogout() {
         </router-link>
         <router-link to="/settings/won-lost-reasons" class="nav-link" data-test="nav-won-lost">
           <i class="pi pi-check-circle mr-2" />{{ t('nav.wonLostReasons') }}
+        </router-link>
+        <router-link to="/settings/email-templates" class="nav-link" data-test="nav-email-templates">
+          <i class="pi pi-envelope mr-2" />{{ t('nav.emailTemplates') }}
         </router-link>
       </nav>
     </aside>

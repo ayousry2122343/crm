@@ -135,6 +135,38 @@ export const router = createRouter({
           name: 'calendar',
           component: () => import('@/views/activities/ActivityCalendar.vue'),
         },
+        {
+          path: 'settings/email-templates',
+          name: 'settings-email-templates',
+          component: () => import('@/views/settings/EmailTemplates.vue'),
+        },
+        {
+          path: 'forms',
+          name: 'forms',
+          component: () => import('@/views/forms/FormsIndex.vue'),
+        },
+        {
+          path: 'forms/:id',
+          name: 'form-editor',
+          component: () => import('@/views/forms/FormEditor.vue'),
+          props: true,
+        },
+        {
+          path: 'automation/workflows',
+          name: 'workflows',
+          component: () => import('@/views/automation/WorkflowsIndex.vue'),
+        },
+        {
+          path: 'automation/workflows/:id',
+          name: 'workflow-editor',
+          component: () => import('@/views/automation/WorkflowEditor.vue'),
+          props: true,
+        },
+        {
+          path: 'automation/webhooks',
+          name: 'webhooks',
+          component: () => import('@/views/automation/WebhooksAdmin.vue'),
+        },
       ],
     },
   ],
