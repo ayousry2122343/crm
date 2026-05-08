@@ -152,4 +152,38 @@ describe('CopilotService', () => {
       expect(result).toBe('');
     });
   });
+
+  describe('chat edge-cases', () => {
+    it('handles RAG with empty embeddings gracefully', async () => {
+      const { svc, prisma, ai } = buildSvc();
+      prisma.$queryRawUnsafe.mockResolvedValue([]);
+      const result = await svc.chat({ message: 'Query with no relevant docs' });
+      expect(result.reply).toBeDefined();
+      expect(ai.chat).toHaveBeenCalled();
+    });
+
+    it('chat without context or history works', async () => {
+      const { svc, prisma, ai } = buildSvc();
+      prisma.$queryRawUnsafe.mockResolvedValue([]);
+      const result = await svc.chat({ message: 'Hello' });
+      expect(result.reply).toBe('AI response here');
+      const msgs = ai.chat.mock.calls[0][0];
+      expect(msgs[msgs.length - 1].content).toBe('Hello');
+    });
+
+    it('includes RAG chunks in context when embeddings found', async () => {
+      const { svc, prisma, ai } = buildSvc();
+      prisma.$queryRawUnsafe.mockResolvedValue([
+        { entityType: 'Person', entityId: 'p_1', distance: 0.1 },
+        { entityType: 'Deal', entityId: 'd_1', distance: 0.2 },
+      ]);
+      prisma.person.findUnique.mockResolvedValue({ fullName: 'Ahmed', email: 'a@b.com' });
+      prisma.deal.findUnique.mockResolvedValue({ name: 'Big Deal', amount: 50000, status: 'OPEN' });
+
+      await svc.chat({ message: 'What do you know?' });
+      const systemMsg = ai.chat.mock.calls[0][0][0];
+      expect(systemMsg.content).toContain('Ahmed');
+      expect(systemMsg.content).toContain('Big Deal');
+    });
+  });
 });

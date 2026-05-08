@@ -80,4 +80,45 @@ describe('EmbeddingsService.embedEntity', () => {
     const vectorArg = prisma.$executeRawUnsafe.mock.calls[0][4];
     expect(vectorArg).toMatch(/^\[[\d.,\-e]+\]$/);
   });
+
+  it('handles DB error on upsert gracefully', async () => {
+    const { svc, prisma } = buildSvc();
+    prisma.person.findUnique.mockResolvedValue({ fullName: 'Test', email: null, phone: null, title: null, companyName: null, industry: null });
+    prisma.$executeRawUnsafe.mockRejectedValue(new Error('pgvector extension not loaded'));
+    await expect(svc.embedEntity('ws_1', 'Person', 'p1')).rejects.toThrow('pgvector extension not loaded');
+  });
+
+  it('combines all Person fields into embed text', async () => {
+    const { svc, ai, prisma } = buildSvc();
+    prisma.person.findUnique.mockResolvedValue({
+      fullName: 'Ahmed Yousry',
+      email: 'ahmed@test.com',
+      phone: '+201234567890',
+      title: 'CTO',
+      companyName: 'TechCorp',
+      industry: 'Technology',
+    });
+    await svc.embedEntity('ws_1', 'Person', 'p1');
+    const text = ai.embed.mock.calls[0][0];
+    expect(text).toContain('Ahmed Yousry');
+    expect(text).toContain('ahmed@test.com');
+    expect(text).toContain('CTO');
+    expect(text).toContain('TechCorp');
+    expect(text).toContain('Technology');
+  });
+
+  it('handles Person with null optional fields', async () => {
+    const { svc, ai, prisma } = buildSvc();
+    prisma.person.findUnique.mockResolvedValue({
+      fullName: 'Minimal',
+      email: null,
+      phone: null,
+      title: null,
+      companyName: null,
+      industry: null,
+    });
+    await svc.embedEntity('ws_1', 'Person', 'p1');
+    expect(ai.embed).toHaveBeenCalled();
+    expect(prisma.$executeRawUnsafe).toHaveBeenCalled();
+  });
 });

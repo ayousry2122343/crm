@@ -110,4 +110,55 @@ describe('useAppToast', () => {
       }),
     );
   });
+
+  it('maps 401 to unauthorized message', () => {
+    withSetup(() => {
+      const { apiError } = useAppToast();
+      apiError({ response: { status: 401, data: {} } } as any);
+    });
+    expect(mockAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+        detail: expect.stringMatching(/session|login|unauthorized/i),
+      }),
+    );
+  });
+
+  it('maps 404 to not-found message', () => {
+    withSetup(() => {
+      const { apiError } = useAppToast();
+      apiError({ response: { status: 404, data: {} } } as any);
+    });
+    expect(mockAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+        detail: expect.stringMatching(/not found/i),
+      }),
+    );
+  });
+
+  it('maps 500 without server message to generic server error', () => {
+    withSetup(() => {
+      const { apiError } = useAppToast();
+      apiError({ response: { status: 500, data: {} } } as any);
+    });
+    expect(mockAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+        detail: expect.stringMatching(/server|unexpected|went wrong/i),
+      }),
+    );
+  });
+
+  it('falls back to unexpected error for unmapped status codes', () => {
+    withSetup(() => {
+      const { apiError } = useAppToast();
+      apiError({ response: { status: 418, data: {} } } as any);
+    });
+    expect(mockAdd).toHaveBeenCalledWith(
+      expect.objectContaining({
+        severity: 'error',
+      }),
+    );
+  });
 });

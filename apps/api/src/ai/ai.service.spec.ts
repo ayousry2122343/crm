@@ -70,3 +70,37 @@ describe('AIService.embed (mock)', () => {
     }
   });
 });
+
+describe('AIService edge-cases', () => {
+  it('chat delegates to the configured provider', async () => {
+    const { svc, mockProvider } = buildSvc();
+    jest.spyOn(mockProvider, 'chat');
+    await svc.chat([{ role: 'user', content: 'Hi' }]);
+    expect(mockProvider.chat).toHaveBeenCalledWith(
+      [{ role: 'user', content: 'Hi' }],
+      undefined,
+    );
+  });
+
+  it('embed delegates to the configured provider', async () => {
+    const { svc, mockProvider } = buildSvc();
+    jest.spyOn(mockProvider, 'embed');
+    await svc.embed('text');
+    expect(mockProvider.embed).toHaveBeenCalledWith('text');
+  });
+
+  it('chat passes options to provider', async () => {
+    const { svc, mockProvider } = buildSvc();
+    jest.spyOn(mockProvider, 'chat');
+    await svc.chat([{ role: 'user', content: 'test' }], { responseFormat: 'json' });
+    expect(mockProvider.chat).toHaveBeenCalledWith(
+      [{ role: 'user', content: 'test' }],
+      { responseFormat: 'json' },
+    );
+  });
+
+  it('defaults to mock provider for unknown provider name', () => {
+    const { svc } = buildSvc('unknown-provider');
+    expect(svc.providerName).toBe('mock');
+  });
+});

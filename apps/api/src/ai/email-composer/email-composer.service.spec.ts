@@ -120,4 +120,36 @@ describe('EmailComposerService.compose', () => {
     const { svc } = buildSvc();
     await expect(svc.compose({ intent: 'test', language: 'en' })).rejects.toThrow('no tenant context');
   });
+
+  it('passes formal tone to AI prompt', async () => {
+    const { svc, tenant, ai } = buildSvc();
+    await tenant.run(ctx(), async () => {
+      await svc.compose({ intent: 'Meeting request', language: 'en', tone: 'formal' });
+      const prompt = ai.chat.mock.calls[0][0][0].content;
+      expect(prompt).toContain('formal');
+    });
+  });
+
+  it('handles Arabic language request', async () => {
+    const { svc, tenant, ai } = buildSvc();
+    await tenant.run(ctx(), async () => {
+      await svc.compose({ intent: 'ترحيب', language: 'ar' });
+      const prompt = ai.chat.mock.calls[0][0][0].content;
+      expect(prompt).toContain('Arabic');
+    });
+  });
+
+  it('handles entity context when record not found', async () => {
+    const { svc, tenant, prisma, ai } = buildSvc();
+    prisma.person.findUnique.mockResolvedValue(null);
+    await tenant.run(ctx(), async () => {
+      const result = await svc.compose({
+        intent: 'Follow up',
+        language: 'en',
+        recordRef: { entityType: 'Person', entityId: 'p_missing' },
+      });
+      expect(result.subject).toBe('Hello');
+      expect(ai.chat).toHaveBeenCalled();
+    });
+  });
 });
