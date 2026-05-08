@@ -168,6 +168,16 @@ export const router = createRouter({
           component: () => import('@/views/automation/WebhooksAdmin.vue'),
         },
         {
+          path: 'settings/products',
+          name: 'settings-products',
+          component: () => import('@/views/settings/Products.vue'),
+        },
+        {
+          path: 'settings/pricebooks',
+          name: 'settings-pricebooks',
+          component: () => import('@/views/settings/Pricebooks.vue'),
+        },
+        {
           path: 'reports',
           name: 'reports',
           component: () => import('@/views/reports/ReportsIndex.vue'),

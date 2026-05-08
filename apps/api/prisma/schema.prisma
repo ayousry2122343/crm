@@ -52,6 +52,10 @@ model Workspace {
   dashboards              Dashboard[]
   embeddings              Embedding[]
   aiUsages                AIUsage[]
+  productCategories       ProductCategory[]
+  products                Product[]
+  pricebooks              Pricebook[]
+  pricebookEntries        PricebookEntry[]
 
   @@index([slug])
 }
@@ -791,4 +795,89 @@ model AIUsage {
   createdAt   DateTime @default(now())
 
   @@index([workspaceId, createdAt])
+}
+
+// ─── Sprint 6: Products + Pricebooks ───
+
+model ProductCategory {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  labelAr     String?
+  labelEn     String?
+  parentId    String?
+  parent      ProductCategory? @relation("CategoryHierarchy", fields: [parentId], references: [id])
+  children    ProductCategory[] @relation("CategoryHierarchy")
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+
+  products    Product[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+}
+
+model Product {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  labelAr     String?
+  labelEn     String?
+  sku         String?
+  description String?   @db.Text
+  unitPrice   Decimal   @default(0) @db.Decimal(15, 2)
+  currency    String    @default("EGP") @db.Char(3)
+  isActive    Boolean   @default(true)
+  categoryId  String?
+  category    ProductCategory? @relation(fields: [categoryId], references: [id])
+  customFields Json     @default("{}")
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String?
+  updatedById String?
+
+  pricebookEntries PricebookEntry[]
+
+  @@unique([workspaceId, sku])
+  @@index([workspaceId, isActive])
+  @@index([workspaceId, categoryId])
+  @@index([workspaceId, archivedAt])
+}
+
+model Pricebook {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  isDefault   Boolean   @default(false)
+  currency    String    @default("EGP") @db.Char(3)
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  entries     PricebookEntry[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId])
+}
+
+model PricebookEntry {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  pricebookId String
+  pricebook   Pricebook @relation(fields: [pricebookId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+  unitPrice   Decimal   @db.Decimal(15, 2)
+  minQty      Int       @default(1)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@unique([pricebookId, productId, minQty])
+  @@index([workspaceId, pricebookId])
+  @@index([workspaceId, productId])
 }

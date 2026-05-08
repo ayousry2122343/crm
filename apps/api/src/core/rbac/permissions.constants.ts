@@ -37,6 +37,12 @@ export const PERMISSIONS = {
   REPORT_READ: 'report:read',
   DASHBOARD_WRITE: 'dashboard:write',
   AI_USE: 'ai:use',
+  PRODUCT_READ: 'product:read',
+  PRODUCT_WRITE: 'product:write',
+  PRODUCT_DELETE: 'product:delete',
+  PRICEBOOK_READ: 'pricebook:read',
+  PRICEBOOK_WRITE: 'pricebook:write',
+  PRICEBOOK_DELETE: 'pricebook:delete',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

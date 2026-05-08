@@ -28,6 +28,8 @@ import { WebhookModule } from './automation/webhooks/webhook.module';
 import { ValidationModule } from './automation/validation/validation.module';
 import { ReportsModule } from './reports/report.module';
 import { AIModule } from './ai/ai.module';
+import { ProductModule } from './crm/products/product.module';
+import { PricebookModule } from './crm/pricebooks/pricebook.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -68,6 +70,8 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     ValidationModule,
     ReportsModule,
     AIModule,
+    ProductModule,
+    PricebookModule,
     HealthModule,
   ],
   providers: [

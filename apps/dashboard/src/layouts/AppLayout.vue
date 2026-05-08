@@ -84,6 +84,12 @@ async function handleLogout() {
         <router-link to="/settings/won-lost-reasons" class="nav-link" data-test="nav-won-lost">
           <i class="pi pi-check-circle mr-2" />{{ t('nav.wonLostReasons') }}
         </router-link>
+        <router-link to="/settings/products" class="nav-link" data-test="nav-products">
+          <i class="pi pi-box mr-2" />{{ t('nav.products') }}
+        </router-link>
+        <router-link to="/settings/pricebooks" class="nav-link" data-test="nav-pricebooks">
+          <i class="pi pi-money-bill mr-2" />{{ t('nav.pricebooks') }}
+        </router-link>
         <router-link to="/settings/email-templates" class="nav-link" data-test="nav-email-templates">
           <i class="pi pi-envelope mr-2" />{{ t('nav.emailTemplates') }}
         </router-link>
