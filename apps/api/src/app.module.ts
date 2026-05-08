@@ -44,6 +44,7 @@ import { CommentModule } from './comments/comment.module';
 import { ForecastModule } from './crm/forecasts/forecast.module';
 import { GoalModule } from './crm/goals/goal.module';
 import { ScoringModule } from './crm/scoring/scoring.module';
+import { TicketModule } from './crm/tickets/ticket.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -108,6 +109,7 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     ForecastModule,
     GoalModule,
     ScoringModule,
+    TicketModule,
     HealthModule,
   ],
   providers: [
