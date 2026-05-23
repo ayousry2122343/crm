@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import { authApi, type AuthUser, type AuthWorkspace } from '../api/auth';
+import { authApi, type AuthUser, type AuthWorkspace, type TwoFactorChallenge } from '../api/auth';
 import { clearTokens, setTokens, getRefreshToken } from '../api/client';
 
 export const useAuthStore = defineStore('auth', () => {
@@ -27,8 +27,11 @@ export const useAuthStore = defineStore('auth', () => {
     email: string;
     password: string;
     workspaceSlug: string;
-  }): Promise<void> {
+  }): Promise<TwoFactorChallenge | void> {
     const r = await authApi.login(payload);
+    if ('requiresTwoFactor' in r && r.requiresTwoFactor) {
+      return r;
+    }
     user.value = r.user;
     workspace.value = r.workspace;
     refreshToken.value = r.refreshToken;

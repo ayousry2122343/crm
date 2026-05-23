@@ -46,6 +46,20 @@ import { GoalModule } from './crm/goals/goal.module';
 import { ScoringModule } from './crm/scoring/scoring.module';
 import { TicketModule } from './crm/tickets/ticket.module';
 import { QueueModule } from './crm/queues/queue.module';
+import { SLAModule } from './crm/sla/sla.module';
+import { MacroModule } from './crm/macros/macro.module';
+import { CSATModule } from './crm/csat/csat.module';
+import { KBModule } from './crm/kb/kb.module';
+import { EmailToCaseModule } from './crm/email-to-case/email-to-case.module';
+import { ServiceDashboardModule } from './crm/service-dashboard/service-dashboard.module';
+import { ChatModule } from './crm/chat/chat.module';
+import { CrmGraphQLModule } from './graphql/graphql.module';
+import { MCPModule } from './mcp/mcp.module';
+import { ApiKeyModule } from './core/api-keys/api-key.module';
+import { CurrencyModule } from './core/currency/currency.module';
+import { SavedReportModule } from './reports/saved-reports/saved-report.module';
+import { BrandingModule } from './core/branding/branding.module';
+import { ChannelModule } from './integrations/channels/channel.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -112,6 +126,20 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     ScoringModule,
     TicketModule,
     QueueModule,
+    SLAModule,
+    MacroModule,
+    CSATModule,
+    KBModule,
+    EmailToCaseModule,
+    ServiceDashboardModule,
+    ChatModule,
+    CrmGraphQLModule,
+    MCPModule,
+    ApiKeyModule,
+    CurrencyModule,
+    SavedReportModule,
+    BrandingModule,
+    ChannelModule,
     HealthModule,
   ],
   providers: [

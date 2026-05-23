@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import { useAuth } from '@/composables/useAuth';
 import { useLocale } from '@/composables/useLocale';
+import { useBranding } from '@/composables/useBranding';
 import { useRouter } from 'vue-router';
 import Button from 'primevue/button';
 import { useI18n } from 'vue-i18n';
@@ -13,8 +14,13 @@ const auth = useAuth();
 const router = useRouter();
 const { t } = useI18n();
 const { locale, setLocale } = useLocale();
+const { branding, load: loadBranding } = useBranding();
 const searchRef = ref<InstanceType<typeof GlobalSearch> | null>(null);
 const copilotVisible = ref(false);
+
+onMounted(() => {
+  loadBranding();
+});
 
 async function handleLogout() {
   await auth.store.logout();
@@ -24,10 +30,21 @@ async function handleLogout() {
 
 <template>
   <div class="min-h-screen flex bg-slate-50">
-    <aside class="w-60 bg-slate-900 text-white p-4 flex-shrink-0">
-      <h2 class="text-lg font-bold mb-6">
-        {{ auth.workspace.value?.name ?? t('app.title') }}
-      </h2>
+    <aside
+      class="w-60 text-white p-4 flex-shrink-0"
+      :style="{ backgroundColor: branding.secondaryColor }"
+    >
+      <div class="flex items-center gap-2 mb-6">
+        <img
+          v-if="branding.logo"
+          :src="branding.logo"
+          class="w-8 h-8 rounded object-contain"
+          alt="Logo"
+        />
+        <h2 class="text-lg font-bold">
+          {{ branding.companyName || auth.workspace.value?.name || t('app.title') }}
+        </h2>
+      </div>
       <nav class="flex flex-col gap-1">
         <router-link to="/dashboard" class="nav-link" data-test="nav-home">
           <i class="pi pi-home mr-2" />{{ t('nav.home') }}
@@ -59,6 +76,9 @@ async function handleLogout() {
         <router-link to="/reports" class="nav-link" data-test="nav-reports">
           <i class="pi pi-chart-bar mr-2" />{{ t('nav.reports') }}
         </router-link>
+        <router-link to="/reports/saved" class="nav-link" data-test="nav-saved-reports">
+          <i class="pi pi-file-export mr-2" />{{ t('nav.savedReports') }}
+        </router-link>
         <router-link to="/dashboards" class="nav-link" data-test="nav-dashboards">
           <i class="pi pi-th-large mr-2" />{{ t('nav.dashboards') }}
         </router-link>
@@ -79,6 +99,15 @@ async function handleLogout() {
         </div>
         <router-link to="/tickets" class="nav-link" data-test="nav-tickets">
           <i class="pi pi-ticket mr-2" />{{ t('nav.tickets') }}
+        </router-link>
+        <router-link to="/kb" class="nav-link" data-test="nav-kb">
+          <i class="pi pi-book mr-2" />{{ t('nav.kb') }}
+        </router-link>
+        <router-link to="/chat" class="nav-link" data-test="nav-chat">
+          <i class="pi pi-comments mr-2" />{{ t('nav.chat') }}
+        </router-link>
+        <router-link to="/service-dashboard" class="nav-link" data-test="nav-service-dashboard">
+          <i class="pi pi-chart-bar mr-2" />{{ t('nav.serviceDashboard') }}
         </router-link>
         <div class="mt-4 mb-2 text-xs text-slate-400 uppercase tracking-wider">
           {{ t('nav.automationGroup') }}
@@ -117,6 +146,9 @@ async function handleLogout() {
         <router-link to="/settings/pricebooks" class="nav-link" data-test="nav-pricebooks">
           <i class="pi pi-money-bill mr-2" />{{ t('nav.pricebooks') }}
         </router-link>
+        <router-link to="/settings/currency" class="nav-link" data-test="nav-currency">
+          <i class="pi pi-wallet mr-2" />{{ t('nav.currency') }}
+        </router-link>
         <router-link to="/settings/email-templates" class="nav-link" data-test="nav-email-templates">
           <i class="pi pi-envelope mr-2" />{{ t('nav.emailTemplates') }}
         </router-link>
@@ -134,6 +166,30 @@ async function handleLogout() {
         </router-link>
         <router-link to="/settings/queues" class="nav-link" data-test="nav-queues">
           <i class="pi pi-inbox mr-2" />{{ t('nav.queues') }}
+        </router-link>
+        <router-link to="/settings/business-hours" class="nav-link" data-test="nav-business-hours">
+          <i class="pi pi-clock mr-2" />{{ t('nav.businessHours') }}
+        </router-link>
+        <router-link to="/settings/sla-policies" class="nav-link" data-test="nav-sla-policies">
+          <i class="pi pi-shield mr-2" />{{ t('nav.slaPolicies') }}
+        </router-link>
+        <router-link to="/settings/macros" class="nav-link" data-test="nav-macros">
+          <i class="pi pi-file mr-2" />{{ t('nav.macros') }}
+        </router-link>
+        <router-link to="/settings/audit-trail" class="nav-link" data-test="nav-audit-trail">
+          <i class="pi pi-history mr-2" />{{ t('nav.auditTrail') }}
+        </router-link>
+        <router-link to="/settings/csat" class="nav-link" data-test="nav-csat">
+          <i class="pi pi-star mr-2" />{{ t('nav.csat') }}
+        </router-link>
+        <router-link to="/settings/email-to-case" class="nav-link" data-test="nav-email-to-case">
+          <i class="pi pi-envelope mr-2" />{{ t('nav.emailToCase') }}
+        </router-link>
+        <router-link to="/settings/branding" class="nav-link" data-test="nav-branding">
+          <i class="pi pi-palette mr-2" />{{ t('nav.branding') }}
+        </router-link>
+        <router-link to="/settings/channels" class="nav-link" data-test="nav-channels">
+          <i class="pi pi-comments mr-2" />{{ t('nav.channels') }}
         </router-link>
       </nav>
     </aside>

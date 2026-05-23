@@ -80,6 +80,23 @@ model Workspace {
   scoringRules            ScoringRule[]
   tickets                 Ticket[]
   queues                  Queue[]
+  businessHours           BusinessHours[]
+  slaPolicies             SLAPolicy[]
+  macros                  Macro[]
+  satisfactionRatings     SatisfactionRating[]
+  kbCategories            KBCategory[]
+  kbArticles              KBArticle[]
+  emailToCaseConfigs      EmailToCaseConfig[]
+  chatSessions            ChatSession[]
+  require2FA              Boolean       @default(false)
+  supportedCurrencies     String[]      @default(["EGP", "USD", "SAR", "AED"])
+  twoFactorSecrets        TwoFactorSecret[]
+  apiKeys                 ApiKey[]
+  currencyRates           CurrencyRate[]
+  savedReports            SavedReport[]
+  emailEvents             EmailEvent[]
+  channelConfigs          ChannelConfig[]
+  channelMessages         ChannelMessage[]
 
   @@index([slug])
 }
@@ -127,6 +144,10 @@ model User {
   forecastEntries         ForecastEntry[]  @relation("ForecastEntries")
   goalsOwned              Goal[]           @relation("GoalOwner")
   assignedTickets         Ticket[] @relation("TicketAssignee")
+  assignedChats           ChatSession[] @relation("ChatAssignee")
+  twoFactorSecret         TwoFactorSecret?
+  apiKeys                 ApiKey[]
+  savedReports            SavedReport[]
 
   @@unique([workspaceId, emailNormalized])
   @@index([emailNormalized])
@@ -136,6 +157,53 @@ enum UserStatus {
   ACTIVE
   INVITED
   DISABLED
+}
+
+model TwoFactorSecret {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  userId      String    @unique
+  user        User      @relation(fields: [userId], references: [id])
+  secret      String
+  backupCodes String[]
+  enabledAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId])
+}
+
+model ApiKey {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  keyHash     String    @unique
+  prefix      String
+  scopes      String[]
+  lastUsedAt  DateTime?
+  expiresAt   DateTime?
+  revokedAt   DateTime?
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id])
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId])
+  @@index([prefix])
+}
+
+model CurrencyRate {
+  id            String    @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace @relation(fields: [workspaceId], references: [id])
+  fromCurrency  String    @db.Char(3)
+  toCurrency    String    @db.Char(3)
+  rate          Decimal   @db.Decimal(18, 8)
+  effectiveDate DateTime  @default(now())
+  createdAt     DateTime  @default(now())
+
+  @@unique([workspaceId, fromCurrency, toCurrency, effectiveDate])
+  @@index([workspaceId, fromCurrency, toCurrency])
 }
 
 model Team {
@@ -394,6 +462,8 @@ model Person {
   portalUsers            PortalUser[]
   ticketsAsContact        Ticket[] @relation("TicketContact")
   ticketsAsCompany        Ticket[] @relation("TicketCompany")
+  satisfactionRatings     SatisfactionRating[] @relation("SatisfactionContact")
+  channelMessages         ChannelMessage[] @relation("PersonChannelMessages")
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -644,21 +714,26 @@ model EmailTemplate {
 }
 
 model OutboundEmail {
-  id          String           @id @default(cuid())
-  workspaceId String
-  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
-  toAddress   String
-  fromAddress String?
-  subject     String
-  body        String           @db.Text
-  templateId  String?
-  entityType  String?
-  entityId    String?
-  status      OutboundEmailStatus @default(QUEUED)
+  id              String              @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace           @relation(fields: [workspaceId], references: [id])
+  toAddress       String
+  fromAddress     String?
+  subject         String
+  body            String              @db.Text
+  templateId      String?
+  entityType      String?
+  entityId        String?
+  status          OutboundEmailStatus @default(QUEUED)
   providerMessageId String?
-  error       String?
-  sentAt      DateTime?
-  createdAt   DateTime         @default(now())
+  error           String?
+  sentAt          DateTime?
+  openedAt        DateTime?
+  openCount       Int                 @default(0)
+  clickCount      Int                 @default(0)
+  lastClickedAt   DateTime?
+  emailEvents     EmailEvent[]
+  createdAt       DateTime            @default(now())
 
   @@index([workspaceId, entityType, entityId])
   @@index([workspaceId, status])
@@ -669,6 +744,26 @@ enum OutboundEmailStatus {
   SENDING
   SENT
   FAILED
+}
+
+enum EmailEventType {
+  OPEN
+  CLICK
+}
+
+model EmailEvent {
+  id              String         @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id])
+  outboundEmailId String
+  outboundEmail   OutboundEmail  @relation(fields: [outboundEmailId], references: [id])
+  type            EmailEventType
+  url             String?
+  ipAddress       String?
+  userAgent       String?
+  createdAt       DateTime       @default(now())
+
+  @@index([outboundEmailId, type])
 }
 
 model Form {
@@ -682,11 +777,13 @@ model Form {
   fields       Json
   mappings     Json      @default("{}")
   successMessage Json?
-  useHoneypot  Boolean   @default(true)
-  rateLimit    Int       @default(5)
-  archivedAt   DateTime?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  useHoneypot    Boolean   @default(true)
+  rateLimit      Int       @default(5)
+  createTicket   Boolean   @default(false)
+  ticketQueueId  String?
+  archivedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   submissions  FormSubmission[]
 
@@ -1596,9 +1693,59 @@ model Queue {
   updatedAt      DateTime       @updatedAt
   createdById    String
   tickets        Ticket[]
+  chatSessions   ChatSession[]
 
   @@unique([workspaceId, name])
   @@index([workspaceId, archivedAt])
+}
+
+// --- Sprint 24: SLA ---
+
+model BusinessHours {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  name        String
+  timezone    String    @default("Asia/Riyadh")
+  schedule    Json
+  holidays    Json      @default("[]")
+  isDefault   Boolean   @default(false)
+  archivedAt  DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  createdById String
+
+  slaPolices  SLAPolicy[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, archivedAt])
+}
+
+model SLAPolicy {
+  id              String        @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id])
+  name            String
+  description     String?
+  isDefault       Boolean       @default(false)
+  businessHoursId String
+  businessHours   BusinessHours @relation(fields: [businessHoursId], references: [id])
+  rules           Json
+  archivedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  createdById     String
+
+  tickets         Ticket[]
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, archivedAt])
+}
+
+enum SLABreachAction {
+  NOTIFY
+  ESCALATE
+  REASSIGN
 }
 
 // --- Sprint 22: Tickets ---
@@ -1648,6 +1795,12 @@ model Ticket {
   team         Team?          @relation(fields: [teamId], references: [id])
   queueId      String?
   queue        Queue?         @relation(fields: [queueId], references: [id])
+  slaPolicyId              String?
+  slaPolicy                SLAPolicy?  @relation(fields: [slaPolicyId], references: [id])
+  slaFirstResponseDue      DateTime?
+  slaResolutionDue         DateTime?
+  slaFirstResponseBreached Boolean     @default(false)
+  slaResolutionBreached    Boolean     @default(false)
   tags         Json           @default("[]")
   customFields Json           @default("{}")
   firstResponseAt DateTime?
@@ -1658,10 +1811,293 @@ model Ticket {
   updatedAt       DateTime     @updatedAt
   createdById     String
 
+  sourceEmailMessageId   String?
+  sourceFormSubmissionId String?
+
+  satisfactionRatings SatisfactionRating[]
+
   @@unique([workspaceId, ticketNumber])
   @@index([workspaceId, status])
   @@index([workspaceId, assigneeId])
   @@index([workspaceId, contactId])
   @@index([workspaceId, priority])
   @@index([workspaceId, archivedAt])
+  @@index([workspaceId, channel])
+}
+
+// --- Sprint 25: Macros ---
+
+enum MacroVisibility {
+  PERSONAL
+  TEAM
+  GLOBAL
+}
+
+model Macro {
+  id          String          @id @default(cuid())
+  workspaceId String
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id])
+  name        String
+  content     String          @db.Text
+  category    String?
+  shortcut    String?
+  visibility  MacroVisibility @default(PERSONAL)
+  createdById String
+  archivedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@unique([workspaceId, name])
+  @@index([workspaceId, archivedAt])
+  @@index([workspaceId, visibility])
+}
+
+// --- Sprint 25: CSAT ---
+
+model SatisfactionRating {
+  id          String    @id @default(cuid())
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  ticketId    String
+  ticket      Ticket    @relation(fields: [ticketId], references: [id])
+  contactId   String?
+  contact     Person?   @relation("SatisfactionContact", fields: [contactId], references: [id])
+  rating      Int
+  comment     String?   @db.Text
+  token       String    @unique
+  respondedAt DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([workspaceId, ticketId])
+  @@index([workspaceId, createdAt])
+  @@index([token])
+}
+
+// --- Sprint 25: Knowledge Base ---
+
+enum ArticleStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model KBCategory {
+  id          String       @id @default(cuid())
+  workspaceId String
+  workspace   Workspace    @relation(fields: [workspaceId], references: [id])
+  name        String
+  slug        String
+  description String?
+  parentId    String?
+  parent      KBCategory?  @relation("KBCategoryHierarchy", fields: [parentId], references: [id])
+  children    KBCategory[] @relation("KBCategoryHierarchy")
+  order       Int          @default(0)
+  archivedAt  DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  createdById String
+
+  articles    KBArticle[]
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId, archivedAt])
+}
+
+model KBArticle {
+  id              String        @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id])
+  categoryId      String?
+  category        KBCategory?   @relation(fields: [categoryId], references: [id])
+  title           String
+  slug            String
+  content         String        @db.Text
+  status          ArticleStatus @default(DRAFT)
+  viewCount       Int           @default(0)
+  helpfulCount    Int           @default(0)
+  notHelpfulCount Int           @default(0)
+  publishedAt     DateTime?
+  archivedAt      DateTime?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  createdById     String
+
+  @@unique([workspaceId, slug])
+  @@index([workspaceId, status])
+  @@index([workspaceId, categoryId])
+  @@index([workspaceId, archivedAt])
+}
+
+// --- Sprint 26: Email-to-Case + Web-to-Case ---
+
+model EmailToCaseConfig {
+  id              String    @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace @relation(fields: [workspaceId], references: [id])
+  supportEmail    String
+  isActive        Boolean   @default(true)
+  defaultQueueId  String?
+  defaultPriority String    @default("MEDIUM")
+  autoReply       Boolean   @default(false)
+  autoReplyTemplateId String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  createdById     String
+
+  @@unique([workspaceId, supportEmail])
+  @@index([workspaceId, isActive])
+}
+
+// --- Sprint 28: Live Chat / Messaging ---
+
+enum ChatStatus {
+  WAITING
+  ACTIVE
+  ENDED
+}
+
+model ChatSession {
+  id           String      @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace   @relation(fields: [workspaceId], references: [id])
+  visitorName  String
+  visitorEmail String?
+  status       ChatStatus  @default(WAITING)
+  assigneeId   String?
+  assignee     User?       @relation("ChatAssignee", fields: [assigneeId], references: [id])
+  queueId      String?
+  queue        Queue?      @relation(fields: [queueId], references: [id])
+  ticketId     String?     @unique
+  metadata     Json        @default("{}")
+  startedAt    DateTime    @default(now())
+  endedAt      DateTime?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+
+  messages     ChatMessage[]
+
+  @@index([workspaceId, status])
+  @@index([workspaceId, assigneeId])
+}
+
+model ChatMessage {
+  id          String      @id @default(cuid())
+  sessionId   String
+  session     ChatSession @relation(fields: [sessionId], references: [id])
+  senderType  String      // "visitor" | "agent" | "system"
+  senderId    String?
+  content     String      @db.Text
+  createdAt   DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+enum ReportType {
+  TABULAR
+  GROUPED
+  SUMMARY
+}
+
+enum ChartType {
+  BAR
+  LINE
+  PIE
+  DOUGHNUT
+}
+
+model SavedReport {
+  id           String     @id @default(cuid())
+  workspaceId  String
+  workspace    Workspace  @relation(fields: [workspaceId], references: [id])
+  name         String
+  description  String?
+  entityType   String
+  reportType   ReportType @default(TABULAR)
+  columns      Json       @default("[]")
+  filters      Json       @default("{}")
+  groupBy      String[]   @default([])
+  aggregations Json       @default("[]")
+  sortBy       Json       @default("[]")
+  chartType    ChartType?
+  chartConfig  Json?
+  isShared     Boolean    @default(false)
+  createdById  String
+  createdBy    User       @relation(fields: [createdById], references: [id])
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@index([workspaceId, createdById])
+}
+
+// --- Sprint 36: Channel Adapter + SMS ---
+
+enum ChannelProvider {
+  TWILIO
+  WHATSAPP_CLOUD
+  SMS_GENERIC
+}
+
+enum MessageDirection {
+  IN
+  OUT
+}
+
+enum ContentType {
+  TEXT
+  IMAGE
+  DOCUMENT
+  TEMPLATE
+  LOCATION
+}
+
+enum MessageStatus {
+  QUEUED
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+model ChannelConfig {
+  id            String          @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace       @relation(fields: [workspaceId], references: [id])
+  provider      ChannelProvider
+  name          String
+  credentials   Json
+  phoneNumber   String
+  webhookSecret String
+  isActive      Boolean         @default(true)
+  createdById   String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  messages      ChannelMessage[]
+
+  @@index([workspaceId, isActive])
+}
+
+model ChannelMessage {
+  id              String           @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace        @relation(fields: [workspaceId], references: [id])
+  channelConfigId String
+  channelConfig   ChannelConfig    @relation(fields: [channelConfigId], references: [id])
+  direction       MessageDirection
+  from            String
+  to              String
+  content         String           @db.Text
+  contentType     ContentType      @default(TEXT)
+  status          MessageStatus    @default(QUEUED)
+  externalId      String?
+  errorMessage    String?
+  metadata        Json             @default("{}")
+  personId        String?
+  person          Person?          @relation("PersonChannelMessages", fields: [personId], references: [id])
+  conversationId  String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  @@index([workspaceId, personId])
+  @@index([workspaceId, channelConfigId, createdAt])
 }

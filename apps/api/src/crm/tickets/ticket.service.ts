@@ -8,6 +8,7 @@ import { TenantContextService } from '../../core/tenant/tenant-context.service';
 import { AuditService } from '../../core/audit/audit.service';
 import { NotificationService } from '../../notifications/notification.service';
 import { QueueService } from '../queues/queue.service';
+import { SLAService } from '../sla/sla.service';
 import type { CreateTicketDto } from './dto/create-ticket.dto';
 import type { UpdateTicketDto } from './dto/update-ticket.dto';
 import type { QueryTicketDto } from './dto/query-ticket.dto';
@@ -37,6 +38,7 @@ export class TicketService {
     private readonly audit: AuditService,
     private readonly notification: NotificationService,
     private readonly queueService: QueueService,
+    private readonly slaService: SLAService,
   ) {}
 
   private requireWs(): string {
@@ -100,6 +102,8 @@ export class TicketService {
         link: `/tickets/${ticket.id}`,
       });
     }
+
+    try { await this.slaService.assignSLA(ticket); } catch {}
 
     return ticket;
   }
@@ -165,6 +169,11 @@ export class TicketService {
     });
 
     await this.audit.logUpdate('Ticket', id, before as any, data);
+
+    if (dto.priority !== undefined && dto.priority !== (before as any).priority) {
+      try { await this.slaService.assignSLA(updated); } catch {}
+    }
+
     return updated;
   }
 

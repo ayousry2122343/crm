@@ -1,5 +1,6 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import { MotionPlugin } from '@vueuse/motion';
 import PrimeVue from 'primevue/config';
 import ToastService from 'primevue/toastservice';
 import Aura from '@primevue/themes/aura';
@@ -13,6 +14,7 @@ const app = createApp(App);
 app.use(createPinia());
 app.use(router);
 app.use(i18n);
+app.use(MotionPlugin);
 app.use(PrimeVue, {
   theme: { preset: Aura, options: { darkModeSelector: '.crm-dark' } },
 });

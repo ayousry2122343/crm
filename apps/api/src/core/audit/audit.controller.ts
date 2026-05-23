@@ -1,4 +1,4 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuditService } from './audit.service';
 import { PermissionGuard } from '../rbac/permission.guard';
@@ -11,6 +11,18 @@ import { PERMISSIONS } from '../rbac/permissions.constants';
 @Controller('audit')
 export class AuditController {
   constructor(private readonly audit: AuditService) {}
+
+  @RequiresPermission(PERMISSIONS.AUDIT_READ)
+  @Get()
+  dashboard(
+    @Query('entityType') entityType?: string,
+    @Query('action') action?: string,
+    @Query('userId') userId?: string,
+    @Query('cursor') cursor?: string,
+    @Query('limit') limit?: string,
+  ) {
+    return this.audit.listAll({ entityType, action, userId, cursor, limit: limit ? +limit : undefined });
+  }
 
   @RequiresPermission(PERMISSIONS.AUDIT_READ)
   @Get(':entityType/:entityId')

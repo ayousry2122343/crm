@@ -77,6 +77,10 @@ async function load() {
   }
 }
 
+function isAtRisk(dueDate: string): boolean {
+  return new Date(dueDate).getTime() - Date.now() < 30 * 60 * 1000;
+}
+
 function goToDetail(ticket: Ticket) {
   router.push({ name: 'ticket-detail', params: { id: ticket.id } });
 }
@@ -173,6 +177,29 @@ onMounted(async () => {
       </Column>
       <Column :header="t('tickets.contact')">
         <template #body="{ data }">{{ data.contact?.fullName ?? '—' }}</template>
+      </Column>
+      <Column :header="t('sla.title')">
+        <template #body="{ data }">
+          <Tag
+            v-if="data.slaFirstResponseBreached || data.slaResolutionBreached"
+            value="Breached"
+            severity="danger"
+            data-test="sla-breached-tag"
+          />
+          <Tag
+            v-else-if="data.slaResolutionDue && isAtRisk(data.slaResolutionDue)"
+            value="At Risk"
+            severity="warn"
+            data-test="sla-at-risk-tag"
+          />
+          <Tag
+            v-else-if="data.slaResolutionDue"
+            value="On Track"
+            severity="success"
+            data-test="sla-on-track-tag"
+          />
+          <span v-else>—</span>
+        </template>
       </Column>
       <Column :header="t('tickets.createdAt')">
         <template #body="{ data }">

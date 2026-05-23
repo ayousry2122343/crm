@@ -1,11 +1,20 @@
 import { Test } from '@nestjs/testing';
 import { ConflictException, UnauthorizedException } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { TwoFactorService } from './two-factor.service';
 import { PrismaService } from '../../prisma/prisma.service';
 import { TenantContextService } from '../tenant/tenant-context.service';
 import { EmailService } from '../email/email.service';
 
 const emailMock = () => ({ send: jest.fn().mockResolvedValue({ messageId: 'm' }) });
+const twoFactorMock = () => ({
+  isEnabled: jest.fn().mockResolvedValue(false),
+  verifyCode: jest.fn().mockResolvedValue(true),
+  setup: jest.fn(),
+  confirm: jest.fn(),
+  disable: jest.fn(),
+  checkEnforcement: jest.fn(),
+});
 
 describe('AuthService.signUp', () => {
   let service: AuthService;
@@ -50,6 +59,7 @@ describe('AuthService.signUp', () => {
         TenantContextService,
         { provide: PrismaService, useValue: prisma },
         { provide: EmailService, useValue: email },
+        { provide: TwoFactorService, useValue: twoFactorMock() },
       ],
     }).compile();
     service = moduleRef.get(AuthService);
@@ -187,6 +197,7 @@ describe('AuthService.login + refresh + logout', () => {
         TenantContextService,
         { provide: PrismaService, useValue: prisma },
         { provide: EmailService, useValue: email },
+        { provide: TwoFactorService, useValue: twoFactorMock() },
       ],
     }).compile();
     service = moduleRef.get(AuthService);
@@ -312,6 +323,7 @@ describe('AuthService.requestEmailVerification + confirmEmailVerification', () =
         TenantContextService,
         { provide: PrismaService, useValue: prisma },
         { provide: EmailService, useValue: email },
+        { provide: TwoFactorService, useValue: twoFactorMock() },
       ],
     }).compile();
     service = moduleRef.get(AuthService);
@@ -394,6 +406,7 @@ describe('AuthService.requestPasswordReset + confirmPasswordReset', () => {
         TenantContextService,
         { provide: PrismaService, useValue: prisma },
         { provide: EmailService, useValue: email },
+        { provide: TwoFactorService, useValue: twoFactorMock() },
       ],
     }).compile();
     service = moduleRef.get(AuthService);
@@ -500,6 +513,7 @@ describe('AuthService edge-cases', () => {
         TenantContextService,
         { provide: PrismaService, useValue: prisma },
         { provide: EmailService, useValue: email },
+        { provide: TwoFactorService, useValue: twoFactorMock() },
       ],
     }).compile();
     service = moduleRef.get(AuthService);

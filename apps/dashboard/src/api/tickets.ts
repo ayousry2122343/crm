@@ -19,6 +19,12 @@ export interface Ticket {
   team?: { id: string; name: string };
   queueId?: string;
   queue?: { id: string; name: string; assignmentMode: string };
+  slaPolicyId?: string;
+  slaPolicy?: { id: string; name: string };
+  slaFirstResponseDue?: string;
+  slaResolutionDue?: string;
+  slaFirstResponseBreached?: boolean;
+  slaResolutionBreached?: boolean;
   tags: any[];
   customFields: Record<string, any>;
   firstResponseAt?: string;

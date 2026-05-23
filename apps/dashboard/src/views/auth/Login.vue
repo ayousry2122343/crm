@@ -20,7 +20,11 @@ async function submit() {
   error.value = null;
   loading.value = true;
   try {
-    await authStore.login({ ...form.value });
+    const result = await authStore.login({ ...form.value });
+    if (result?.requiresTwoFactor) {
+      router.push({ name: 'two-factor-verify', query: { token: result.tempToken } });
+      return;
+    }
     router.push({ name: 'dashboard' });
   } catch (e: unknown) {
     const err = e as { response?: { data?: { message?: string } }; message?: string };

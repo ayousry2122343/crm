@@ -43,6 +43,12 @@ export const router = createRouter({
           component: () => import('@/views/auth/AcceptInvite.vue'),
           meta: { public: true },
         },
+        {
+          path: 'two-factor',
+          name: 'two-factor-verify',
+          component: () => import('@/views/auth/TwoFactorVerify.vue'),
+          meta: { public: true },
+        },
       ],
     },
     {
@@ -64,6 +70,26 @@ export const router = createRouter({
           path: 'settings/users',
           name: 'settings-users',
           component: () => import('@/views/settings/Users.vue'),
+        },
+        {
+          path: 'settings/api-keys',
+          name: 'settings-api-keys',
+          component: () => import('@/views/settings/ApiKeysSettings.vue'),
+        },
+        {
+          path: 'settings/currency',
+          name: 'settings-currency',
+          component: () => import('@/views/settings/CurrencySettings.vue'),
+        },
+        {
+          path: 'settings/branding',
+          name: 'settings-branding',
+          component: () => import('@/views/settings/BrandingSettings.vue'),
+        },
+        {
+          path: 'settings/channels',
+          name: 'settings-channels',
+          component: () => import('@/views/settings/ChannelSettings.vue'),
         },
         {
           path: 'settings/custom-fields',
@@ -284,9 +310,92 @@ export const router = createRouter({
           component: () => import('@/views/settings/QueuesAdmin.vue'),
         },
         {
+          path: 'settings/business-hours',
+          name: 'settings-business-hours',
+          component: () => import('@/views/settings/BusinessHoursAdmin.vue'),
+        },
+        {
+          path: 'settings/sla-policies',
+          name: 'settings-sla-policies',
+          component: () => import('@/views/settings/SLAPoliciesAdmin.vue'),
+        },
+        {
+          path: 'settings/macros',
+          name: 'settings-macros',
+          component: () => import('@/views/settings/MacrosAdmin.vue'),
+        },
+        {
+          path: 'settings/audit-trail',
+          name: 'settings-audit-trail',
+          component: () => import('@/views/settings/AuditTrailDashboard.vue'),
+        },
+        {
+          path: 'settings/csat',
+          name: 'settings-csat',
+          component: () => import('@/views/settings/CSATDashboard.vue'),
+        },
+        {
+          path: 'settings/email-to-case',
+          name: 'settings-email-to-case',
+          component: () => import('@/views/settings/EmailToCaseAdmin.vue'),
+        },
+        {
+          path: 'chat',
+          name: 'chat-inbox',
+          component: () => import('@/views/service/ChatInbox.vue'),
+        },
+        {
+          path: 'service-dashboard',
+          name: 'service-dashboard',
+          component: () => import('@/views/service/ServiceDashboard.vue'),
+        },
+        {
+          path: 'kb',
+          name: 'kb',
+          component: () => import('@/views/kb/KBArticlesList.vue'),
+        },
+        {
+          path: 'kb/new',
+          name: 'kb-new',
+          component: () => import('@/views/kb/KBArticleEditor.vue'),
+        },
+        {
+          path: 'kb/:id',
+          name: 'kb-editor',
+          component: () => import('@/views/kb/KBArticleEditor.vue'),
+          props: true,
+        },
+        {
+          path: 'kb/categories',
+          name: 'kb-categories',
+          component: () => import('@/views/kb/KBCategoriesAdmin.vue'),
+        },
+        {
           path: 'reports',
           name: 'reports',
           component: () => import('@/views/reports/ReportsIndex.vue'),
+        },
+        {
+          path: 'reports/saved',
+          name: 'saved-reports',
+          component: () => import('@/views/reports/SavedReportsList.vue'),
+        },
+        {
+          path: 'reports/builder',
+          name: 'report-builder',
+          component: () => import('@/views/reports/ReportBuilder.vue'),
+        },
+        {
+          path: 'reports/builder/:id',
+          name: 'report-edit',
+          component: () => import('@/views/reports/ReportBuilder.vue'),
+          props: true,
+        },
+        {
+          path: 'reports/view/:id',
+          name: 'report-view',
+          component: () => import('@/views/reports/ReportView.vue'),
+          props: true,
         },
         {
           path: 'dashboards',

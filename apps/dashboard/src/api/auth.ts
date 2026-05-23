@@ -9,6 +9,13 @@ export type AuthResult = {
   refreshToken: string;
 };
 
+export type TwoFactorChallenge = {
+  requiresTwoFactor: true;
+  tempToken: string;
+};
+
+export type LoginResult = AuthResult | TwoFactorChallenge;
+
 export const authApi = {
   signUp: (body: {
     email: string;
@@ -17,7 +24,7 @@ export const authApi = {
     workspaceName: string;
   }) => api.post<AuthResult>('/auth/sign-up', body).then((r) => r.data),
   login: (body: { email: string; password: string; workspaceSlug: string }) =>
-    api.post<AuthResult>('/auth/login', body).then((r) => r.data),
+    api.post<LoginResult>('/auth/login', body).then((r) => r.data),
   logout: (refreshToken: string) =>
     api.post<{ ok: true }>('/auth/logout', { refreshToken }).then((r) => r.data),
   me: () =>

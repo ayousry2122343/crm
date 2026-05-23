@@ -4,6 +4,7 @@ import slugify from 'slugify';
 import { randomBytes, createHash } from 'node:crypto';
 import { PrismaService } from '../../prisma/prisma.service';
 import { EmailService } from '../email/email.service';
+import { TwoFactorService } from './two-factor.service';
 import { ALL_PERMISSIONS, PERMISSIONS } from '../rbac/permissions.constants';
 import { hashPassword, verifyPassword } from './password.util';
 import type { SignUpDto } from './dto/sign-up.dto';
@@ -18,6 +19,11 @@ export interface AuthResult extends AuthTokens {
   workspace: { id: string; slug: string; name: string };
 }
 
+export interface TwoFactorChallenge {
+  requiresTwoFactor: true;
+  tempToken: string;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
@@ -25,6 +31,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly email: EmailService,
+    private readonly twoFactor: TwoFactorService,
   ) {}
 
   async signUp(dto: SignUpDto): Promise<AuthResult> {
@@ -150,7 +157,7 @@ export class AuthService {
     return raw;
   }
 
-  async login(dto: { email: string; password: string; workspaceSlug: string }): Promise<AuthResult> {
+  async login(dto: { email: string; password: string; workspaceSlug: string }): Promise<AuthResult | TwoFactorChallenge> {
     const ws = await this.prisma.workspace.findUnique({ where: { slug: dto.workspaceSlug } });
     if (!ws) throw new UnauthorizedException('invalid credentials');
     const user = await this.prisma.user.findFirst({
@@ -161,12 +168,56 @@ export class AuthService {
     if (!ok) throw new UnauthorizedException('invalid credentials');
     if (user.status !== 'ACTIVE') throw new UnauthorizedException('user disabled');
 
+    const has2FA = await this.twoFactor.isEnabled(user.id);
+    if (has2FA) {
+      const tempToken = jwt.sign(
+        { sub: user.id, ws: ws.id, purpose: '2fa' },
+        process.env.JWT_ACCESS_SECRET!,
+        { expiresIn: '5m' },
+      );
+      return { requiresTwoFactor: true, tempToken };
+    }
+
     const accessToken = this.signAccessToken(user.id, ws.id);
     const refreshToken = await this.issueRefreshToken(user.id, ws.id);
     await this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
     return {
       user: { id: user.id, email: user.email, fullName: user.fullName, workspaceId: ws.id },
       workspace: { id: ws.id, slug: ws.slug, name: ws.name },
+      accessToken,
+      refreshToken,
+    };
+  }
+
+  async verifyTwoFactor(tempToken: string, code: string): Promise<AuthResult> {
+    let payload: any;
+    try {
+      payload = jwt.verify(tempToken, process.env.JWT_ACCESS_SECRET!);
+    } catch {
+      throw new UnauthorizedException('Invalid or expired temp token');
+    }
+
+    if (payload.purpose !== '2fa') {
+      throw new UnauthorizedException('Invalid token purpose');
+    }
+
+    const valid = await this.twoFactor.verifyCode(payload.sub, code);
+    if (!valid) {
+      throw new UnauthorizedException('Invalid 2FA code');
+    }
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: payload.sub },
+      include: { workspace: true },
+    });
+    if (!user) throw new UnauthorizedException();
+
+    const accessToken = this.signAccessToken(user.id, user.workspaceId);
+    const refreshToken = await this.issueRefreshToken(user.id, user.workspaceId);
+    await this.prisma.user.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
+    return {
+      user: { id: user.id, email: user.email, fullName: user.fullName, workspaceId: user.workspaceId },
+      workspace: { id: user.workspace.id, slug: user.workspace.slug, name: user.workspace.name },
       accessToken,
       refreshToken,
     };

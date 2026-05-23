@@ -29,14 +29,19 @@ function makeQueueService() {
   return { getNextAssignee: jest.fn().mockResolvedValue(null) };
 }
 
+function makeSlaService() {
+  return { assignSLA: jest.fn().mockResolvedValue(undefined) };
+}
+
 function buildSvc() {
   const prisma = makePrisma();
   const tenant = new TenantContextService();
   const audit = makeAudit();
   const notification = makeNotification();
   const queueSvc = makeQueueService();
-  const svc = new TicketService(prisma as any, tenant, audit as any, notification as any, queueSvc as any);
-  return { svc, tenant, prisma, audit, notification, queueSvc };
+  const slaSvc = makeSlaService();
+  const svc = new TicketService(prisma as any, tenant, audit as any, notification as any, queueSvc as any, slaSvc as any);
+  return { svc, tenant, prisma, audit, notification, queueSvc, slaSvc };
 }
 
 const ctx = (workspaceId = 'ws_1', userId = 'u_1') => ({

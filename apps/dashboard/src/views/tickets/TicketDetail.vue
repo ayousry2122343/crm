@@ -10,6 +10,9 @@ import { ticketsApi, type Ticket } from '@/api/tickets';
 import { useAppToast } from '@/composables/useAppToast';
 import CommentSection from '@/components/CommentSection.vue';
 import AttachmentList from '@/components/AttachmentList.vue';
+import SLABadge from '@/components/SLABadge.vue';
+import MacroSelector from '@/components/MacroSelector.vue';
+import { csatApi } from '@/api/csat';
 
 const props = defineProps<{ id: string }>();
 
@@ -20,6 +23,8 @@ const toast = useAppToast();
 
 const ticket = ref<Ticket | null>(null);
 const loading = ref(true);
+const macroRef = ref<InstanceType<typeof MacroSelector> | null>(null);
+const csatSending = ref(false);
 
 const statusSeverity: Record<string, string> = {
   NEW: 'info',
@@ -84,6 +89,27 @@ async function assignTo(assigneeId: string) {
   }
 }
 
+function onMacroApply(content: string) {
+  if (!ticket.value) return;
+  const desc = ticket.value.description ?? '';
+  ticketsApi.update(ticket.value.id, {
+    description: desc ? desc + '\n\n' + content : content,
+  }).then((updated) => { ticket.value = updated; toast.success(t('macros.applied')); });
+}
+
+async function sendCSAT() {
+  if (!ticket.value) return;
+  csatSending.value = true;
+  try {
+    await csatApi.send(ticket.value.id);
+    toast.success(t('csat.sent'));
+  } catch (e: any) {
+    toast.error(e?.response?.data?.message ?? 'Error');
+  } finally {
+    csatSending.value = false;
+  }
+}
+
 onMounted(load);
 </script>
 
@@ -112,6 +138,18 @@ onMounted(load);
         :severity="prioritySeverity[ticket.priority] ?? 'info'"
         data-test="ticket-priority"
       />
+      <SLABadge
+        v-if="ticket.slaFirstResponseDue || ticket.slaFirstResponseBreached"
+        :label="t('sla.firstResponse')"
+        :due-date="ticket.slaFirstResponseDue"
+        :breached="ticket.slaFirstResponseBreached"
+      />
+      <SLABadge
+        v-if="ticket.slaResolutionDue || ticket.slaResolutionBreached"
+        :label="t('sla.resolution')"
+        :due-date="ticket.slaResolutionDue"
+        :breached="ticket.slaResolutionBreached"
+      />
     </div>
 
     <div class="flex gap-2 mb-6" data-test="status-actions">
@@ -134,7 +172,26 @@ onMounted(load);
         severity="secondary"
         data-test="assign-btn"
       />
+      <Button
+        :label="t('macros.applyMacro')"
+        icon="pi pi-file"
+        size="small"
+        severity="secondary"
+        data-test="apply-macro-btn"
+        @click="macroRef?.open()"
+      />
+      <Button
+        v-if="ticket.status === 'RESOLVED' || ticket.status === 'CLOSED'"
+        :label="t('csat.sendSurvey')"
+        icon="pi pi-star"
+        size="small"
+        severity="secondary"
+        :loading="csatSending"
+        data-test="send-csat-btn"
+        @click="sendCSAT"
+      />
     </div>
+    <MacroSelector ref="macroRef" @apply="onMacroApply" />
 
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm">
       <div>
@@ -186,6 +243,10 @@ onMounted(load);
       <div>
         <div class="text-xs text-slate-500">{{ t('tickets.closedAt') }}</div>
         <div>{{ ticket.closedAt ? new Date(ticket.closedAt).toLocaleDateString() : '—' }}</div>
+      </div>
+      <div>
+        <div class="text-xs text-slate-500">{{ t('sla.policy') }}</div>
+        <div data-test="ticket-sla-policy">{{ ticket.slaPolicy?.name ?? '—' }}</div>
       </div>
     </div>
 
