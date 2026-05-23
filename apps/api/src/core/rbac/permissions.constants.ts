@@ -115,6 +115,12 @@ export const PERMISSIONS = {
   CONVERSATION_READ: 'conversation:read',
   CONVERSATION_WRITE: 'conversation:write',
   CONVERSATION_ASSIGN: 'conversation:assign',
+  AGENT_READ: 'agent:read',
+  AGENT_WRITE: 'agent:write',
+  CALENDAR_READ: 'calendar:read',
+  CALENDAR_WRITE: 'calendar:write',
+  BOOKING_READ: 'booking:read',
+  BOOKING_WRITE: 'booking:write',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

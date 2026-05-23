@@ -53,7 +53,11 @@
     "savedReports": "منشئ التقارير",
     "branding": "الهوية البصرية",
     "channels": "القنوات",
-    "conversations": "صندوق الوارد"
+    "conversations": "صندوق الوارد",
+    "agentSettings": "الوكيل الذكي",
+    "agentDashboard": "لوحة الوكيل",
+    "calendarAccounts": "مزامنة التقويم",
+    "bookingPages": "جدولة الاجتماعات"
   },
   "auth": {
     "fields": {
@@ -1130,5 +1134,53 @@
     "assign": "تعيين",
     "merge": "دمج",
     "inbox": "صندوق الوارد"
+  },
+  "agent": {
+    "title": "إعدادات الوكيل الذكي",
+    "createAgent": "إنشاء وكيل",
+    "name": "اسم الوكيل",
+    "type": "نوع الوكيل",
+    "provider": "مزود الذكاء",
+    "model": "النموذج",
+    "systemPrompt": "تعليمات النظام",
+    "maxTurns": "أقصى عدد محادثات قبل التصعيد",
+    "confidenceThreshold": "حد الثقة",
+    "dashboard": "لوحة الوكيل الذكي",
+    "totalSessions": "إجمالي الجلسات",
+    "activeSessions": "الجلسات النشطة",
+    "resolvedSessions": "الجلسات المحلولة",
+    "escalatedSessions": "الجلسات المُصعّدة",
+    "resolutionRate": "نسبة الحل",
+    "escalationRate": "نسبة التصعيد",
+    "handledByAI": "تتم معالجته بواسطة AI"
+  },
+  "calendar": {
+    "title": "حسابات التقويم",
+    "connectGoogle": "ربط تقويم Google",
+    "connectMicrosoft": "ربط تقويم Microsoft",
+    "syncStatus": "حالة المزامنة",
+    "lastSync": "آخر مزامنة",
+    "syncNow": "مزامنة الآن",
+    "direction": "اتجاه المزامنة",
+    "inbound": "وارد فقط",
+    "outbound": "صادر فقط",
+    "both": "ثنائي الاتجاه",
+    "synced": "تمت المزامنة"
+  },
+  "scheduler": {
+    "title": "صفحات الحجز",
+    "createPage": "إنشاء صفحة حجز",
+    "slug": "معرف الرابط",
+    "duration": "المدة (بالدقائق)",
+    "availability": "أوقات الإتاحة",
+    "timezone": "المنطقة الزمنية",
+    "buffer": "وقت الفاصل",
+    "maxPerDay": "أقصى عدد حجوزات يومياً",
+    "copyLink": "نسخ الرابط",
+    "embedSnippet": "كود التضمين",
+    "confirmed": "مؤكد",
+    "canceled": "ملغي",
+    "rescheduled": "مُعاد جدولته",
+    "noShow": "لم يحضر"
   }
 }

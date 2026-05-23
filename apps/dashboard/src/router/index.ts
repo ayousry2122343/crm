@@ -345,6 +345,21 @@ export const router = createRouter({
           component: () => import('@/views/settings/EmailToCaseAdmin.vue'),
         },
         {
+          path: 'settings/agent',
+          name: 'settings-agent',
+          component: () => import('@/views/settings/AgentConfig.vue'),
+        },
+        {
+          path: 'settings/calendar-accounts',
+          name: 'settings-calendar-accounts',
+          component: () => import('@/views/settings/CalendarAccounts.vue'),
+        },
+        {
+          path: 'settings/booking-pages',
+          name: 'settings-booking-pages',
+          component: () => import('@/views/settings/BookingPages.vue'),
+        },
+        {
           path: 'chat',
           name: 'chat-inbox',
           component: () => import('@/views/service/ChatInbox.vue'),
@@ -353,6 +368,11 @@ export const router = createRouter({
           path: 'service-dashboard',
           name: 'service-dashboard',
           component: () => import('@/views/service/ServiceDashboard.vue'),
+        },
+        {
+          path: 'agent-dashboard',
+          name: 'agent-dashboard',
+          component: () => import('@/views/service/AgentDashboard.vue'),
         },
         {
           path: 'kb',

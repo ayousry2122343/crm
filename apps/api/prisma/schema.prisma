@@ -99,6 +99,12 @@ model Workspace {
   channelMessages         ChannelMessage[]
   whatsAppTemplates       WhatsAppTemplate[]
   conversations           Conversation[]
+  agentConfigs            AgentConfig[]
+  agentSessions           AgentSession[]
+  calendarAccounts        CalendarAccount[]
+  calendarEvents          CalendarEvent[]
+  bookingPages            BookingPage[]
+  bookings                Booking[]
 
   @@index([slug])
 }
@@ -467,6 +473,8 @@ model Person {
   satisfactionRatings     SatisfactionRating[] @relation("SatisfactionContact")
   channelMessages         ChannelMessage[] @relation("PersonChannelMessages")
   conversations           Conversation[] @relation("PersonConversations")
+  calendarEvents          CalendarEvent[] @relation("PersonCalendarEvents")
+  bookings                Booking[] @relation("PersonBookings")
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -2174,4 +2182,196 @@ model Conversation {
 
   @@index([workspaceId, assigneeId, status])
   @@index([workspaceId, status, lastMessageAt])
+}
+
+// --- Sprint 39: AI Service Agent ---
+
+enum AgentType {
+  SERVICE
+  SALES
+}
+
+enum AgentSessionStatus {
+  ACTIVE
+  ESCALATED
+  RESOLVED
+  FAILED
+}
+
+model AgentConfig {
+  id                        String    @id @default(cuid())
+  workspaceId               String
+  workspace                 Workspace @relation(fields: [workspaceId], references: [id])
+  name                      String
+  type                      AgentType
+  provider                  String
+  model                     String
+  systemPrompt              String    @db.Text
+  tools                     Json
+  enabled                   Boolean   @default(false)
+  queueIds                  String[]
+  maxTurnsBeforeEscalation  Int       @default(5)
+  confidenceThreshold       Float     @default(0.7)
+  responseLanguage          String    @default("auto")
+  createdById               String
+  createdAt                 DateTime  @default(now())
+  updatedAt                 DateTime  @updatedAt
+
+  sessions  AgentSession[]
+
+  @@index([workspaceId, enabled])
+}
+
+model AgentSession {
+  id               String             @id @default(cuid())
+  workspaceId      String
+  workspace        Workspace          @relation(fields: [workspaceId], references: [id])
+  agentConfigId    String
+  agentConfig      AgentConfig        @relation(fields: [agentConfigId], references: [id])
+  conversationId   String?
+  ticketId         String?
+  status           AgentSessionStatus @default(ACTIVE)
+  turns            Json               @default("[]")
+  resolution       String?
+  escalationReason String?
+  tokensUsed       Int                @default(0)
+  resolvedAt       DateTime?
+  escalatedAt      DateTime?
+  createdAt        DateTime           @default(now())
+
+  @@index([workspaceId, agentConfigId])
+  @@index([workspaceId, status])
+}
+
+// --- Sprint 40: Calendar Sync ---
+
+enum CalendarProvider {
+  GOOGLE
+  MICROSOFT
+}
+
+enum CalendarSyncState {
+  IDLE
+  SYNCING
+  ERROR
+}
+
+enum SyncDirection {
+  IN
+  OUT
+  BOTH
+}
+
+model CalendarAccount {
+  id            String            @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace         @relation(fields: [workspaceId], references: [id])
+  userId        String
+  provider      CalendarProvider
+  emailAddress  String
+  credentials   Json
+  calendarId    String
+  syncEnabled   Boolean           @default(true)
+  syncDirection SyncDirection     @default(BOTH)
+  lastSyncAt    DateTime?
+  syncState     CalendarSyncState @default(IDLE)
+  errorMessage  String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  events        CalendarEvent[]
+
+  @@index([workspaceId, userId])
+}
+
+model CalendarEvent {
+  id                String          @id @default(cuid())
+  workspaceId       String
+  workspace         Workspace       @relation(fields: [workspaceId], references: [id])
+  calendarAccountId String
+  calendarAccount   CalendarAccount @relation(fields: [calendarAccountId], references: [id])
+  externalId        String
+  title             String
+  description       String?         @db.Text
+  startAt           DateTime
+  endAt             DateTime
+  location          String?
+  attendees         Json            @default("[]")
+  activityId        String?         @unique
+  personId          String?
+  person            Person?         @relation("PersonCalendarEvents", fields: [personId], references: [id])
+  dealId            String?
+  syncDirection     SyncDirection
+  lastSyncedAt      DateTime
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  @@unique([calendarAccountId, externalId])
+  @@index([workspaceId, calendarAccountId])
+}
+
+// --- Sprint 41: Meeting Scheduler ---
+
+enum BookingStatus {
+  CONFIRMED
+  CANCELED
+  RESCHEDULED
+  COMPLETED
+  NO_SHOW
+}
+
+model BookingPage {
+  id               String    @id @default(cuid())
+  workspaceId      String
+  workspace        Workspace @relation(fields: [workspaceId], references: [id])
+  userId           String
+  slug             String    @unique
+  title            String
+  description      String?   @db.Text
+  duration         Int
+  availability     Json
+  timezone         String    @default("Africa/Cairo")
+  bufferBefore     Int       @default(0)
+  bufferAfter      Int       @default(0)
+  maxPerDay        Int?
+  queueId          String?
+  brandingOverride Json?
+  confirmationEmail Boolean  @default(true)
+  reminderMinutes  Int[]     @default([60, 1440])
+  isActive         Boolean   @default(true)
+  createdById      String
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  bookings         Booking[]
+
+  @@index([workspaceId, isActive])
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace     @relation(fields: [workspaceId], references: [id])
+  bookingPageId   String
+  bookingPage     BookingPage   @relation(fields: [bookingPageId], references: [id])
+  hostUserId      String
+  guestName       String
+  guestEmail      String
+  guestPhone      String?
+  startAt         DateTime
+  endAt           DateTime
+  status          BookingStatus @default(CONFIRMED)
+  calendarEventId String?
+  activityId      String?
+  personId        String?
+  person          Person?       @relation("PersonBookings", fields: [personId], references: [id])
+  notes           String?       @db.Text
+  cancelToken     String        @unique
+  canceledAt      DateTime?
+  rescheduledTo   String?
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([workspaceId, bookingPageId, startAt])
+  @@index([cancelToken])
 }

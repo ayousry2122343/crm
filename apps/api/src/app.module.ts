@@ -61,6 +61,9 @@ import { SavedReportModule } from './reports/saved-reports/saved-report.module';
 import { BrandingModule } from './core/branding/branding.module';
 import { ChannelModule } from './integrations/channels/channel.module';
 import { ConversationModule } from './crm/conversations/conversation.module';
+import { AgentModule } from './ai/agent/agent.module';
+import { CalendarModule } from './integrations/calendar/calendar.module';
+import { SchedulerModule } from './integrations/scheduler/scheduler.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -142,6 +145,9 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     BrandingModule,
     ChannelModule,
     ConversationModule,
+    AgentModule,
+    CalendarModule,
+    SchedulerModule,
     HealthModule,
   ],
   providers: [

@@ -109,6 +109,9 @@ async function handleLogout() {
         <router-link to="/service-dashboard" class="nav-link" data-test="nav-service-dashboard">
           <i class="pi pi-chart-bar mr-2" />{{ t('nav.serviceDashboard') }}
         </router-link>
+        <router-link to="/agent-dashboard" class="nav-link" data-test="nav-agent-dashboard">
+          <i class="pi pi-android mr-2" />{{ t('nav.agentDashboard') }}
+        </router-link>
         <div class="mt-4 mb-2 text-xs text-slate-400 uppercase tracking-wider">
           {{ t('nav.automationGroup') }}
         </div>
@@ -184,6 +187,15 @@ async function handleLogout() {
         </router-link>
         <router-link to="/settings/email-to-case" class="nav-link" data-test="nav-email-to-case">
           <i class="pi pi-envelope mr-2" />{{ t('nav.emailToCase') }}
+        </router-link>
+        <router-link to="/settings/agent" class="nav-link" data-test="nav-agent-settings">
+          <i class="pi pi-android mr-2" />{{ t('nav.agentSettings') }}
+        </router-link>
+        <router-link to="/settings/calendar-accounts" class="nav-link" data-test="nav-calendar-accounts">
+          <i class="pi pi-calendar-plus mr-2" />{{ t('nav.calendarAccounts') }}
+        </router-link>
+        <router-link to="/settings/booking-pages" class="nav-link" data-test="nav-booking-pages">
+          <i class="pi pi-calendar-clock mr-2" />{{ t('nav.bookingPages') }}
         </router-link>
         <router-link to="/settings/branding" class="nav-link" data-test="nav-branding">
           <i class="pi pi-palette mr-2" />{{ t('nav.branding') }}

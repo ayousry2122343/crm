@@ -53,7 +53,11 @@
     "savedReports": "Report Builder",
     "branding": "Branding",
     "channels": "Channels",
-    "conversations": "Inbox"
+    "conversations": "Inbox",
+    "agentSettings": "AI Agent",
+    "agentDashboard": "AI Dashboard",
+    "calendarAccounts": "Calendar Sync",
+    "bookingPages": "Meeting Scheduler"
   },
   "auth": {
     "fields": {
@@ -1130,5 +1134,53 @@
     "assign": "Assign",
     "merge": "Merge",
     "inbox": "Inbox"
+  },
+  "agent": {
+    "title": "AI Agent Settings",
+    "createAgent": "Create Agent",
+    "name": "Agent Name",
+    "type": "Agent Type",
+    "provider": "AI Provider",
+    "model": "Model",
+    "systemPrompt": "System Prompt",
+    "maxTurns": "Max Turns Before Escalation",
+    "confidenceThreshold": "Confidence Threshold",
+    "dashboard": "AI Agent Dashboard",
+    "totalSessions": "Total Sessions",
+    "activeSessions": "Active Sessions",
+    "resolvedSessions": "Resolved Sessions",
+    "escalatedSessions": "Escalated Sessions",
+    "resolutionRate": "Resolution Rate",
+    "escalationRate": "Escalation Rate",
+    "handledByAI": "Handled by AI"
+  },
+  "calendar": {
+    "title": "Calendar Accounts",
+    "connectGoogle": "Connect Google Calendar",
+    "connectMicrosoft": "Connect Microsoft Calendar",
+    "syncStatus": "Sync Status",
+    "lastSync": "Last Sync",
+    "syncNow": "Sync Now",
+    "direction": "Sync Direction",
+    "inbound": "Inbound Only",
+    "outbound": "Outbound Only",
+    "both": "Bidirectional",
+    "synced": "Synced"
+  },
+  "scheduler": {
+    "title": "Booking Pages",
+    "createPage": "Create Booking Page",
+    "slug": "URL Slug",
+    "duration": "Duration (minutes)",
+    "availability": "Availability",
+    "timezone": "Timezone",
+    "buffer": "Buffer Time",
+    "maxPerDay": "Max Bookings Per Day",
+    "copyLink": "Copy Link",
+    "embedSnippet": "Embed Snippet",
+    "confirmed": "Confirmed",
+    "canceled": "Canceled",
+    "rescheduled": "Rescheduled",
+    "noShow": "No Show"
   }
 }
