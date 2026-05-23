@@ -9,6 +9,7 @@ import { TenantContextService } from '../../core/tenant/tenant-context.service';
 import { AuditService } from '../../core/audit/audit.service';
 import { NotificationService } from '../../notifications/notification.service';
 import { TwilioAdapter } from './adapters/twilio.adapter';
+import { TwilioWhatsAppAdapter } from './adapters/twilio-whatsapp.adapter';
 import type { IChannelAdapter, ParsedMessage } from './channel-adapter.interface';
 import type { CreateChannelConfigDto, UpdateChannelConfigDto } from './dto/create-channel-config.dto';
 import type { SendMessageDto } from './dto/send-message.dto';
@@ -24,9 +25,11 @@ export class ChannelService {
     private readonly audit: AuditService,
     private readonly notification: NotificationService,
     private readonly twilioAdapter: TwilioAdapter,
+    private readonly twilioWhatsAppAdapter: TwilioWhatsAppAdapter,
   ) {
     this.adapters = {
       TWILIO: this.twilioAdapter,
+      WHATSAPP_CLOUD: this.twilioWhatsAppAdapter,
     };
   }
 

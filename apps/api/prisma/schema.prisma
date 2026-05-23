@@ -97,6 +97,7 @@ model Workspace {
   emailEvents             EmailEvent[]
   channelConfigs          ChannelConfig[]
   channelMessages         ChannelMessage[]
+  whatsAppTemplates       WhatsAppTemplate[]
 
   @@index([slug])
 }
@@ -2072,7 +2073,8 @@ model ChannelConfig {
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
 
-  messages      ChannelMessage[]
+  messages           ChannelMessage[]
+  whatsAppTemplates  WhatsAppTemplate[]
 
   @@index([workspaceId, isActive])
 }
@@ -2100,4 +2102,31 @@ model ChannelMessage {
 
   @@index([workspaceId, personId])
   @@index([workspaceId, channelConfigId, createdAt])
+}
+
+// --- Sprint 37: WhatsApp Business ---
+
+enum TemplateStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model WhatsAppTemplate {
+  id              String         @id @default(cuid())
+  workspaceId     String
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id])
+  channelConfigId String
+  channelConfig   ChannelConfig  @relation(fields: [channelConfigId], references: [id])
+  name            String
+  language        String
+  category        String
+  components      Json
+  status          TemplateStatus @default(PENDING)
+  externalId      String?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+
+  @@unique([workspaceId, channelConfigId, name, language])
+  @@index([workspaceId, channelConfigId])
 }

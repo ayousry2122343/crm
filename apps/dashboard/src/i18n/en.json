@@ -1105,5 +1105,17 @@
     "typeMessage": "Type a message...",
     "sendSMS": "Send SMS",
     "messagesTab": "Messages"
+  },
+  "whatsapp": {
+    "templates": "WhatsApp Templates",
+    "syncTemplates": "Sync Templates",
+    "templateName": "Template Name",
+    "language": "Language",
+    "category": "Category",
+    "preview": "Preview",
+    "sessionActive": "Session Active",
+    "templateOnly": "Template Only",
+    "sendTemplate": "Send Template",
+    "variables": "Variables"
   }
 }

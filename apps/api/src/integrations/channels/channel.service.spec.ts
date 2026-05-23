@@ -47,14 +47,16 @@ function buildSvc() {
   const audit = makeAudit();
   const notification = makeNotification();
   const twilioAdapter = makeTwilioAdapter();
+  const whatsAppAdapter = makeTwilioAdapter();
   const svc = new ChannelService(
     prisma as any,
     tenant,
     audit as any,
     notification as any,
     twilioAdapter as any,
+    whatsAppAdapter as any,
   );
-  return { svc, tenant, prisma, audit, notification, twilioAdapter };
+  return { svc, tenant, prisma, audit, notification, twilioAdapter, whatsAppAdapter };
 }
 
 const ctx = (workspaceId = 'ws_1', userId = 'u_1') => ({

@@ -1105,5 +1105,17 @@
     "typeMessage": "اكتب رسالة...",
     "sendSMS": "إرسال SMS",
     "messagesTab": "الرسائل"
+  },
+  "whatsapp": {
+    "templates": "قوالب واتساب",
+    "syncTemplates": "مزامنة القوالب",
+    "templateName": "اسم القالب",
+    "language": "اللغة",
+    "category": "التصنيف",
+    "preview": "معاينة",
+    "sessionActive": "جلسة نشطة",
+    "templateOnly": "قالب فقط",
+    "sendTemplate": "إرسال قالب",
+    "variables": "المتغيرات"
   }
 }
