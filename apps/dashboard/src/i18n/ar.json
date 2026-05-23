@@ -52,7 +52,8 @@
     "currency": "العملات",
     "savedReports": "منشئ التقارير",
     "branding": "الهوية البصرية",
-    "channels": "القنوات"
+    "channels": "القنوات",
+    "conversations": "صندوق الوارد"
   },
   "auth": {
     "fields": {
@@ -1117,5 +1118,17 @@
     "templateOnly": "قالب فقط",
     "sendTemplate": "إرسال قالب",
     "variables": "المتغيرات"
+  },
+  "conversations": {
+    "title": "المحادثات",
+    "noConversations": "لا توجد محادثات",
+    "unknown": "جهة اتصال غير معروفة",
+    "selectConversation": "اختر محادثة لعرض الرسائل",
+    "typeReply": "اكتب ردك...",
+    "close": "إغلاق",
+    "snooze": "تأجيل",
+    "assign": "تعيين",
+    "merge": "دمج",
+    "inbox": "صندوق الوارد"
   }
 }

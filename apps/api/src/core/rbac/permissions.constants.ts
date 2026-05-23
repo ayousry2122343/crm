@@ -112,6 +112,9 @@ export const PERMISSIONS = {
   CHANNEL_WRITE: 'channel:write',
   CHANNEL_DELETE: 'channel:delete',
   CHANNEL_SEND: 'channel:send',
+  CONVERSATION_READ: 'conversation:read',
+  CONVERSATION_WRITE: 'conversation:write',
+  CONVERSATION_ASSIGN: 'conversation:assign',
 } as const;
 
 export type PermissionKey = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];

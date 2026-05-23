@@ -98,6 +98,7 @@ model Workspace {
   channelConfigs          ChannelConfig[]
   channelMessages         ChannelMessage[]
   whatsAppTemplates       WhatsAppTemplate[]
+  conversations           Conversation[]
 
   @@index([slug])
 }
@@ -465,6 +466,7 @@ model Person {
   ticketsAsCompany        Ticket[] @relation("TicketCompany")
   satisfactionRatings     SatisfactionRating[] @relation("SatisfactionContact")
   channelMessages         ChannelMessage[] @relation("PersonChannelMessages")
+  conversations           Conversation[] @relation("PersonConversations")
 
   @@index([workspaceId, emailNormalized])
   @@index([workspaceId, phoneNormalized])
@@ -2129,4 +2131,47 @@ model WhatsAppTemplate {
 
   @@unique([workspaceId, channelConfigId, name, language])
   @@index([workspaceId, channelConfigId])
+}
+
+// --- Sprint 38: Omni-Channel Inbox ---
+
+enum ConversationChannel {
+  EMAIL
+  CHAT
+  WHATSAPP
+  SMS
+  WEB_FORM
+  PHONE
+}
+
+enum ConversationStatus {
+  OPEN
+  PENDING
+  SNOOZED
+  CLOSED
+}
+
+model Conversation {
+  id            String              @id @default(cuid())
+  workspaceId   String
+  workspace     Workspace           @relation(fields: [workspaceId], references: [id])
+  personId      String?
+  person        Person?             @relation("PersonConversations", fields: [personId], references: [id])
+  channelType   ConversationChannel
+  subject       String?
+  status        ConversationStatus  @default(OPEN)
+  assigneeId    String?
+  queueId       String?
+  priority      TicketPriority?
+  snoozedUntil  DateTime?
+  lastMessageAt DateTime            @default(now())
+  unreadCount   Int                 @default(0)
+  metadata      Json                @default("{}")
+  ticketId      String?
+  chatSessionId String?
+  createdAt     DateTime            @default(now())
+  updatedAt     DateTime            @updatedAt
+
+  @@index([workspaceId, assigneeId, status])
+  @@index([workspaceId, status, lastMessageAt])
 }

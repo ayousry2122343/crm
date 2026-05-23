@@ -92,6 +92,11 @@ export const router = createRouter({
           component: () => import('@/views/settings/ChannelSettings.vue'),
         },
         {
+          path: 'conversations',
+          name: 'conversations',
+          component: () => import('@/views/conversations/ConversationsInbox.vue'),
+        },
+        {
           path: 'settings/custom-fields',
           name: 'settings-custom-fields',
           component: () => import('@/views/settings/CustomFields.vue'),

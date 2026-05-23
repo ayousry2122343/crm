@@ -60,6 +60,7 @@ import { CurrencyModule } from './core/currency/currency.module';
 import { SavedReportModule } from './reports/saved-reports/saved-report.module';
 import { BrandingModule } from './core/branding/branding.module';
 import { ChannelModule } from './integrations/channels/channel.module';
+import { ConversationModule } from './crm/conversations/conversation.module';
 import { JwtAuthGuard } from './core/auth/jwt.guard';
 import { TenantInterceptor } from './core/tenant/tenant.interceptor';
 
@@ -140,6 +141,7 @@ import { TenantInterceptor } from './core/tenant/tenant.interceptor';
     SavedReportModule,
     BrandingModule,
     ChannelModule,
+    ConversationModule,
     HealthModule,
   ],
   providers: [

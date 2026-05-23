@@ -52,7 +52,8 @@
     "currency": "Currency",
     "savedReports": "Report Builder",
     "branding": "Branding",
-    "channels": "Channels"
+    "channels": "Channels",
+    "conversations": "Inbox"
   },
   "auth": {
     "fields": {
@@ -1117,5 +1118,17 @@
     "templateOnly": "Template Only",
     "sendTemplate": "Send Template",
     "variables": "Variables"
+  },
+  "conversations": {
+    "title": "Conversations",
+    "noConversations": "No conversations",
+    "unknown": "Unknown Contact",
+    "selectConversation": "Select a conversation to view messages",
+    "typeReply": "Type your reply...",
+    "close": "Close",
+    "snooze": "Snooze",
+    "assign": "Assign",
+    "merge": "Merge",
+    "inbox": "Inbox"
   }
 }

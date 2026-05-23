@@ -191,6 +191,9 @@ async function handleLogout() {
         <router-link to="/settings/channels" class="nav-link" data-test="nav-channels">
           <i class="pi pi-comments mr-2" />{{ t('nav.channels') }}
         </router-link>
+        <router-link to="/conversations" class="nav-link" data-test="nav-conversations">
+          <i class="pi pi-inbox mr-2" />{{ t('nav.conversations') }}
+        </router-link>
       </nav>
     </aside>
     <main class="flex-1 min-w-0">
